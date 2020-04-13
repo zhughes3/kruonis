@@ -1,0 +1,159 @@
+body {
+    margin: 0;
+    font-family: Nunito;
+    font-style: normal;
+    font-weight: normal;
+}
+
+.home-left-side {
+    position: absolute;
+    top: 110px;
+    left: 110px;
+}
+
+.home-right-side {
+    position: absolute;
+    left: 60vw;
+    top: 193.76px;
+}
+
+.home_blue_stain {
+    position: absolute;
+    width: 70vw;
+    height: 65vh;
+    top: 0px;
+}
+
+.home_intro_text {
+    font-size: 52px;
+    line-height: 23px;
+    /* or 44% */
+
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.025em;
+}
+
+.create-timeline-form {
+    margin-top: 38vh;
+}
+
+.home-form-text {
+    font-size: 21px;
+    line-height: 23px;
+    /* or 110% */
+
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.025em;
+}
+
+.home-form-input {
+    background: #FFFFFF;
+    border: 2px solid #3362DB;
+    box-sizing: border-box;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+    width: 439px;
+
+    font-size: 18px;
+    line-height: 25px;
+    letter-spacing: 0.025em;
+    padding: 11px;
+}
+
+.home-form-button {
+    background: #2251CA;
+    border: none;
+    border-radius: 5px;
+    width: 439px;
+    height: 52px;
+
+    font-size: 21px;
+    line-height: 23px;
+    /* or 110% */
+
+    display: flex;
+    align-self: center;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.025em;
+
+    color: #FFFFFF;
+}
+
+.home-subheader {
+    font-size: 37px;
+    /* or 62% */
+    letter-spacing: 0.025em;
+
+    color: #000000;
+}
+
+.home-right-text {
+    margin-top: 12px;
+    margin-left: 2px;
+    font-size: 16px;
+    line-height: 23px;
+    max-width: 502px;
+    /* or 144% */
+
+    letter-spacing: 0.025em;
+
+    color: #000000;
+}
+
+.color-white {
+    color: #FFFFFF;
+}
+
+.mt-17 {
+    margin-top: 17px;
+}
+
+.mt-36 {
+    margin-top: 36px;
+}
+
+@media only screen and (max-width: 1393px) {
+    .right-side {
+       left: 50vw;
+    }
+
+}
+
+@media only screen and (max-width: 1000px) {
+
+    .home-left-side {
+        position: relative;
+        top: 0px;
+        left: 0px;
+    }
+
+    .home_intro_text {
+        margin-top: 10vh;
+        margin-left: 20px;
+        margin-right: 20px;
+
+        /* font-size: 28px; */
+        line-height: 102%;
+    }
+
+    .home-subheader {
+        font-size: 32px;
+    }
+
+}
+
+@media only screen and (max-width: 800px) {
+    .home_blue_stain {
+        background-color: #3362DB;
+        width: 100vw;
+        height: 40vh;
+    }
+
+    .home-subheader {
+        display: none;
+    }
+
+}
