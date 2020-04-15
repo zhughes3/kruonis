@@ -2,6 +2,9 @@ package main
 
 import (
 	"net"
+	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/viper"
 )
@@ -38,6 +41,12 @@ func main() {
 	s := NewServer(sCfg, conn, db)
 
 	s.Start()
+}
+
+func initLogging() {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.InfoLevel)
 }
 
 func getServerConfig(cfg *viper.Viper) *serverConfig {

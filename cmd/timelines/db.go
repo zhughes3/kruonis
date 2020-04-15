@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	_ "github.com/lib/pq"
 
 	"github.com/golang/protobuf/ptypes"
@@ -26,7 +28,12 @@ func NewDB(cfg *dbConfig) *sql.DB {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Connected to database.")
+	log.WithFields(log.Fields{
+		"User": cfg.user,
+		"Host": cfg.host,
+		"Port": cfg.port,
+		"Name": cfg.name,
+	}).Info("Connected to database")
 	return db
 }
 
@@ -37,7 +44,7 @@ func (db *db) insertTimelineGroup(title string) (*models.TimelineGroup, error) {
 
 	err := db.db.QueryRow(sql, title).Scan(&id, &createdAt, &updatedAt)
 	if err != nil {
-		fmt.Println("Error writing timeline group to DB")
+		log.Error("Error writing timeline group to DB")
 		return nil, err
 	}
 
@@ -60,7 +67,7 @@ func (db *db) insertTimeline(gid uint64, title string) (*models.Timeline, error)
 
 	err := db.db.QueryRow(sql, gid, title).Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &createdAt, &updatedAt)
 	if err != nil {
-		fmt.Println("Error writing timeline to DB")
+		log.Error("Error writing timeline to DB")
 		return nil, err
 	}
 
@@ -84,7 +91,7 @@ func (db *db) insertTimelineEvent(tid uint64, title, description, content string
 	t, _ := convertTimestamp(timestamp)
 	err := db.db.QueryRow(sql, tid, title, t, description, content).Scan(&id, &createdAt, &updatedAt)
 	if err != nil {
-		fmt.Println("Error writing timeline event to DB")
+		log.Error("Error writing timeline event to DB")
 		return nil, err
 	}
 
@@ -110,7 +117,7 @@ func (db *db) insertTag(tag string, tid uint64) (uint64, error) {
 
 	err := db.db.QueryRow(sql, tag, tid).Scan(&id)
 	if err != nil {
-		fmt.Println("Error writing tag to DB")
+		log.Error("Error writing tag to DB")
 		return 0, err
 	}
 
@@ -127,7 +134,7 @@ func (db *db) readTimelineGroup(id uint64) (*models.TimelineGroup, error) {
 	sql := `SELECT * from groups WHERE id = $1;`
 	err := db.db.QueryRow(sql, id).Scan(&tg.Id, &tg.Title, &createdAt, &updatedAt)
 	if err != nil {
-		fmt.Println("Error reading timeline group from db")
+		log.Error("Error reading timeline group from db")
 		return nil, err
 	}
 
@@ -152,7 +159,7 @@ func (db *db) readTimelinesWithGroupID(gid uint64) ([]*models.Timeline, error) {
 	sql := `SELECT id, title, created_at, updated_at from timelines WHERE group_id = $1;`
 	rows, err := db.db.Query(sql, gid)
 	if err != nil {
-		fmt.Println("Error reading timelines with group_id from db")
+		log.Error("Error reading timelines with group_id from db")
 		return nil, err
 	}
 
@@ -164,7 +171,7 @@ func (db *db) readTimelinesWithGroupID(gid uint64) ([]*models.Timeline, error) {
 
 		err := rows.Scan(&timeline.Id, &timeline.Title, createdAt, updatedAt)
 		if err != nil {
-			fmt.Println("Error scanning timeline")
+			log.Error("Error scanning timeline")
 			return nil, err
 		}
 
@@ -190,7 +197,7 @@ func (db *db) readTagsWithTimelineID(tid uint64) ([]string, error) {
 	sql := `SELECT tag FROM tags WHERE timeline_id = $1;`
 	rows, err := db.db.Query(sql, tid)
 	if err != nil {
-		fmt.Println("Error reading tags with timeline_id from db")
+		log.Error("Error reading tags with timeline_id from db")
 		return nil, err
 	}
 
@@ -199,7 +206,7 @@ func (db *db) readTagsWithTimelineID(tid uint64) ([]string, error) {
 		var tag string
 		err := rows.Scan(&tag)
 		if err != nil {
-			fmt.Println("Error scanning tag from db")
+			log.Error("Error scanning tag from db")
 			return nil, err
 		}
 		tags = append(tags, tag)
@@ -216,7 +223,7 @@ func (db *db) readTimeline(id uint64) (*models.Timeline, error) {
 
 	err := db.db.QueryRow(sql, id).Scan(&timeline.Id, &timeline.Title, &createdAt, &updatedAt)
 	if err != nil {
-		fmt.Println("Error reading timeline from db")
+		log.Error("Error reading timeline from db")
 		return nil, err
 	}
 
@@ -242,7 +249,7 @@ func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
 	err := db.db.QueryRow(sql, id).Scan(&timelineEvent.Id, &timelineEvent.Title, timestamp, &timelineEvent.Description,
 		&timelineEvent.Content, createdAt, updatedAt)
 	if err != nil {
-		fmt.Println("Error reading timeline event from db")
+		log.Error("Error reading timeline event from db")
 		return nil, err
 	}
 
@@ -263,7 +270,7 @@ func (db *db) deleteTimelineGroup(id uint64) error {
 	sql := `DELETE FROM groups WHERE id = $1;`
 	_, err := db.db.Query(sql, id)
 	if err != nil {
-		fmt.Println("Error deleting group from DB")
+		log.Error("Error deleting group from DB")
 		return err
 	}
 	return nil
@@ -272,7 +279,7 @@ func (db *db) deleteTimeline(id uint64) error {
 	sql := `DELETE FROM timelines WHERE id = $1;`
 	_, err := db.db.Query(sql, id)
 	if err != nil {
-		fmt.Println("Error deleting timeline from DB")
+		log.Error("Error deleting timeline from DB")
 		return err
 	}
 	return nil
@@ -281,7 +288,7 @@ func (db *db) deleteTimelineEvent(id uint64) error {
 	sql := `DELETE FROM events WHERE id = $1;`
 	_, err := db.db.Query(sql, id)
 	if err != nil {
-		fmt.Println("Error deleting event from DB")
+		log.Error("Error deleting event from DB")
 		return err
 	}
 	return nil
@@ -290,7 +297,7 @@ func (db *db) deleteTag(id uint64) error {
 	sql := `DELETE FROM tags WHERE id = $1;`
 	_, err := db.db.Query(sql, id)
 	if err != nil {
-		fmt.Println("Error deleting tags from DB")
+		log.Error("Error deleting tags from DB")
 		return err
 	}
 	return nil
@@ -299,7 +306,7 @@ func (db *db) deleteTag(id uint64) error {
 func convertTimestamp(t *timestamp.Timestamp) (time.Time, error) {
 	ti, err := ptypes.Timestamp(t)
 	if err != nil {
-		fmt.Println("Error converting *timestamp.Timestamp to time.Time")
+		log.Error("Error converting *timestamp.Timestamp to time.Time")
 		return time.Time{}, err
 	}
 
@@ -308,7 +315,7 @@ func convertTimestamp(t *timestamp.Timestamp) (time.Time, error) {
 func convertTime(t time.Time) (*timestamp.Timestamp, error) {
 	ts, err := ptypes.TimestampProto(t)
 	if err != nil {
-		fmt.Println("Error converting time.Time to timestamp.Timestamp")
+		log.Error("Error converting time.Time to *timestamp.Timestamp")
 		return nil, err
 	}
 	return ts, nil
