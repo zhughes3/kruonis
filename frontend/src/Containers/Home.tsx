@@ -13,6 +13,7 @@ let timelineCompareName: string = '';
 export const Home: React.FunctionComponent<IRouterProps> = (props) => {
 
     const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
     const handleSubmit = async (e: FormEvent): Promise<void> => {
         e.preventDefault();
@@ -38,6 +39,7 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
         }
         catch(e) {
             console.log(e);
+            setError('Woops, something went wrong!');
             setLoading(false);
         }
     }
@@ -63,6 +65,8 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
 
                     <button className="home-form-button mt-36 animated fadeInUp"><span style={{ marginLeft: loading ? '28%' : '39%' }}>{loading ? "Creating timeline" : "Let's start!"} {loading && <Spinner />}</span></button>
                 </form>
+
+                { error && <div className="mt-10 pb-10 color-error font-size-18">{error}</div> }
             </div>
 
             <div className="home-right-side">
