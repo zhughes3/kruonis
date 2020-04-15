@@ -9,16 +9,13 @@ interface IHappeningProps {
 export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
 
     return (
-        <div style={{display: 'flex', width: 300, alignItems: 'center', justifyContent: 'center'}}>
-            
-            <div>
-                <div>{props.happening.title}</div>
-                <div>{props.happening.description}</div>
-            </div>
-            
-            <div>
+        <li className="steps-segment">
+            <span className="steps-marker"></span>
+            <div className="steps-content">
                 <HappeningDate timestamp={props.happening.timestamp} />
+                <p className="is-size-4">{props.happening.title}</p>
+                <p>{props.happening.description}</p>
             </div>
-        </div>
+        </li>
     );
 }
