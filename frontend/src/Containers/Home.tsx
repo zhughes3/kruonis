@@ -1,33 +1,49 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { IRouterProps } from '../Interfaces/IRouterProps';
 import isAlphanumeric from 'validator/lib/isAlphanumeric';
 
 import home_blue_stain from './../Assets/home_blue_stain.svg';
+import { createTimeline, createGroupedTimelines } from '../Http/Requests';
+import { ITimeline } from '../Interfaces/ITimeline';
+import { Spinner } from '../Components/Spinner';
 
 let timelineName: string = '';
 let timelineCompareName: string = '';
 
 export const Home: React.FunctionComponent<IRouterProps> = (props) => {
 
+    const [loading, setLoading] = useState<boolean>(false);
+
     const handleSubmit = async (e: FormEvent): Promise<void> => {
         e.preventDefault();
 
-        // Check if we have a name, remove the spaces from name so we can check if it contains of legal characters.
+        // Check if we have a name, remove the spaces from name so we can check if it contains illegal characters.
         if (!timelineName || !legalName(timelineName) || (timelineCompareName && !legalName(timelineCompareName))) {
             return;
         }
 
-        const timeline = await createTimeline(timelineName, timelineCompareName);
+        let createResult: ITimeline | ITimeline[];
 
-        props.history.push(`timeline/${timeline.id}`);
+        try {
+
+            setLoading(true);
+
+            if (!timelineCompareName) {
+                createResult = await createTimeline({title: timelineName, tags: []});
+                props.history.push(`timeline/${createResult.id}`);
+            } else {
+                createResult = await createGroupedTimelines({title: timelineName, tags: []}, {title: timelineCompareName, tags: []});
+                props.history.push(`timeline/${createResult[0].group_id}`);
+            }
+        }
+        catch(e) {
+            console.log(e);
+            setLoading(false);
+        }
     }
 
     const legalName = (name: string): boolean => {
         return isAlphanumeric(name.split(" ").join(''))
-    }
-
-    const createTimeline = async (timelineName: string, timelineCompareName: string): Promise<any> => {
-
     }
 
     return (
@@ -45,7 +61,7 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
                     <div className="home-form-text mt-36 animated fadeInUp">( Optional ) Compare your timeline to:</div>
                     <input className="home-form-input mt-17 animated fadeInUp" type="text" placeholder="e.g Drake" onChange={(e) => timelineCompareName = e.target.value} />
 
-                    <button className="home-form-button mt-36 animated fadeInUp"><span style={{ marginLeft: '39%' }}>Let's start!</span></button>
+                    <button className="home-form-button mt-36 animated fadeInUp"><span style={{ marginLeft: loading ? '28%' : '39%' }}>{loading ? "Creating timeline" : "Let's start!"} {loading && <Spinner />}</span></button>
                 </form>
             </div>
 

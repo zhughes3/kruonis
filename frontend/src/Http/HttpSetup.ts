@@ -16,6 +16,8 @@ export const httpPost = async (url: string, body: any): Promise<any> => {
     
     let response: Response = await fetch(makeUrl(url), {
         method: 'POST',
+        mode: 'no-cors',
+        credentials: 'omit',
         headers: {
             'Content-Type': 'application/json'
         },
