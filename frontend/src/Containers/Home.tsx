@@ -20,14 +20,14 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
 
         // Check if we have a name, remove the spaces from name so we can check if it contains illegal characters.
         if (!timelineName || !legalName(timelineName) || (timelineCompareName && !legalName(timelineCompareName))) {
-            return;
+            return setError("Don't forget to name your timeline ( Letters and numbers only )!");
         }
-
-        let createResult: ITimeline | ITimeline[];
 
         try {
 
             setLoading(true);
+
+            let createResult: ITimeline | ITimeline[];
 
             if (!timelineCompareName) {
                 createResult = await createTimeline({title: timelineName, tags: []});

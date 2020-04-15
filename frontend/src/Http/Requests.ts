@@ -1,8 +1,8 @@
 import { ITimeline, ITimelineCreate } from "../Interfaces/ITimeline";
 import { httpGet, httpPost } from "./HttpSetup";
 
-export const getTimeline = async (): Promise<ITimeline> => {
-    return httpGet('timelines');
+export const getTimeline = async (id: string): Promise<ITimeline> => {
+    return httpGet('timelines/' + id);
 }
 
 export const createTimeline = async (body: ITimelineCreate): Promise<ITimeline> => {
