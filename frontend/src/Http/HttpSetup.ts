@@ -1,4 +1,4 @@
-const BASE_URL = 'http://timelines.dev/';
+const BASE_URL = 'http://timelines.dev';
 const PORT = '3000';
 const API_BASE = 'v1';
 

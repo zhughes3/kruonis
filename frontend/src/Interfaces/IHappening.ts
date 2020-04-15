@@ -1,4 +1,4 @@
-export interface IEvent {
+export interface IHappening {
     id: string;
     timeline_id: string;
     title: string;
@@ -9,7 +9,7 @@ export interface IEvent {
     updated_at: string;
 }
 
-export interface IEventCreate {
+export interface IHappeningCreate {
     timeline_id: string;
     title: string;
     timestamp: string;
