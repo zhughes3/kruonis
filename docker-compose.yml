@@ -2,7 +2,7 @@ version: '3'
 services:
   app:
     container_name: timelines
-    build: cmd/timelinez/.
+    build: cmd/timelines/.
     ports:
       - 8080:8080
     restart: on-failure
@@ -20,7 +20,7 @@ services:
 
   postgres:
     build:
-      context: cmd/timelinez/.
+      context: cmd/timelines/.
       dockerfile: Dockerfile-Postgres
     container_name: pgsql
     environment:
