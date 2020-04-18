@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IRouterProps } from '../Interfaces/IRouterProps';
-import { IHappening } from '../Interfaces/IHappening';
+import { IHappening, IHappeningCreate } from '../Interfaces/IHappening';
 import { Happening } from '../Components/Happening';
 import { AddHappening } from '../Components/AddHappening';
 
@@ -58,11 +58,10 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
     return (
         <div>
-            The timeline page
 
             <button onClick={() => toggleModal()}>click</button>
 
-            <AddHappening open={open} toggleModal={toggleModal} />
+            <AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => {console.log(newHappening)} } />
 
             <div className="timeline-position">
                 <div className="steps is-vertical is-centered is-small animated fadeInUp">

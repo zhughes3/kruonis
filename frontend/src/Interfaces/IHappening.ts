@@ -10,7 +10,7 @@ export interface IHappening {
 }
 
 export interface IHappeningCreate {
-    timeline_id: string;
+    timeline_id?: string;
     title: string;
     timestamp: string;
     description: string;

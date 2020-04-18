@@ -118,7 +118,7 @@ body {
 }
 
 .happening-description {
-    position: absolute;
+    position: fixed;
     left: 60%;
     max-width: 30%;
     top: 35%;
@@ -219,6 +219,23 @@ body {
 .ml5 {
     margin-left: 50px;
 }
+
+.mt1 {
+    margin-top: 10px;
+}
+.mt2 {
+    margin-top: 20px;
+}
+.mt3 {
+    margin-top: 30px;
+}
+.mt4 {
+    margin-top: 40px;
+}
+.mt5 {
+    margin-top: 50px;
+}
+
 .mt-10 {
     margin-top: 10px;
 }
