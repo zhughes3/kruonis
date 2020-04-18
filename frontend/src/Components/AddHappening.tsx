@@ -1,4 +1,4 @@
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useState } from 'react';
 import { IHappeningCreate } from '../Interfaces/IHappening';
 
 interface IAddHappeningProps {
@@ -14,8 +14,16 @@ let timestamp: string = '';
 
 export const AddHappening: React.FunctionComponent<IAddHappeningProps> = (props) => {
 
+    const [errorMessage, setErrorMessage] = useState<string>('');
+
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
+
+        if (!title || !description || !timestamp) {
+            return setErrorMessage('Please fill in atleast a title, date and short description')
+        }
+
+        setErrorMessage('');
 
         const newHappening: IHappeningCreate = {
             title,
@@ -25,15 +33,26 @@ export const AddHappening: React.FunctionComponent<IAddHappeningProps> = (props)
         }
 
         props.createHappening(newHappening);
+        closeModal();
+    }
+
+    const closeModal = (): void => {
+        // Clear the form and input data.
+        title = ''; description = ''; content = ''; timestamp = '';
+        // @ts-ignore
+        document.getElementById("create-happening-form")?.reset();
+
+        setErrorMessage('');
+        props.toggleModal();
     }
 
     return (
         <div className={`modal ${props.open && 'is-active'}`}>
-            <div className="modal-background" onClick={props.toggleModal} />
+            <div className="modal-background" onClick={() => closeModal()} />
             <div className="modal-content">
                 <div className="box">
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} id="create-happening-form">
                     
                         <div className="field">
                             <div className="title">Add event</div>
@@ -67,13 +86,15 @@ export const AddHappening: React.FunctionComponent<IAddHappeningProps> = (props)
                             </div>
                         </div>
 
+                        { errorMessage && <div className="field color-error font-size-18">{errorMessage}</div> }
+
                         <div className="field">
                             <button className="button is-success">Add event</button>
                         </div>
                     </form>
                 </div>
             </div>
-            <button className="modal-close is-large" aria-label="close" onClick={props.toggleModal} />
+            <button className="modal-close is-large" aria-label="close" onClick={() => closeModal()} />
         </div>
     );
 }

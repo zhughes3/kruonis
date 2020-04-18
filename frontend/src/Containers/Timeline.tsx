@@ -51,9 +51,15 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
     const [open, setOpen] = useState<boolean>(false);
     const [selectedHappening, setSelectedHappening] = useState<IHappening>();
+    const [forceRender, setForceRender] = useState<number>(0);
 
     const toggleModal = (): void => {
         setOpen(!open);
+    }
+
+    const createHappening = (hap: any) => {
+        happening.push(hap);
+        setForceRender( f => f+1);
     }
 
     return (
@@ -61,7 +67,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
             <button onClick={() => toggleModal()}>click</button>
 
-            <AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => {console.log(newHappening)} } />
+            <AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => {createHappening(newHappening)} } />
 
             <div className="timeline-position">
                 <div className="steps is-vertical is-centered is-small animated fadeInUp">
