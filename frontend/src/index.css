@@ -189,6 +189,10 @@ body {
     letter-spacing: 0.025em;
 }
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
 .color-white {
     color: #FFFFFF;
 }

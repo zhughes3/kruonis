@@ -67,15 +67,19 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
                 <div className="steps is-vertical is-centered is-small animated fadeInUp">
 
                     {happening.map((happening: IHappening) => {
-                        return <Happening className="pb-70" key={happening.id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
+                        return <Happening className="pb-70 cursor-pointer" key={happening.id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
                     })}
 
                 </div>
             </div>
 
             <div className="happening-description">
-                <div className="happening-info-title">{selectedHappening?.title}</div>
-                <div className="mt-10">{selectedHappening?.content}</div>
+                {selectedHappening &&
+                    <div className="animated fadeInRight fast">
+                        <div className="happening-info-title">{selectedHappening?.title}</div>
+                        <div className="mt-10">{selectedHappening?.content}</div>
+                    </div>
+                }
             </div>
 
         </div>
