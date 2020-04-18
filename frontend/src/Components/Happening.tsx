@@ -5,12 +5,14 @@ import { HappeningDate } from './HappeningDate';
 interface IHappeningProps {
     happening: IHappening;
     className?: string;
+
+    selectHappening: (happening: IHappening) => void;
 }
 
 export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
 
     return (
-        <div id={props.happening.id} className={`steps-segment ${props.className && props.className}`}>
+        <div id={props.happening.id} className={`steps-segment ${props.className && props.className}`} onClick={ () => props.selectHappening(props.happening) }>
             
             <span className="steps-marker"></span>
             

@@ -1,6 +1,5 @@
 import React from 'react';
 import moment from 'moment';
-import { Center } from './Center';
 
 interface IHappeningDateProps {
     timestamp: string;

@@ -111,9 +111,16 @@ body {
     top: 35%;
 }
 
-.absolute-center {
+.timeline-position {
     position: absolute;
     left: 20%;
+    top: 35%;
+}
+
+.happening-description {
+    position: absolute;
+    left: 60%;
+    max-width: 30%;
     top: 35%;
 }
 

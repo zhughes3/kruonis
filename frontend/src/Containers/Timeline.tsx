@@ -21,7 +21,7 @@ const happening: IHappening[] = [
         title: 'second event',
         timestamp: '2010-07-25T18:25:43.511Z',
         description: 'This happend second uawowohdnwa u ajwdnwaoddnwaodjn awuodjwanmdowadn wadowandkljwanmdoiwa donawwdnmwadnmmwadnw adwoddnwadidklwamdwa dwaujwalnd wawand wadjkwandjklawndoaw djwaanddjklwand wajwanddlaw nodwanldwa',
-        content: 'This is the second item shown when the event is clicked',
+        content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit blanditiis excepturi quaerat assumenda unde officiis aliquam atque illum voluptatum repudiandae sapiente ratione nulla nobis eaque, omnis, placeat tenetur pariatur! Assumenda!',
         created_at: 'created_at',
         updated_at: 'updated_at',
     },
@@ -50,6 +50,7 @@ const happening: IHappening[] = [
 export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
     const [open, setOpen] = useState<boolean>(false);
+    const [selectedHappening, setSelectedHappening] = useState<IHappening>();
 
     const toggleModal = (): void => {
         setOpen(!open);
@@ -63,14 +64,19 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
             <AddHappening open={open} toggleModal={toggleModal} />
 
-            <div className="absolute-center">
+            <div className="timeline-position">
                 <div className="steps is-vertical is-centered is-small animated fadeInUp">
 
                     {happening.map((happening: IHappening) => {
-                        return <Happening className="pb-70" key={happening.id} happening={happening} />
+                        return <Happening className="pb-70" key={happening.id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
                     })}
 
                 </div>
+            </div>
+
+            <div className="happening-description">
+                <div className="happening-info-title">{selectedHappening?.title}</div>
+                <div className="mt-10">{selectedHappening?.content}</div>
             </div>
 
         </div>
