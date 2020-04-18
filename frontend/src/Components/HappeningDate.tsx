@@ -1,14 +1,20 @@
 import React from 'react';
+import moment from 'moment';
+import { Center } from './Center';
 
 interface IHappeningDateProps {
     timestamp: string;
+    className?: string;
 }
 
 export const HappeningDate: React.FunctionComponent<IHappeningDateProps> = (props) => {
 
     return (
-        <div>
-            {props.timestamp};
+        <div className={`happening-date happening-minus-margin ${props.className && props.className}`}>
+            <div className="happening-content ml2">
+                <div className="month-day-text">{moment(props.timestamp).format('MMM Do')}</div>
+                <div className="year-text">{moment(props.timestamp).format('YYYY')}</div>
+            </div>
         </div>
     );
 }

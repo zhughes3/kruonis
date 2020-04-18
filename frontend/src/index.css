@@ -2,7 +2,7 @@
 
 body {
     margin: 0;
-    font-family: Nunito;
+    font-family: Nunito !important;
     font-style: normal;
     font-weight: normal;
 }
@@ -105,6 +105,83 @@ body {
     color: #000000;
 }
 
+.fixed-center {
+    position: fixed;
+    left: 20%;
+    top: 35%;
+}
+
+.absolute-center {
+    position: absolute;
+    left: 20%;
+    top: 35%;
+}
+
+.happening-date {
+    height: 115px;
+    width: 115px;
+    margin-left: 22px;
+    margin-top: -44px;
+    
+    background: white;
+    border: none;
+    box-shadow: 2px 4px 12px rgba(113, 113, 113, 0.25);
+    
+    border-top-left-radius: 65% 100%;
+    border-top-right-radius: 65%;
+    border-bottom-right-radius: 100% 65%;
+    border-bottom-left-radius: 25px;
+    
+    transform: rotate(45deg);
+  
+    padding: 10px;
+}
+
+.happening-content {
+    transform: rotate(-45deg);
+    margin-left: 20px;
+    margin-top: 9px;
+}
+
+.month-day-text {
+    font-size: 14px;
+    line-height: 23px;
+    /* or 164% */
+    
+    display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.025em;
+}
+
+.year-text {
+    font-size: 17px;
+    line-height: 23px;
+    /* or 135% */
+    
+    display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.025em;
+}
+
+.happening-info {
+    width: 190px;
+    margin-top: -22px;
+}
+
+.happening-info-title {
+    font-size: 23px;
+    line-height: 23px;
+    letter-spacing: 0.025em;
+}
+
+.happening-info-text {
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.025em;
+}
+
 .color-white {
     color: #FFFFFF;
 }
@@ -119,6 +196,22 @@ body {
     font-size: 18px;
 }
 
+
+.ml1 {
+    margin-left: 10px;
+}
+.ml2 {
+    margin-left: 20px;
+}
+.ml3 {
+    margin-left: 30px;
+}
+.ml4 {
+    margin-left: 40px;
+}
+.ml5 {
+    margin-left: 50px;
+}
 .mt-10 {
     margin-top: 10px;
 }
@@ -133,6 +226,9 @@ body {
 }
 .pb-10 {
     padding-bottom: 10px;
+}
+.pb-70 {
+    padding-bottom: 70px;
 }
 
 /* ----- SPINNER ----- */

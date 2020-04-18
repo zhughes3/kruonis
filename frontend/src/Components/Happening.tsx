@@ -4,18 +4,26 @@ import { HappeningDate } from './HappeningDate';
 
 interface IHappeningProps {
     happening: IHappening;
+    className?: string;
 }
 
 export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
 
     return (
-        <li className="steps-segment">
+        <div id={props.happening.id} className={`steps-segment ${props.className && props.className}`}>
+            
             <span className="steps-marker"></span>
-            <div className="steps-content">
+            
+            <div className="steps-content columns">
+                
                 <HappeningDate timestamp={props.happening.timestamp} />
-                <p className="is-size-4">{props.happening.title}</p>
-                <p>{props.happening.description}</p>
+                
+                <div className="ml2 happening-info has-text-centered">
+                    <div className="happening-info-title">{props.happening.title}</div>
+                    <div className="happening-info-title">-</div>
+                    <div className="happening-info-text">{props.happening.description}</div>
+                </div>
             </div>
-        </li>
+        </div>
     );
 }
