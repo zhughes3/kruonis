@@ -74,7 +74,7 @@ func (s *server) DeleteTimelineGroup(ctx context.Context, t *models.Filter) (*mo
 }
 
 func (s *server) CreateTimelineEvent(ctx context.Context, t *models.TimelineEvent) (*models.TimelineEvent, error) {
-	timelineEvent, err := s.db.insertTimelineEvent(t.GetTimelineId(), t.GetTitle(), t.GetDescription(), t.GetContent(), t.GetTimestamp())
+	timelineEvent, err := s.db.insertTimelineEvent(t.GetId(), t.GetTitle(), t.GetDescription(), t.GetContent(), t.GetTimestamp())
 	if err != nil {
 		return nil, err
 	}

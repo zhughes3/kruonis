@@ -18,6 +18,7 @@ type dbConfig struct {
 }
 
 func main() {
+	initLogging()
 	config_defaults := map[string]interface{}{
 		"rpc_host":  "localhost",
 		"http_host": "localhost",

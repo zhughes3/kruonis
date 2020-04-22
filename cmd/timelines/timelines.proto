@@ -23,8 +23,8 @@ message TimelineGroup {
 }
 
 message TimelineEvent {
-    uint64 id = 1;
-    uint64 timeline_id = 2;
+    uint64 event_id = 1;
+    uint64 id = 2;
     string title = 3;
     google.protobuf.Timestamp timestamp = 4;
     string description = 5;
@@ -74,7 +74,7 @@ service TimelineService {
     }
     rpc CreateTimelineEvent (TimelineEvent) returns (TimelineEvent) {
         option(google.api.http) = {
-            post: "/v1/events"
+            post: "/v1/timelines/{id}/events"
             body: "*"
         };
     }
@@ -91,7 +91,7 @@ service TimelineService {
 //    }
     rpc DeleteTimelineEvent (Filter) returns (Error) {
         option (google.api.http) = {
-            delete: "/v1/timelines/{id}"
+            delete: "/v1/events/{id}"
         };
     }
 }

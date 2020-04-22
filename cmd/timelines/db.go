@@ -59,7 +59,6 @@ func (db *db) insertTimelineGroup(title string) (*models.TimelineGroup, error) {
 		UpdatedAt: updated,
 	}, nil
 }
-
 func (db *db) insertTimeline(gid uint64, title string) (*models.Timeline, error) {
 	var timeline models.Timeline
 	var createdAt, updatedAt time.Time
@@ -80,7 +79,6 @@ func (db *db) insertTimeline(gid uint64, title string) (*models.Timeline, error)
 	}
 	return &timeline, nil
 }
-
 func (db *db) insertTimelineEvent(tid uint64, title, description, content string, timestamp *timestamp.Timestamp) (*models.TimelineEvent, error) {
 	var createdAt, updatedAt time.Time
 	var id uint64
@@ -99,8 +97,8 @@ func (db *db) insertTimelineEvent(tid uint64, title, description, content string
 	updated, _ := convertTime(updatedAt)
 
 	return &models.TimelineEvent{
-		Id:          id,
-		TimelineId:  tid,
+		Id:          tid,
+		EventId:     id,
 		Title:       title,
 		Timestamp:   timestamp,
 		Description: description,
@@ -109,7 +107,6 @@ func (db *db) insertTimelineEvent(tid uint64, title, description, content string
 		UpdatedAt:   updated,
 	}, nil
 }
-
 func (db *db) insertTag(tag string, tid uint64) (uint64, error) {
 	var createdAt, updatedAt time.Time
 	var id uint64
@@ -153,10 +150,9 @@ func (db *db) readTimelineGroup(id uint64) (*models.TimelineGroup, error) {
 	return &tg, nil
 
 }
-
 func (db *db) readTimelinesWithGroupID(gid uint64) ([]*models.Timeline, error) {
 	var timelines []*models.Timeline
-	sql := `SELECT id, title, created_at, updated_at from timelines WHERE group_id = $1;`
+	sql := `SELECT id, group_id, title, created_at, updated_at from timelines WHERE group_id = $1;`
 	rows, err := db.db.Query(sql, gid)
 	if err != nil {
 		log.Error("Error reading timelines with group_id from db")
@@ -169,7 +165,7 @@ func (db *db) readTimelinesWithGroupID(gid uint64) ([]*models.Timeline, error) {
 		var timeline models.Timeline
 		var createdAt, updatedAt time.Time
 
-		err := rows.Scan(&timeline.Id, &timeline.Title, createdAt, updatedAt)
+		err := rows.Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &createdAt, &updatedAt)
 		if err != nil {
 			log.Error("Error scanning timeline")
 			return nil, err
@@ -186,12 +182,15 @@ func (db *db) readTimelinesWithGroupID(gid uint64) ([]*models.Timeline, error) {
 			return nil, err
 		}
 
+		if timeline.Events, err = db.readTimelineEvents(timeline.GetId()); err != nil {
+			return nil, err
+		}
+
 		timelines = append(timelines, &timeline)
 	}
 
 	return timelines, nil
 }
-
 func (db *db) readTagsWithTimelineID(tid uint64) ([]string, error) {
 	var tags []string
 	sql := `SELECT tag FROM tags WHERE timeline_id = $1;`
@@ -214,14 +213,13 @@ func (db *db) readTagsWithTimelineID(tid uint64) ([]string, error) {
 
 	return tags, nil
 }
-
 func (db *db) readTimeline(id uint64) (*models.Timeline, error) {
 	var timeline models.Timeline
 	var createdAt, updatedAt time.Time
 
-	sql := `SELECT id, title, created_at, updated_at FROM timelines WHERE id = $1;`
+	sql := `SELECT id, group_id, title, created_at, updated_at FROM timelines WHERE id = $1;`
 
-	err := db.db.QueryRow(sql, id).Scan(&timeline.Id, &timeline.Title, &createdAt, &updatedAt)
+	err := db.db.QueryRow(sql, id).Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &createdAt, &updatedAt)
 	if err != nil {
 		log.Error("Error reading timeline from db")
 		return nil, err
@@ -234,36 +232,70 @@ func (db *db) readTimeline(id uint64) (*models.Timeline, error) {
 		return nil, err
 	}
 
+	if timeline.Tags, err = db.readTagsWithTimelineID(id); err != nil {
+		return nil, err
+	}
+
+	if timeline.Events, err = db.readTimelineEvents(id); err != nil {
+		return nil, err
+	}
+
 	return &timeline, nil
 }
+func (db *db) readTimelineEvents(tid uint64) ([]*models.TimelineEvent, error) {
+	var events []*models.TimelineEvent
 
-func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
-	var timelineEvent models.TimelineEvent
-	var timestamp, createdAt, updatedAt time.Time
-
-	sql := `SELECT id, title, timestamp, description, content, created_at, updated_at
+	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at
 			FROM events
 			WHERE timeline_id = $1
 			`
-
-	err := db.db.QueryRow(sql, id).Scan(&timelineEvent.Id, &timelineEvent.Title, timestamp, &timelineEvent.Description,
-		&timelineEvent.Content, createdAt, updatedAt)
+	rows, err := db.db.Query(sql, tid)
 	if err != nil {
-		log.Error("Error reading timeline event from db")
+		log.Error("Error reading events with timeline_id from db")
 		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var event models.TimelineEvent
+		var timestamp, createdAt, updatedAt time.Time
+		rows.Scan(&event.EventId, &event.Id, &event.Title, &timestamp, &event.Description, &event.Content, &createdAt, &updatedAt)
+		if event.CreatedAt, err = convertTime(createdAt); err != nil {
+			return nil, err
+		}
+		if event.UpdatedAt, err = convertTime(updatedAt); err != nil {
+			return nil, err
+		}
+		if event.Timestamp, err = convertTime(timestamp); err != nil {
+			return nil, err
+		}
+
+		events = append(events, &event)
 	}
 
-	if timelineEvent.CreatedAt, err = convertTime(createdAt); err != nil {
+	return events, nil
+}
+func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
+	var event *models.TimelineEvent
+	var timestamp, createdAt, updatedAt time.Time
+	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at
+			FROM events
+			WHERE id = $1
+			`
+	err := db.db.QueryRow(sql, id).Scan(&event.EventId, &event.Id, &event.Title, &timestamp, &event.Description, &event.Content, &createdAt, &updatedAt)
+	if err != nil {
+		log.Error("Error reading event from db")
 		return nil, err
 	}
-	if timelineEvent.UpdatedAt, err = convertTime(updatedAt); err != nil {
+	if event.CreatedAt, err = convertTime(createdAt); err != nil {
 		return nil, err
 	}
-	if timelineEvent.Timestamp, err = convertTime(timestamp); err != nil {
+	if event.UpdatedAt, err = convertTime(updatedAt); err != nil {
 		return nil, err
 	}
-
-	return &timelineEvent, nil
+	if event.Timestamp, err = convertTime(timestamp); err != nil {
+		return nil, err
+	}
+	return event, nil
 }
 
 func (db *db) deleteTimelineGroup(id uint64) error {
