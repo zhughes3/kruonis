@@ -3,6 +3,17 @@ package models;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+    info : {
+        title: "Timelines",
+        version: "0.1"
+    };
+    schemes: HTTPS;
+    consumes: "application/json";
+    produces: "application/json";
+};
 
 message Timeline {
     uint64 id = 1;
@@ -39,37 +50,40 @@ service TimelineService {
             post: "/v1/timelines"
             body: "*"
         };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Create a new timeline."
+        };
     }
     rpc ReadTimeline (Filter) returns (Timeline) {
         option (google.api.http) = {
             get: "/v1/timelines/{id}"
         };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get a timeline."
+        };
     }
-//    rpc UpdateTimeline (UpdateTimelineRequest) returns (Timeline) {
-//        option (google.api.http) = {
-//            put: "/v1/timelines/{id}"
-//            body: "*"
-//        };
-//    }
     rpc DeleteTimeline (Filter) returns (Error) {
         option (google.api.http) = {
             delete: "/v1/timelines/{id}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Delete a timeline."
         };
     }
     rpc ReadTimelineGroup (Filter) returns (TimelineGroup) {
         option (google.api.http) = {
             get: "/v1/groups/{id}"
         };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get a timeline group."
+        };
     }
-//    rpc UpdateTimelineGroup (UpdateTimelineGroupRequest) returns (TimelineGroup) {
-//        option (google.api.http) = {
-//            put: "/v1/groups/{id}"
-//            body: "*"
-//        };
-//    }
     rpc DeleteTimelineGroup (Filter) returns (Error) {
         option (google.api.http) = {
             delete: "/v1/groups/{id}"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Delete a timeline group."
         };
     }
     rpc CreateTimelineEvent (TimelineEvent) returns (TimelineEvent) {
@@ -77,39 +91,27 @@ service TimelineService {
             post: "/v1/timelines/{id}/events"
             body: "*"
         };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Add a timeline event to a timeline."
+        };
     }
     rpc ReadTimelineEvent(Filter) returns (TimelineEvent) {
         option (google.api.http) = {
             get: "/v1/events/{id}"
         };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get a timeline event."
+        };
     }
-//    rpc UpdateTimelineEvent (UpdateTimelineEventRequest) returns (TimelineEvent) {
-//        option (google.api.http) = {
-//            put: "/v1/events/{id}"
-//            body: "*"
-//        };
-//    }
     rpc DeleteTimelineEvent (Filter) returns (Error) {
         option (google.api.http) = {
             delete: "/v1/events/{id}"
         };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Delete a timeline event."
+        };
     }
 }
-
-//message UpdateTimelineRequest {
-//    string id = 1;
-//    Timeline post = 2;
-//}
-//
-//message UpdateTimelineGroupRequest {
-//    string id = 1;
-//    TimelineGroup group = 2;
-//}
-//
-//message UpdateTimelineEventRequest {
-//    string id = 1;
-//    TimelineEvent event = 2;
-//}
 
 message Filter {
     uint64 id = 1;
