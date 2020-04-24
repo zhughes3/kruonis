@@ -9,7 +9,9 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3
 	github.com/lib/pq v1.3.0
 	github.com/ory/dockertest/v3 v3.6.0
+	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.4.2
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/soheilhy/cmux v0.1.4
 	github.com/spf13/viper v1.6.3
 	google.golang.org/genproto v0.0.0-20200410110633-0848e9f44c36

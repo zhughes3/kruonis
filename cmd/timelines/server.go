@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/rs/cors"
 	"github.com/soheilhy/cmux"
 	"github.com/zhughes3/kruonis/cmd/timelines/models"
 	"google.golang.org/grpc"
@@ -92,9 +93,11 @@ func prepareHTTP(ctx context.Context, name string) (*http.Server, error) {
 	}
 	router.Handle("/", gw)
 
+	handler := cors.Default().Handler(router)
+
 	return &http.Server{
 		Addr:         name,
-		Handler:      router,
+		Handler:      handler,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
