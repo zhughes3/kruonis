@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"net"
 	"os"
+	"strings"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
 
 	_ "github.com/lib/pq"
 
@@ -17,56 +18,118 @@ var (
 	testServer *server
 )
 
-func TestMain(m *testing.M) {
-	config_defaults := map[string]interface{}{
-		"rpc_host":  "localhost",
-		"http_host": "localhost",
-		"db_host":   "localhost",
+func getTestServer(db *sql.DB) *server {
+	scfg := &serverConfig{
+		rpcHost:  "localhost",
+		rpcPort:  "8081",
+		httpHost: "localhost",
+		httpPort: "8081",
 	}
-	config, err := readConfig("config.env", config_defaults)
+
+	return NewServer(scfg, nil, db)
+}
+
+func getDatabaseConn(res *dockertest.Resource) *sql.DB {
+	data := strings.Split(res.GetHostPort("5432/tcp"), ":")
+	if len(data) != 2 {
+		log.Fatal("Could not get database host and port")
+	}
+
+	host := data[0]
+	port := data[1]
+
+	db := NewDB(&dbConfig{
+		host:     host,
+		port:     port,
+		name:     "timelines",
+		user:     "timelines",
+		password: "timelines"})
+
+	return db
+}
+
+func pgdsn(dbname, host, user, password string) string {
+	dsnTmpl := "postgres://%s:%s@%s/%s?sslmode=disable"
+	return fmt.Sprintf(dsnTmpl, user, password, host, dbname)
+}
+
+func runDB(pool *dockertest.Pool) *dockertest.Resource {
+	res, err := pool.RunWithOptions(&dockertest.RunOptions{
+		Repository: "kruonis_postgres",
+		Tag:        "latest",
+		Env: []string{
+			fmt.Sprintf("POSTGRES_DB=%s", "timelines"),
+			fmt.Sprintf("POSTGRES_USER=%s", "timelines"),
+			fmt.Sprintf("POSTGRES_PASSWORD=%s", "timelines"),
+		},
+	})
 	if err != nil {
-		panic(err)
+		log.Fatalf("Could not run resource: %s", err)
 	}
-	sCfg := getServerConfig(config)
-	cfg := getDBConfig(config)
+
+	// expire the resource in 3 mins just in case tests fail
+	if err := res.Expire(180); err != nil {
+		log.Fatal(err)
+	}
+
+	var db *sql.DB
+	if err = pool.Retry(func() error {
+		var err2 error
+		db, err2 = sql.Open(
+			"postgres",
+			pgdsn("timelines",
+				res.GetHostPort("5432/tcp"),
+				"timelines",
+				"timelines"),
+		)
+
+		if err2 != nil {
+			return err2
+		}
+
+		return db.Ping()
+	}); err != nil {
+		log.Fatalf("Could not connect to docker postgres: %s", err)
+	}
+
+	// run migration here
+	//if err := runMigrations(db); err != nil {
+	//	log.Fatalf("Unable to run migrations: %s", err)
+	//}
+
+	return res
+}
+
+func runMigrations(db *sql.DB) error {
+	return nil
+}
+
+func TestMain(m *testing.M) {
+	var (
+		pool  *dockertest.Pool
+		dbres *dockertest.Resource
+	)
+
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
 
-	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.Run("kruonis_postgres", "latest", []string{"POSTGRES_USER=" + cfg.user, "POSTGRES_PASSWORD=" + cfg.password, "POSTGRES_DB=" + cfg.name, "DATABASE_HOST=" + cfg.host})
-	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
-	}
+	dbres = runDB(pool)
 
-	conn, err := net.Listen("tcp", ":"+sCfg.httpPort)
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
+	db := getDatabaseConn(dbres)
 
-	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
-	if err = pool.Retry(func() error {
-		var err error
-		database, err := sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", cfg.user, cfg.password, cfg.host, cfg.port, cfg.name, "disable"))
-		if err != nil {
-			return err
-		}
-		testServer = NewServer(sCfg, conn, database)
-
-		//testServer.Start()
-		return database.Ping()
-	}); err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
-	}
+	testServer = getTestServer(db)
 
 	exitVal := m.Run()
 
-	// You can't defer this because os.Exit doesn't care for defer
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
+	if dbres != nil {
+		if err := pool.Purge(dbres); err != nil {
+			log.Fatal(err)
+		}
 	}
+
+	log.Infoln("Ending test run against postgres")
 
 	os.Exit(exitVal)
 }

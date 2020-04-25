@@ -15,13 +15,14 @@ func TestServer_CreateTimeline(t *testing.T) {
 		Tags:  []string{"yo", "tag"},
 	}
 
-	timeline, err := testServer.CreateTimeline(context.Background(), createJSON)
-	So(err, ShouldBeNil)
-	So(timeline, ShouldNotBeNil)
-	So(timeline.Title, ShouldEqual, "TestTitle")
-	So(timeline.Tags, ShouldHaveLength, 2)
-	So(timeline.GroupId, ShouldNotBeNil)
-	So(timeline.Id, ShouldNotBeNil)
-	So(timeline.Events, ShouldHaveLength, 0)
-
+	Convey("Testing create timeline", t, func() {
+		timeline, err := testServer.CreateTimeline(context.Background(), createJSON)
+		So(err, ShouldBeNil)
+		So(timeline, ShouldNotBeNil)
+		So(timeline.Title, ShouldEqual, "TestTitle")
+		So(timeline.Tags, ShouldHaveLength, 2)
+		So(timeline.GroupId, ShouldNotBeNil)
+		So(timeline.Id, ShouldNotBeNil)
+		So(timeline.Events, ShouldHaveLength, 0)
+	})
 }
