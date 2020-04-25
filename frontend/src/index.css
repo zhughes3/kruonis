@@ -121,6 +121,39 @@ body {
     letter-spacing: 0.025em;
 }
 
+.timeline-space {
+    margin-bottom: 200px;
+}
+
+.add-happening {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 15%;
+    left: 10%;
+}
+
+.fab {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    box-shadow: 0 6px 10px 0 rgba(102, 102, 102, 0.44);
+
+    font-size: 40px;
+    line-height: 30px;
+    color: white;
+    text-align: center;
+
+    transition: all 0.1s ease-in-out;
+}
+
+.fab:hover {
+    box-shadow: 0 6px 14px 0 rgba(102, 102, 102, 0.44);
+    transform: scale(1.05);
+}
+
 .fixed-center {
     position: fixed;
     left: 20%;

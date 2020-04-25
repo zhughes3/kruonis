@@ -42,11 +42,11 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
             setError('Woops, something went wrong!');
             setLoading(false);
         }
-    }
+    };
 
     const legalName = (name: string): boolean => {
         return isAlphanumeric(name.split(" ").join(''))
-    }
+    };
 
     return (
         <div>
@@ -75,4 +75,4 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
             </div>
         </div>
     );
-}
+};

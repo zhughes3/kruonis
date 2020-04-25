@@ -18,7 +18,7 @@ const emptyTimelineHappening = {
     timeline_id: '1',
     title: 'first event',
     timestamp: moment().format(),
-    description: 'Click the "Add" button to start adding items to your timeline.',
+    description: 'Click the "+" button (bottom left) to start adding items to your timeline.',
     content: 'This is your new timeline. You can start to add items to it by clicking the "+" button.',
     created_at: 'created_at',
     updated_at: 'updated_at',
@@ -103,15 +103,25 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
     return (
         <div>
 
-            <button onClick={() => toggleModal()}>click</button>
+            <div className="add-happening">
+                <div className="fab has-background-link" onClick={() => toggleModal()}> + </div>
+                <div className="ml1">Add event</div>
+            </div>
 
             <AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => { createNewHappening(newHappening) }} />
 
             <div className="timeline-position">
 
+                {!timeline?.events.length &&
+                    <div className="notification is-link animated fadeIn fast" style={{maxWidth: 500}}>
+                        <div>Welcome to your new timeline.</div>
+                        <div>To start adding events, please click the "+" button on the bottom left of the screen.</div>
+                    </div>
+                }
+
                 <div className="timeline_name animated fadeInUp faster">{timeline?.title}</div>
 
-                <div className="steps is-vertical is-centered is-small animated fadeInUp">
+                <div className="steps is-vertical is-centered is-small animated fadeInUp timeline-space">
 
                     {timeline?.events.length ?
                         timeline?.events.map((happening: IHappening) => {
