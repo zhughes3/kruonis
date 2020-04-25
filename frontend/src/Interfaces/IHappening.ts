@@ -1,5 +1,6 @@
 export interface IHappening {
     id: string;
+    event_id: string;
     timeline_id: string;
     title: string;
     timestamp: string;

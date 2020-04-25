@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
 
+:root {
+    --house-blue: #2251CA;
+    --house-error: #e94444;
+}
+
 body {
     margin: 0;
     font-family: Nunito !important;
@@ -257,6 +262,30 @@ body {
 }
 .pb-70 {
     padding-bottom: 70px;
+}
+
+.error-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    margin-top: 25vh;
+    width: 300px;
+    height: 250px;
+    background-color: var(--house-error);
+    color: white;
+}
+
+.loading-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    margin-top: 25vh;
+    width: 275px;
+    height: 325px;
+    background-color: var(--house-blue);
+    color: white;
 }
 
 /* ----- SPINNER ----- */

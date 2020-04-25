@@ -1,5 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { IHappeningCreate } from '../Interfaces/IHappening';
+import moment from "moment";
 
 interface IAddHappeningProps {
     open: boolean;
@@ -27,14 +28,14 @@ export const AddHappening: React.FunctionComponent<IAddHappeningProps> = (props)
 
         const newHappening: IHappeningCreate = {
             title,
-            timestamp,
+            timestamp: moment.utc(timestamp).format(),
             description,
             content
-        }
+        };
 
         props.createHappening(newHappening);
         closeModal();
-    }
+    };
 
     const closeModal = (): void => {
         // Clear the form and input data.
@@ -44,7 +45,7 @@ export const AddHappening: React.FunctionComponent<IAddHappeningProps> = (props)
 
         setErrorMessage('');
         props.toggleModal();
-    }
+    };
 
     return (
         <div className={`modal ${props.open && 'is-active'}`}>
@@ -97,4 +98,4 @@ export const AddHappening: React.FunctionComponent<IAddHappeningProps> = (props)
             <button className="modal-close is-large" aria-label="close" onClick={() => closeModal()} />
         </div>
     );
-}
+};
