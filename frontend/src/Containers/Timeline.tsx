@@ -127,14 +127,14 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
     return (
         <div>
 
-            { timelineGroup?.timelines.map( (timeLine: ITimeline, index: number) => {
+            { timelineGroup?.timelines.map( (timeline: ITimeline, index: number) => {
                 return (
                     <div key={index} className="add-happening" style={{marginBottom: index * 70, zIndex: 2, backgroundColor: 'white', padding: 5, borderRadius: 5}}>
                         <div className="fab has-background-link" onClick={() => {
                             toggleModal();
-                            selectedTimeline = timelineGroup?.timelines[index].id
+                            selectedTimeline = timeline.id
                         }}> + </div>
-                        <div className="ml1">{timelineGroup?.timelines[index].title}</div>
+                        <div className="ml1">{timeline.title}</div>
                     </div>
                 )
             })}
@@ -150,16 +150,24 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
                     </div>
                 }
 
-                <div className="timeline_name animated fadeInUp faster">{timelineGroup?.timelines[0]?.title}</div>
+                <div className="columns">
+                    { timelineGroup?.timelines.map( (timeLine: ITimeline, index: number) => {
+                        if (index === 0) {
+                            return <div className="timeline_name animated fadeInUp faster" style={{marginLeft: -300}}>{timeLine?.title}</div>
+                        }
+                        return <div className="timeline_name animated fadeInUp faster" style={{marginLeft: 160}}>{timeLine?.title}</div>
+                    })}
+                </div>
+
 
                 <div className="steps is-vertical is-centered is-small animated fadeInUp timeline-space">
 
                     {events.length ?
                         events.map((happening: IHappening, index: number) => {
-                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id !== timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
+                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
                         })
                         :
-                        <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
+                        <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } left />
                     }
 
                 </div>
