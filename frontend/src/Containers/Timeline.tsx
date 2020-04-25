@@ -108,6 +108,9 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
             <AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => { createNewHappening(newHappening) }} />
 
             <div className="timeline-position">
+
+                <div className="timeline_name animated fadeInUp faster">{timeline?.title}</div>
+
                 <div className="steps is-vertical is-centered is-small animated fadeInUp">
 
                     {timeline?.events.length ?
