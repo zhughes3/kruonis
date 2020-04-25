@@ -16,10 +16,10 @@ const emptyTimelineHappening = {
     id: '1',
     event_id: '1',
     timeline_id: '1',
-    title: 'first event',
+    title: 'No events yet',
     timestamp: moment().format(),
     description: 'Click the "+" button (bottom left) to start adding items to your timeline.',
-    content: 'This is your new timeline. You can start to add items to it by clicking the "+" button.',
+    content: "This is your new timeline. Right now, it's empty. But you can start to add items to it by clicking the '+' button.",
     created_at: 'created_at',
     updated_at: 'updated_at',
 };
@@ -114,8 +114,8 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
                 {!timeline?.events.length &&
                     <div className="notification is-link animated fadeIn fast" style={{maxWidth: 500}}>
-                        <div>Welcome to your new timeline.</div>
-                        <div>To start adding events, please click the "+" button on the bottom left of the screen.</div>
+                        <div><b>Welcome to your new timeline</b></div>
+                        <div>To start adding events, click the "+" button on the bottom left of your screen.</div>
                     </div>
                 }
 
