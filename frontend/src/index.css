@@ -130,8 +130,8 @@ body {
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: 15%;
-    left: 10%;
+    bottom: 4%;
+    left: 3%;
 }
 
 .fab {
@@ -162,7 +162,7 @@ body {
 
 .timeline-position {
     position: absolute;
-    left: 20%;
+    left: 31%;
     top: 27%;
 }
 
@@ -193,10 +193,20 @@ body {
     padding: 10px;
 }
 
+.rotate-for-left {
+    transform: rotate(225deg);
+}
+
 .happening-content {
     transform: rotate(-45deg);
     margin-left: 20px;
     margin-top: 9px;
+}
+.rotate-text-for-left {
+    transform: rotate(-225deg);
+    margin-left: 0;
+    margin-right: 10px;
+    margin-top: 25px;
 }
 
 .month-day-text {

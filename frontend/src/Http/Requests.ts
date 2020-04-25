@@ -1,9 +1,14 @@
 import {ITimeline, ITimelineCreate} from "../Interfaces/ITimeline";
 import {httpGet, httpPost} from "./HttpSetup";
 import {IHappening, IHappeningCreate} from "../Interfaces/IHappening";
+import {IGroup} from "../Interfaces/IGroup";
 
 export const getTimeline = async (id: string): Promise<ITimeline> => {
     return httpGet('timelines/' + id);
+};
+
+export const getTimelineGroup = async (groupId: string): Promise<IGroup> => {
+    return httpGet('groups/' + groupId);
 };
 
 export const createTimeline = async (body: ITimelineCreate): Promise<ITimeline> => {

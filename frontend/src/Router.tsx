@@ -10,7 +10,7 @@ export const Router = () => {
             <div>
                 <Switch>
                     <Route path="/" exact component={Home} />
-                    <Route path="/timeline/:id" exact component={Timeline} />
+                    <Route path="/timeline/:groupId" exact component={Timeline} />
                 </Switch>
             </div>
         </BrowserRouter>

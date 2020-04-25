@@ -31,7 +31,7 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
 
             if (!timelineCompareName) {
                 createResult = await createTimeline({title: timelineName, tags: []});
-                props.history.push(`timeline/${createResult.id}`);
+                props.history.push(`timeline/${createResult.group_id}`);
             } else {
                 createResult = await createGroupedTimelines({title: timelineName, tags: []}, {title: timelineCompareName, tags: []});
                 props.history.push(`timeline/${createResult[0].group_id}`);

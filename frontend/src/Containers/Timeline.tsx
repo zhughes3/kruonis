@@ -4,12 +4,13 @@ import { IHappening, IHappeningCreate } from '../Interfaces/IHappening';
 import { Happening } from '../Components/Happening';
 import { AddHappening } from '../Components/AddHappening';
 import { useParams } from 'react-router-dom';
-import {ITimeline} from "../Interfaces/ITimeline";
-import {createHappening, getTimeline} from "../Http/Requests";
+import {createHappening, getTimelineGroup} from "../Http/Requests";
 import {Center} from "../Components/Center";
 import { LoadingCard } from '../Components/LoadingCard';
 import moment from "moment";
 import {ErrorCard} from "../Components/ErrorCard";
+import { IGroup } from '../Interfaces/IGroup';
+import {ITimeline} from "../Interfaces/ITimeline";
 
 // This happening is displayed if there are no happenings (events) on the timeline yet.
 const emptyTimelineHappening = {
@@ -24,55 +25,78 @@ const emptyTimelineHappening = {
     updated_at: 'updated_at',
 };
 
+let events: any = [];
+let selectedTimeline: any;
+
 export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
-    let { id } = useParams();
+    let { groupId } = useParams();
 
     const [open, setOpen] = useState<boolean>(false);
     const [selectedHappening, setSelectedHappening] = useState<IHappening>();
     const [loading, setLoading] = useState<boolean>(true);
-    const [timeline, setTimeline] = useState<ITimeline>();
+    const [timelineGroup, setTimelineGroup] = useState<IGroup>();
     const [fetchTimelineError, setFetchTimelineError] = useState<string>('');
 
     useEffect( () => {
-        if (!id) { return setFetchTimelineError("We can't find the timeline you are looking for!"); }
-        fetchTimeLine(id);
-    }, [id]);
+        if (!groupId) { return setFetchTimelineError("We can't find the timeline you are looking for!"); }
+        fetchTimeLine(groupId);
+    }, [groupId]);
 
     const fetchTimeLine = async (id: string): Promise<void> => {
 
         setLoading(true);
 
-        const result = await getTimeline(id).catch( (e: Error) => {
+        const result = await getTimelineGroup(id).catch( (e: Error) => {
             console.log(e);
             setFetchTimelineError('Woops, something went wrong when we tried to fetch your timeline!');
             return setLoading(false);
         });
 
         if (result) {
-            result.events = sortHappenings(result.events);
-            setTimeline(result);
+            setEvents(result);
+
+            setTimelineGroup(result);
         }
 
         setLoading(false);
     };
 
-    const createNewHappening = async (happening: IHappeningCreate): Promise<void> => {
+    const createNewHappening = async (happening: IHappeningCreate, timelineId: string): Promise<void> => {
 
         // TODO Add error handling on no id.
-        if (!id) { return; }
-
-        const result: IHappening | void = await createHappening(id, happening).catch( (e: Error) => console.log(e) );
+        const result: IHappening | void = await createHappening(timelineId, happening).catch( (e: Error) => console.log(e) );
 
         if (!result) { return; }
 
-        const timelineCopy = Object.assign(timeline, {});
-        timelineCopy.events.push(result);
-        timelineCopy.events = sortHappenings(timelineCopy.events);
+        const timelineGroupCopy = Object.assign(timelineGroup, {});
+        let timeIn = 0;
 
-        setTimeline(undefined);
-        setTimeline( timeline => timelineCopy);
+        const selectedTimeline = timelineGroupCopy.timelines.filter( (timeline, index) => {
+            if (timeline.id !== timelineId) return false;
+            timeIn = index;
+            return true;
+        })[0];
 
+        selectedTimeline.events.push(result);
+
+        timelineGroupCopy.timelines[timeIn].events = selectedTimeline.events;
+
+        setEvents(timelineGroupCopy);
+
+        setTimelineGroup(undefined);
+        setTimelineGroup( timelineGroup => timelineGroupCopy);
+
+    };
+
+    const setEvents = (group: IGroup) => {
+        events = [];
+
+        group.timelines.forEach( timeline => {
+            events = [...events, ...timeline.events];
+        });
+
+        events = sortHappenings(events);
     };
 
     const sortHappenings = (happenings: IHappening[]): IHappening[] => {
@@ -103,29 +127,36 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
     return (
         <div>
 
-            <div className="add-happening">
-                <div className="fab has-background-link" onClick={() => toggleModal()}> + </div>
-                <div className="ml1">Add event</div>
-            </div>
+            { timelineGroup?.timelines.map( (timeLine: ITimeline, index: number) => {
+                return (
+                    <div key={index} className="add-happening" style={{marginBottom: index * 70, zIndex: 2, backgroundColor: 'white', padding: 5, borderRadius: 5}}>
+                        <div className="fab has-background-link" onClick={() => {
+                            toggleModal();
+                            selectedTimeline = timelineGroup?.timelines[index].id
+                        }}> + </div>
+                        <div className="ml1">{timelineGroup?.timelines[index].title}</div>
+                    </div>
+                )
+            })}
 
-            <AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => { createNewHappening(newHappening) }} />
+            <AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => { createNewHappening(newHappening, selectedTimeline) }} />
 
             <div className="timeline-position">
 
-                {!timeline?.events.length &&
+                {!events.length &&
                     <div className="notification is-link animated fadeIn fast" style={{maxWidth: 500}}>
                         <div><b>Welcome to your new timeline</b></div>
                         <div>To start adding events, click the "+" button on the bottom left of your screen.</div>
                     </div>
                 }
 
-                <div className="timeline_name animated fadeInUp faster">{timeline?.title}</div>
+                <div className="timeline_name animated fadeInUp faster">{timelineGroup?.timelines[0]?.title}</div>
 
                 <div className="steps is-vertical is-centered is-small animated fadeInUp timeline-space">
 
-                    {timeline?.events.length ?
-                        timeline?.events.map((happening: IHappening) => {
-                            return <Happening className="pb-70 cursor-pointer" key={happening.event_id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
+                    {events.length ?
+                        events.map((happening: IHappening, index: number) => {
+                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id !== timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
                         })
                         :
                         <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
