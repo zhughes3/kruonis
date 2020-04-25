@@ -144,7 +144,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
             <div className="timeline-position">
 
                 {!events.length &&
-                    <div className="notification is-link animated fadeIn fast" style={{maxWidth: 500}}>
+                    <div className="notification is-link animated fadeIn fast" style={{maxWidth: 500, marginLeft: -340, marginBottom: 50}}>
                         <div><b>Welcome to your new timeline</b></div>
                         <div>To start adding events, click the "+" button on the bottom left of your screen.</div>
                     </div>
@@ -164,7 +164,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
                     {events.length ?
                         events.map((happening: IHappening, index: number) => {
-                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }/>
+                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } />
                         })
                         :
                         <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } left />
