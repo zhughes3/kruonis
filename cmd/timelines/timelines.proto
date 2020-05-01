@@ -8,7 +8,7 @@ import "protoc-gen-swagger/options/annotations.proto";
 option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
     info : {
         title: "Timelines",
-        version: "0.1"
+        version: "0.1.0"
     };
     schemes: HTTPS;
     consumes: "application/json";
@@ -62,6 +62,15 @@ service TimelineService {
             description: "Get a timeline."
         };
     }
+    rpc UpdateTimeline (UpdateTimelineRequest) returns (Timeline) {
+        option (google.api.http) = {
+            put: "/v1/timelines/{id}"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Update a timeline."
+        };
+    }
     rpc DeleteTimeline (Filter) returns (Error) {
         option (google.api.http) = {
             delete: "/v1/timelines/{id}"
@@ -76,6 +85,15 @@ service TimelineService {
         };
         option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
             description: "Get a timeline group."
+        };
+    }
+    rpc UpdateTimelineGroup (UpdateTimelineGroupRequest) returns (TimelineGroup) {
+        option (google.api.http) = {
+            put: "/v1/groups/{id}"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Update a timeline group."
         };
     }
     rpc DeleteTimelineGroup (Filter) returns (Error) {
@@ -103,6 +121,15 @@ service TimelineService {
             description: "Get a timeline event."
         };
     }
+    rpc UpdateTimelineEvent(UpdateTimelineEventRequest) returns (TimelineEvent) {
+        option (google.api.http) = {
+            put: "/v1/events/{id}"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Update a timeline event."
+        };
+    }
     rpc DeleteTimelineEvent (Filter) returns (Error) {
         option (google.api.http) = {
             delete: "/v1/events/{id}"
@@ -119,4 +146,23 @@ message Filter {
 
 message Error {
     bool response = 1;
+}
+
+message UpdateTimelineEventRequest {
+    uint64 id = 1;
+    string title = 2;
+    google.protobuf.Timestamp timestamp = 3;
+    string description = 4;
+    string content = 5;
+}
+
+message UpdateTimelineRequest {
+    uint64 id = 1;
+    string title = 2;
+    repeated string tags = 3;
+}
+
+message UpdateTimelineGroupRequest{
+    uint64 id = 1;
+    string title = 2;
 }
