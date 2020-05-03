@@ -40,9 +40,14 @@ func (s *server) ReadTimeline(ctx context.Context, t *models.Filter) (*models.Ti
 	return timeline, nil
 }
 
-//func (s *server) UpdateTimeline(ctx context.Context, t *models.UpdateTimelineRequest) (*models.Timeline, error) {
-//
-//}
+func (s *server) UpdateTimeline(ctx context.Context, in *models.UpdateTimelineRequest) (*models.Timeline, error) {
+	timeline, err := s.db.updateTimeline(in.GetId(), in.GetTitle(), in.GetTags())
+	if err != nil {
+		return nil, err
+	}
+
+	return timeline, nil
+}
 
 func (s *server) DeleteTimeline(ctx context.Context, t *models.Filter) (*models.Error, error) {
 	if err := s.db.deleteTimeline(t.GetId()); err != nil {
@@ -61,9 +66,14 @@ func (s *server) ReadTimelineGroup(ctx context.Context, t *models.Filter) (*mode
 	return tg, nil
 }
 
-//func (s *server) UpdateTimelineGroup(ctx context.Context, t *models.UpdateTimelineGroupRequest) (*models.TimelineGroup, error) {
-//
-//}
+func (s *server) UpdateTimelineGroup(ctx context.Context, in *models.UpdateTimelineGroupRequest) (*models.TimelineGroup, error) {
+	timelineGroup, err := s.db.updateTimelineGroup(in.GetId(), in.GetTitle())
+	if err != nil {
+		return nil, err
+	}
+
+	return timelineGroup, nil
+}
 
 func (s *server) DeleteTimelineGroup(ctx context.Context, t *models.Filter) (*models.Error, error) {
 	if err := s.db.deleteTimelineGroup(t.GetId()); err != nil {
@@ -82,6 +92,18 @@ func (s *server) CreateTimelineEvent(ctx context.Context, t *models.TimelineEven
 	return timelineEvent, nil
 }
 
+func (s *server) ReadTimelineEvents(ctx context.Context, in *models.Filter) (*models.ReadTimelineEventsResponse, error) {
+	events, err := s.db.readTimelineEvents(in.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.ReadTimelineEventsResponse{
+		Id:     in.Id,
+		Events: events,
+	}, nil
+}
+
 func (s *server) ReadTimelineEvent(ctx context.Context, t *models.Filter) (*models.TimelineEvent, error) {
 	tg, err := s.db.readTimelineEvent(t.GetId())
 	if err != nil {
@@ -91,9 +113,14 @@ func (s *server) ReadTimelineEvent(ctx context.Context, t *models.Filter) (*mode
 	return tg, nil
 }
 
-//func (s *server) UpdateTimelineEvent(ctx context.Context, t *models.UpdateTimelineEventRequest) (*models.TimelineEvent, error) {
-//
-//}
+func (s *server) UpdateTimelineEvent(ctx context.Context, t *models.UpdateTimelineEventRequest) (*models.TimelineEvent, error) {
+	timelineEvent, err := s.db.updateTimelineEvent(t.GetId(), t.GetTitle(), t.GetDescription(), t.GetContent(), t.Timestamp)
+	if err != nil {
+		return nil, err
+	}
+
+	return timelineEvent, nil
+}
 
 func (s *server) DeleteTimelineEvent(ctx context.Context, t *models.Filter) (*models.Error, error) {
 	if err := s.db.deleteTimelineEvent(t.GetId()); err != nil {

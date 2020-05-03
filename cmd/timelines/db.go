@@ -125,6 +125,117 @@ func (db *db) insertTag(tag string, tid uint64) (uint64, error) {
 	return id, nil
 }
 
+func (db *db) updateTimelineEvent(eventID uint64, title, description, content string, t *timestamp.Timestamp) (*models.TimelineEvent, error) {
+	event := &models.TimelineEvent{}
+	sql := `UPDATE events
+			SET title = $1, timestamp = $2, description = $3, content = $4, updated_at = $5
+			WHERE id = $6
+			RETURNING id, timeline_id, title, timestamp, description, content, created_at, updated_at;`
+
+	now := time.Now()
+	timestamp, _ := convertTimestamp(t)
+	var ts, createdAt, updatedAt time.Time
+	err := db.db.QueryRow(sql, title, timestamp, description, content, now, eventID).
+		Scan(&event.EventId, &event.Id, &event.Title, &ts, &event.Description, &event.Content, &createdAt, &updatedAt)
+
+	if err != nil {
+		log.Error("Error updating timeline event db")
+		return nil, err
+	}
+
+	if event.CreatedAt, err = convertTime(createdAt); err != nil {
+		return nil, err
+	}
+	if event.UpdatedAt, err = convertTime(updatedAt); err != nil {
+		return nil, err
+	}
+	if event.Timestamp, err = convertTime(ts); err != nil {
+		return nil, err
+	}
+
+	return event, nil
+}
+func (db *db) updateTimeline(id uint64, title string, tags []string) (*models.Timeline, error) {
+	timeline := &models.Timeline{}
+
+	timelineSql := `UPDATE timelines 
+		SET title = $1, updated_at = $2 WHERE id = $3 
+		RETURNING id, group_id, title, created_at, updated_at
+	`
+
+	var createdAt, updatedAt time.Time
+
+	err := db.db.QueryRow(timelineSql, title, time.Now(), id).
+		Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &createdAt, &updatedAt)
+	if err != nil {
+		log.Error("Error updating timeline")
+		return nil, err
+	}
+
+	if timeline.CreatedAt, err = convertTime(createdAt); err != nil {
+		return nil, err
+	}
+	if timeline.UpdatedAt, err = convertTime(updatedAt); err != nil {
+		return nil, err
+	}
+
+	if tags != nil {
+		_, err := db.db.Query("DELETE FROM tags WHERE timeline_id = $1", id)
+		if err != nil {
+			log.Error("Error deleting tags during update timeline")
+			return timeline, err
+		}
+
+		for _, tag := range tags {
+			db.insertTag(tag, id)
+		}
+
+		timeline.Tags = tags
+	} else {
+		if timeline.Tags, err = db.readTagsWithTimelineID(id); err != nil {
+			log.Error("Error reading tags during update timeline")
+			return timeline, err
+		}
+	}
+
+	if timeline.Events, err = db.readTimelineEvents(id); err != nil {
+		log.Error("Error reading events during update timeline")
+		return timeline, err
+	}
+
+	return timeline, nil
+}
+func (db *db) updateTimelineGroup(id uint64, title string) (*models.TimelineGroup, error) {
+	group := &models.TimelineGroup{}
+
+	sql := `UPDATE groups 
+		SET title = $1, updated_at = $2 WHERE id = $3 
+		RETURNING id, title, created_at, updated_at
+	`
+
+	var createdAt, updatedAt time.Time
+
+	err := db.db.QueryRow(sql, title, time.Now(), id).
+		Scan(&group.Id, &group.Title, &createdAt, &updatedAt)
+	if err != nil {
+		log.Error("Error updating timeline")
+		return nil, err
+	}
+
+	if group.CreatedAt, err = convertTime(createdAt); err != nil {
+		return nil, err
+	}
+	if group.UpdatedAt, err = convertTime(updatedAt); err != nil {
+		return nil, err
+	}
+
+	if group.Timelines, err = db.readTimelinesWithGroupID(id); err != nil {
+		return nil, err
+	}
+
+	return group, nil
+}
+
 func (db *db) readTimelineGroup(id uint64) (*models.TimelineGroup, error) {
 	var tg models.TimelineGroup
 	var createdAt, updatedAt time.Time
@@ -148,7 +259,6 @@ func (db *db) readTimelineGroup(id uint64) (*models.TimelineGroup, error) {
 	}
 
 	return &tg, nil
-
 }
 func (db *db) readTimelinesWithGroupID(gid uint64) ([]*models.Timeline, error) {
 	var timelines []*models.Timeline

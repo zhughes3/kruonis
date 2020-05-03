@@ -21,6 +21,8 @@ func TestServer_CreateTimeline(t *testing.T) {
 		So(timeline, ShouldNotBeNil)
 		So(timeline.Title, ShouldEqual, "TestTitle")
 		So(timeline.Tags, ShouldHaveLength, 2)
+		So(timeline.Tags[0], ShouldEqual, "yo")
+		So(timeline.Tags[1], ShouldEqual, "tag")
 		So(timeline.GroupId, ShouldNotBeNil)
 		So(timeline.Id, ShouldNotBeNil)
 		So(timeline.Events, ShouldHaveLength, 0)
