@@ -1,5 +1,5 @@
 import {ITimeline, ITimelineCreate} from "../Interfaces/ITimeline";
-import {httpGet, httpPost} from "./HttpSetup";
+import {httpDelete, httpGet, httpPost} from "./HttpSetup";
 import {IHappening, IHappeningCreate} from "../Interfaces/IHappening";
 import {IGroup} from "../Interfaces/IGroup";
 
@@ -28,3 +28,7 @@ export const createGroupedTimelines = async (timeline: ITimelineCreate, compareT
 
     return [firstTimeline, secondTimeline]
 };
+
+export const deleteHappening = async (happeningId: string): Promise<any> => {
+    return await httpDelete('events/' + happeningId);
+}

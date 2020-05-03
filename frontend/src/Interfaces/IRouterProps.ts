@@ -8,9 +8,9 @@ export interface History {
     length:   number;
     action:   string;
     location: Location;
-    push: (path: string, state?: any)​ => void​;
-    ​​block: (prompt: any) => void;
-    createHref: (location: string) => void;​​
+    push: (path: string, state?: any)​ => void;
+    block: (prompt: any) => void;
+    createHref: (location: string) => void;
     go: (n: any) => void;
     goBack: () => void;
     goForward: () => void;

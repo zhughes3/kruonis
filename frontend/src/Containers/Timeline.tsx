@@ -53,10 +53,17 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
             return setLoading(false);
         });
 
-        if (result) {
+        if (result && result.id) {
             setEvents(result);
 
             setTimelineGroup(result);
+        }
+
+        // If a response has no .id, it's probably a 404 (no official 404).
+        // Send user to home screen if timeline does not exist.
+        // TODO implement message for user when navigating to timeline that doesn't exist.
+        if (result && !result.id) {
+            props.history.push('/');
         }
 
         setLoading(false);
@@ -150,16 +157,17 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
                     </div>
                 }
 
+                {/* The timeline titles. */}
                 <div className="columns">
                     { timelineGroup?.timelines.map( (timeLine: ITimeline, index: number) => {
                         if (index === 0) {
-                            return <div className="timeline_name animated fadeInUp faster" style={{marginLeft: -300}}>{timeLine?.title}</div>
+                            return <div key={index} className="timeline_name animated fadeInUp faster" style={{marginLeft: -300}}>{timeLine?.title}</div>
                         }
-                        return <div className="timeline_name animated fadeInUp faster" style={{marginLeft: 160}}>{timeLine?.title}</div>
+                        return <div key={index} className="timeline_name animated fadeInUp faster" style={{marginLeft: 160}}>{timeLine?.title}</div>
                     })}
                 </div>
 
-
+                {/* The timeline events. */}
                 <div className="steps is-vertical is-centered is-small animated fadeInUp timeline-space">
 
                     {events.length ?
