@@ -15,35 +15,6 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
     produces: "application/json";
 };
 
-message Timeline {
-    uint64 id = 1;
-    uint64 group_id = 2;
-    string title = 3;
-    repeated string tags = 4;
-    repeated TimelineEvent events = 5;
-    google.protobuf.Timestamp created_at = 6;
-    google.protobuf.Timestamp updated_at = 7;
-}
-
-message TimelineGroup {
-    uint64 id = 1;
-    string title = 2;
-    repeated Timeline timelines = 3;
-    google.protobuf.Timestamp created_at = 4;
-    google.protobuf.Timestamp updated_at = 5;
-}
-
-message TimelineEvent {
-    uint64 event_id = 1;
-    uint64 id = 2;
-    string title = 3;
-    google.protobuf.Timestamp timestamp = 4;
-    string description = 5;
-    string content = 6;
-    google.protobuf.Timestamp created_at = 7;
-    google.protobuf.Timestamp updated_at = 8;
-}
-
 service TimelineService {
     rpc CreateTimeline (Timeline) returns (Timeline) {
         option(google.api.http) = {
@@ -113,6 +84,14 @@ service TimelineService {
             description: "Add a timeline event to a timeline."
         };
     }
+    rpc ReadTimelineEvents(Filter) returns (ReadTimelineEventsResponse) {
+        option (google.api.http) = {
+            get: "/v1/timelines/{id}/events"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get a timeline's events."
+        };
+    }
     rpc ReadTimelineEvent(Filter) returns (TimelineEvent) {
         option (google.api.http) = {
             get: "/v1/events/{id}"
@@ -140,6 +119,35 @@ service TimelineService {
     }
 }
 
+message Timeline {
+    uint64 id = 1;
+    uint64 group_id = 2;
+    string title = 3;
+    repeated string tags = 4;
+    repeated TimelineEvent events = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+}
+
+message TimelineGroup {
+    uint64 id = 1;
+    string title = 2;
+    repeated Timeline timelines = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
+}
+
+message TimelineEvent {
+    uint64 event_id = 1;
+    uint64 id = 2;
+    string title = 3;
+    google.protobuf.Timestamp timestamp = 4;
+    string description = 5;
+    string content = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+}
+
 message Filter {
     uint64 id = 1;
 }
@@ -165,4 +173,9 @@ message UpdateTimelineRequest {
 message UpdateTimelineGroupRequest{
     uint64 id = 1;
     string title = 2;
+}
+
+message ReadTimelineEventsResponse{
+    uint64 id = 1;
+    repeated TimelineEvent events = 2;
 }

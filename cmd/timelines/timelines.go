@@ -92,6 +92,18 @@ func (s *server) CreateTimelineEvent(ctx context.Context, t *models.TimelineEven
 	return timelineEvent, nil
 }
 
+func (s *server) ReadTimelineEvents(ctx context.Context, in *models.Filter) (*models.ReadTimelineEventsResponse, error) {
+	events, err := s.db.readTimelineEvents(in.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.ReadTimelineEventsResponse{
+		Id:     in.Id,
+		Events: events,
+	}, nil
+}
+
 func (s *server) ReadTimelineEvent(ctx context.Context, t *models.Filter) (*models.TimelineEvent, error) {
 	tg, err := s.db.readTimelineEvent(t.GetId())
 	if err != nil {
