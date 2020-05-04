@@ -16,6 +16,24 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 
 service TimelineService {
+    rpc Signup(SignupRequest) returns (Error) {
+        option(google.api.http) = {
+            post: "/v1/users/signup"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Signup for an account."
+        };
+    }
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option(google.api.http) = {
+            post: "/v1/users/login"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Login with an existing username and password. If successful, receive JWT token."
+        };
+    }
     rpc CreateTimeline (Timeline) returns (Timeline) {
         option(google.api.http) = {
             post: "/v1/timelines"
@@ -178,4 +196,30 @@ message UpdateTimelineGroupRequest{
 message ReadTimelineEventsResponse{
     uint64 id = 1;
     repeated TimelineEvent events = 2;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+// The response message containing the JWT token.
+message LoginResponse {
+    string token = 1;
+}
+
+// The user message containing the user.
+message User {
+    uint64 id = 1;
+    string email = 2;
+    string username = 3;
+    string hash = 4;
+    bool   isAdmin  = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+}
+
+message SignupRequest {
+    string email = 1;
+    string password = 2;
 }

@@ -22,6 +22,7 @@ type server struct {
 	grpcServer *grpc.Server
 	httpServer *http.Server
 	db         *db
+	jwtKey     []byte
 }
 
 func NewServer(cfg *serverConfig, l net.Listener, d *sql.DB) *server {
@@ -31,6 +32,7 @@ func NewServer(cfg *serverConfig, l net.Listener, d *sql.DB) *server {
 		db: &db{
 			db: d,
 		},
+		jwtKey: []byte(cfg.jwtKey),
 	}
 }
 
@@ -78,7 +80,8 @@ func (s *server) Start() error {
 }
 
 func (s *server) withGRPC(ctx context.Context) (*grpc.Server, error) {
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(s.authUnaryServerInterceptor))
 	models.RegisterTimelineServiceServer(grpcServer, s)
 	return grpcServer, nil
 }
@@ -94,7 +97,7 @@ func prepareHTTP(ctx context.Context, name string) (*http.Server, error) {
 	}
 	router.Handle("/", gw)
 
-	handler := cors.Default().Handler(router)
+	handler := cors.AllowAll().Handler(router)
 
 	return &http.Server{
 		Addr:         name,

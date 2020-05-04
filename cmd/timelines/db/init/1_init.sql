@@ -38,3 +38,12 @@ CREATE TABLE IF NOT EXISTS tags (
                                     PRIMARY KEY(id, timeline_id),
                                     FOREIGN KEY (timeline_id) REFERENCES timelines (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS users (
+                                     id SERIAL,
+                                     email text NOT NULL,
+                                     hash text NOT NULL,
+                                     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                                     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                                     PRIMARY KEY (id)
+);

@@ -124,6 +124,21 @@ func (db *db) insertTag(tag string, tid uint64) (uint64, error) {
 
 	return id, nil
 }
+func (db *db) insertUser(username, hash string) (*models.User, error) {
+	var user models.User
+	var createdAt, updatedAt time.Time
+	sql := `INSERT INTO users(email, hash) VALUES($1, $2) RETURNING id, email, hash, created_at, updated_at;`
+	err := db.db.QueryRow(sql, username, hash).Scan(&user.Id, &user.Email, &user.Hash, &createdAt, &updatedAt)
+	if err != nil {
+		log.Error("Error writing user to db")
+		return nil, err
+	}
+
+	user.CreatedAt, _ = convertTime(createdAt)
+	user.UpdatedAt, _ = convertTime(updatedAt)
+
+	return &user, nil
+}
 
 func (db *db) updateTimelineEvent(eventID uint64, title, description, content string, t *timestamp.Timestamp) (*models.TimelineEvent, error) {
 	event := &models.TimelineEvent{}
@@ -385,7 +400,7 @@ func (db *db) readTimelineEvents(tid uint64) ([]*models.TimelineEvent, error) {
 	return events, nil
 }
 func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
-	var event *models.TimelineEvent
+	var event models.TimelineEvent
 	var timestamp, createdAt, updatedAt time.Time
 	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at
 			FROM events
@@ -405,7 +420,27 @@ func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
 	if event.Timestamp, err = convertTime(timestamp); err != nil {
 		return nil, err
 	}
-	return event, nil
+	return &event, nil
+}
+func (db *db) readUser(email string) (*models.User, error) {
+	var user models.User
+	var createdAt, updatedAt time.Time
+	sql := `SELECT * from users WHERE email = $1;`
+
+	err := db.db.QueryRow(sql, email).Scan(&user.Id, &user.Email, &user.Hash, &createdAt, &updatedAt)
+	if err != nil {
+		log.Error("Error reading user from db")
+		return nil, err
+	}
+
+	if user.CreatedAt, err = convertTime(createdAt); err != nil {
+		return nil, err
+	}
+	if user.UpdatedAt, err = convertTime(updatedAt); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (db *db) deleteTimelineGroup(id uint64) error {
