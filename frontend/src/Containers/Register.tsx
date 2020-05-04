@@ -36,6 +36,16 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 			error = true;
 		}
 
+		if (!checkForPasswordLength(password)) {
+			setPasswordMismatch('Password needs to be at least 8 characters long');
+			error = true;
+		}
+
+		if (!checkForEmptyPassword(password)) {
+			setPasswordMismatch('Please enter a password');
+			error = true;
+		}
+
 		if (!isEmail(email)) {
 			setValidEmail('Please enter a valid email');
 			error = true;
@@ -44,13 +54,16 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 		return error;
 	}
 
+	const checkForEmptyPassword = (password: string): boolean => {
+		return !!password.length;
+	}
+
 	const checkIfPasswordsMatch = (password: string, repeatPassword: string): boolean => {
-
-		if (!password.length || !repeatPassword.length) {
-			return false;
-		}
-
 		return password === repeatPassword;
+	}
+
+	const checkForPasswordLength = (password: string): boolean => {
+		return password.length >= 8;
 	}
 
 	const resetRegisterData = (): void => {
