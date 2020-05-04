@@ -2,6 +2,7 @@ import {ITimeline, ITimelineCreate} from "../Interfaces/ITimeline";
 import {httpDelete, httpGet, httpPost} from "./HttpSetup";
 import {IHappening, IHappeningCreate} from "../Interfaces/IHappening";
 import {IGroup} from "../Interfaces/IGroup";
+import {IUserCreate} from "../Interfaces/IUser";
 
 export const getTimeline = async (id: string): Promise<ITimeline> => {
     return httpGet('timelines/' + id);
@@ -31,4 +32,13 @@ export const createGroupedTimelines = async (timeline: ITimelineCreate, compareT
 
 export const deleteHappening = async (happeningId: string): Promise<any> => {
     return await httpDelete('events/' + happeningId);
+}
+
+export const signUpAttempt = async (body: IUserCreate): Promise<{ response: boolean }> => {
+    return await httpPost('users/signup', body)
+}
+
+// Returns a JWT token if successful.
+export const loginAttempt = async (body: IUserCreate): Promise<{ token: string }> => {
+    return await httpPost('users/login', body)
 }

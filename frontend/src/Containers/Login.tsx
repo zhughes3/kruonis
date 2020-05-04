@@ -1,11 +1,25 @@
 import React, {FormEvent} from 'react';
 import {IRouterProps} from "../Interfaces/IRouterProps";
 import {Center} from "../Components/Center";
+import {loginAttempt, signUpAttempt} from "../Http/Requests";
 
+let email = '';
+let password = '';
 export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 
-	const handleLogin = (e: FormEvent): void => {
+	const handleLogin = async (e: FormEvent): Promise<void> => {
 		e.preventDefault();
+
+		const result = await loginAttempt({email, password});
+		console.log(result);
+
+		// @ts-ignore
+		document.getElementById("login-form")?.reset();
+	}
+
+	const resetRegisterData = (): void => {
+		email = '';
+		password = '';
 
 		// @ts-ignore
 		document.getElementById("login-form")?.reset();
@@ -30,17 +44,17 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 					</div>
 
 					<div className="field mt2">
-						<p className="control has-icons-left">
+						<div className="control has-icons-left">
 							<input className="input" type="password" placeholder="Password"/>
 							<span className="icon is-small is-left">
 								<i className="fas fa-lock"/>
 							</span>
-							<p className="has-text-right mt1">
+							<div className="has-text-right mt1">
 								<a className="has-text-right has-text-grey-dark" onClick={ () => props.history.push('reset-password') }>
 									Forgot password?
 								</a>
-							</p>
-						</p>
+							</div>
+						</div>
 					</div>
 
 					<div className="field mt3">
@@ -53,7 +67,7 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 						<p className="has-text-centered">
 							<a onClick={ () => props.history.push('register') }>
 								<span className="icon is-small is-left">
-								  	<i className="fas fa-user"></i>
+								  	<i className="fas fa-user" />
 								</span>
 								<span className="ml1 has-text-grey-dark">Create new account</span>
 							</a>
