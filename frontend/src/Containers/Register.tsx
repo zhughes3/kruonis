@@ -3,6 +3,7 @@ import {IRouterProps} from "../Interfaces/IRouterProps";
 import {Center} from "../Components/Center";
 import {signUpAttempt} from "../Http/Requests";
 import isEmail from 'validator/lib/isEmail';
+import {checkForEmptyPassword, checkForPasswordLength, checkIfPasswordsMatch} from "../Utils/PasswordChecks";
 
 let email = '';
 let password = '';
@@ -52,18 +53,6 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 		}
 
 		return error;
-	}
-
-	const checkForEmptyPassword = (password: string): boolean => {
-		return !!password.length;
-	}
-
-	const checkIfPasswordsMatch = (password: string, repeatPassword: string): boolean => {
-		return password === repeatPassword;
-	}
-
-	const checkForPasswordLength = (password: string): boolean => {
-		return password.length >= 8;
 	}
 
 	const resetRegisterData = (): void => {
