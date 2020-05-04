@@ -1,4 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap');
+@import './Assets/fontawesome.min.css';
+/*@import './Assets/solid.min.css';*/
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/solid.min.css');
 
 :root {
     --house-blue: #2251CA;
@@ -10,6 +13,56 @@ body {
     font-family: Nunito !important;
     font-style: normal;
     font-weight: normal;
+}
+
+.house-blue-button {
+    background-color: #3362db !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 5px;
+}
+.house-blue-button:hover {
+    background-color: var(--house-blue) !important;
+}
+
+.absolute-center-parent {
+    width: 100vw;
+    height: 100vh;
+    display: table-cell;
+    vertical-align: middle;
+}
+.absolute-center-child {
+    margin: auto;
+    max-width: 50vw;
+}
+
+.login {
+    width: 100vw;
+    height: 100vh;
+    display: table-cell;
+    vertical-align: middle;
+}
+#login-form {
+    margin: auto;
+    max-width: 600px;
+    padding: 30px 20px;
+    border-radius: 10px;
+}
+
+.login-form-input {
+    border-radius: 5px !important;
+
+    font-size: 18px !important;
+    line-height: 25px !important;
+    letter-spacing: 0.025em !important;
+    padding-top: 11px !important;
+    padding-bottom: 11px !important;
+}
+
+.login-form-button {
+    font-size: 17px !important;
+    line-height: 23px !important;
+    letter-spacing: 0.025em !important;
 }
 
 .home-left-side {
@@ -280,7 +333,7 @@ body {
 }
 
 .color-white {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
 }
 .color-error {
     color: #e94444;
@@ -324,6 +377,22 @@ body {
 }
 .mt5 {
     margin-top: 50px;
+}
+
+.mb1 {
+    margin-bottom: 10px;
+}
+.mb2 {
+    margin-bottom: 20px;
+}
+.mb3 {
+    margin-bottom: 30px;
+}
+.mb4 {
+    margin-bottom: 40px;
+}
+.mb5 {
+    margin-bottom: 50px;
 }
 
 .mt-10 {
@@ -438,6 +507,11 @@ body {
 }
 
 @media only screen and (max-width: 800px) {
+
+    #login-form {
+        width: 100vw;
+    }
+
     .home_blue_stain {
         background-color: #3362DB;
         width: 100vw;
