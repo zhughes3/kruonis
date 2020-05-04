@@ -1,6 +1,10 @@
 import React from 'react';
 import { IHappening } from '../Interfaces/IHappening';
 import { HappeningDate } from './HappeningDate';
+import {RemoveHappening} from "./RemoveHappening";
+
+import trash from './../Assets/Icons/trash.svg';
+import edit from './../Assets/Icons/edit-2.svg';
 
 interface IHappeningProps {
     happening: IHappening;
@@ -13,13 +17,18 @@ interface IHappeningProps {
 
 export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
 
-    console.log(props.left);
-
     return (
         <div id={props.happening.id} className={`steps-segment ${props.className && props.className}`} onClick={ () => props.selectHappening(props.happening) }>
 
             { props.left ?
-                <div>
+                <div className="happening">
+
+                    {/* The icons for deleting and updating a happening. These become visible on hover. */}
+                    <div className="happening-update-delete-left">
+                        <RemoveHappening id={props.happening.id} />
+                        <img src={edit} className="ml1" alt="Remove event"/>
+                    </div>
+
                     <span className="steps-marker"></span>
 
                     <div className="steps-content columns" style={{position: 'relative', right: 406}}>
@@ -30,11 +39,18 @@ export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
                             <div className="happening-info-text">{props.happening.description}</div>
                         </div>
 
-                        <HappeningDate timestamp={props.happening.timestamp} left />
+                        <HappeningDate timestamp={props.happening.timestamp} left/>
                     </div>
                 </div>
                 :
-                <div>
+                <div className="happening">
+
+                    {/* The icons for deleting and updating a happening. These become visible on hover. */}
+                    <div className="happening-update-delete-right">
+                        <img src={trash} alt="Remove event" />
+                        <img src={edit} className="ml1" alt="Remove event" />
+                    </div>
+
                     <span className="steps-marker"></span>
 
                     <div className="steps-content columns">
