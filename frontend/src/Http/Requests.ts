@@ -3,6 +3,7 @@ import {httpDelete, httpGet, httpPost} from "./HttpSetup";
 import {IHappening, IHappeningCreate} from "../Interfaces/IHappening";
 import {IGroup} from "../Interfaces/IGroup";
 import {IUserCreate} from "../Interfaces/IUser";
+import {IBoolResponse} from "../Interfaces/IBoolResponse";
 
 export const getTimeline = async (id: string): Promise<ITimeline> => {
     return httpGet('timelines/' + id);
@@ -34,11 +35,14 @@ export const deleteHappening = async (happeningId: string): Promise<any> => {
     return await httpDelete('events/' + happeningId);
 }
 
-export const signUpAttempt = async (body: IUserCreate): Promise<{ response: boolean }> => {
-    return await httpPost('users/signup', body)
+// Returns true if the register attempt was successful.
+export const signUpAttempt = async (body: IUserCreate): Promise<boolean> => {
+    const result: IBoolResponse = await httpPost('users/signup', body)
+    return result.response;
 }
 
-// Returns a JWT token if successful.
-export const loginAttempt = async (body: IUserCreate): Promise<{ token: string }> => {
-    return await httpPost('users/login', body)
+// Returns true if login was successful.
+export const loginAttempt = async (body: IUserCreate): Promise<boolean> => {
+    const result: IBoolResponse = await httpPost('users/login', body)
+    return result.response;
 }

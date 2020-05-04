@@ -1,7 +1,8 @@
-import React, {FormEvent} from 'react';
+import React, {FormEvent, useState} from 'react';
 import {IRouterProps} from "../Interfaces/IRouterProps";
 import {Center} from "../Components/Center";
 import {signUpAttempt} from "../Http/Requests";
+import isEmail from 'validator/lib/isEmail';
 
 let email = '';
 let password = '';
@@ -9,20 +10,46 @@ let repeatPassword = '';
 
 export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 
+	const [passwordMismatch, setPasswordMismatch] = useState<string>('');
+	const [validEmail, setValidEmail] = useState<string>('');
+
 	const handleRegister = async (e: FormEvent): Promise<void> => {
 		e.preventDefault();
 
-		if (!checkIfPasswordsMatch(password, repeatPassword)) { return; }
+		resetErrors();
+
+		if (errorFound()) { return; }
 
 		const result = await signUpAttempt({email, password});
 
-		if(result && result.response) {
+		if(result) {
 			resetRegisterData();
 			props.history.push('login');
 		}
 	}
 
-	const checkIfPasswordsMatch = (password: string, repeatPassword: string) => {
+	const errorFound = (): boolean => {
+		let error = false;
+
+		if (!checkIfPasswordsMatch(password, repeatPassword)) {
+			setPasswordMismatch('Passwords do not match');
+			error = true;
+		}
+
+		if (!isEmail(email)) {
+			setValidEmail('Please enter a valid email');
+			error = true;
+		}
+
+		return error;
+	}
+
+	const checkIfPasswordsMatch = (password: string, repeatPassword: string): boolean => {
+
+		if (!password.length || !repeatPassword.length) {
+			return false;
+		}
+
 		return password === repeatPassword;
 	}
 
@@ -33,6 +60,11 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 
 		// @ts-ignore
 		document.getElementById("login-form")?.reset();
+	}
+
+	const resetErrors = (): void => {
+		setPasswordMismatch('');
+		setValidEmail('');
 	}
 
 	return (
@@ -46,16 +78,22 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 
 					<div className="field mt3">
 						<p className="control has-icons-left has-icons-right">
-							<input className="input" type="email" placeholder="Email" onChange={ (e) => email = e.target.value} />
+							<input className={`input ${ validEmail && 'is-danger' }`} type="email" placeholder="Email" onChange={ (e) => email = e.target.value} />
 							<span className="icon is-small is-left">
 								<i className="fas fa-envelope"/>
 							</span>
 						</p>
 					</div>
 
+					{ validEmail &&
+						<div className="field has-text-danger">
+							{validEmail}
+						</div>
+					}
+
 					<div className="field mt2">
 						<p className="control has-icons-left">
-							<input className="input" type="password" placeholder="Password" onChange={ (e) => password = e.target.value} />
+							<input className={`input ${ passwordMismatch && 'is-danger' }`} type="password" placeholder="Password" onChange={ (e) => password = e.target.value} />
 							<span className="icon is-small is-left">
 								<i className="fas fa-lock"/>
 							</span>
@@ -64,16 +102,22 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 
 					<div className="field mt2">
 						<p className="control has-icons-left">
-							<input className="input" type="password" placeholder="Repeat password" onChange={ (e) => repeatPassword = e.target.value} />
+							<input className={`input ${ passwordMismatch && 'is-danger' }`} type="password" placeholder="Repeat password" onChange={ (e) => repeatPassword = e.target.value} />
 							<span className="icon is-small is-left">
 								<i className="fas fa-lock"/>
 							</span>
 						</p>
 					</div>
+
+					{ passwordMismatch &&
+						<div className="field has-text-danger">
+							{passwordMismatch}
+						</div>
+					}
 
 					<div className="field mt3">
 						<p className="control">
-							<button className="button house-blue-button is-fullwidth">Login</button>
+							<button className="button house-blue-button is-fullwidth">Register</button>
 						</p>
 					</div>
 

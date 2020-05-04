@@ -1,7 +1,7 @@
 import React, {FormEvent} from 'react';
 import {IRouterProps} from "../Interfaces/IRouterProps";
 import {Center} from "../Components/Center";
-import {loginAttempt, signUpAttempt} from "../Http/Requests";
+import {loginAttempt} from "../Http/Requests";
 
 let email = '';
 let password = '';
