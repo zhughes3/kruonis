@@ -3,6 +3,10 @@ import { IHappening } from "./IHappening";
 export interface ITimeline {
     id: string;
     group_id: string;
+    // To be implemented
+    user_id?: string;
+    private?: boolean;
+    // -----------------
     title: string;
     tags: string[];
     events: IHappening[],

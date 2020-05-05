@@ -1,20 +1,31 @@
-import React, {FormEvent} from 'react';
+import React, {FormEvent, useState} from 'react';
 import {IRouterProps} from "../Interfaces/IRouterProps";
 import {Center} from "../Components/Center";
 import {loginAttempt} from "../Http/Requests";
+import isEmail from 'validator/lib/isEmail';
+import {checkForPasswordLength} from "../Utils/PasswordChecks";
 
 let email = '';
 let password = '';
 export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 
+	const [loginAttemptStatus, setLoginAttemptStatus] = useState<string>('');
+
 	const handleLogin = async (e: FormEvent): Promise<void> => {
 		e.preventDefault();
+
+		setLoginAttemptStatus('');
+
+		if (errorFound()) { return; }
 
 		const result = await loginAttempt({email, password});
 		console.log(result);
 
+		resetRegisterData();
 		// @ts-ignore
 		document.getElementById("login-form")?.reset();
+
+		props.history.push('/');
 	}
 
 	const resetRegisterData = (): void => {
@@ -23,6 +34,20 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 
 		// @ts-ignore
 		document.getElementById("login-form")?.reset();
+	}
+
+	const errorFound = (): boolean => {
+		let error = false;
+
+		if (!isEmail(email) || !checkForPasswordLength(password)) {
+			error = true;
+		}
+
+		if (error) {
+			setLoginAttemptStatus('Login failed, please check the data you entered')
+		}
+
+		return error;
 	}
 
 	return (
@@ -36,7 +61,7 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 
 					<div className="field mt3">
 						<p className="control has-icons-left has-icons-right">
-							<input className="input" type="email" placeholder="Email"/>
+							<input className="input" type="email" placeholder="Email" onChange={ (e) => email = e.target.value} />
 							<span className="icon is-small is-left">
 								<i className="fas fa-envelope"/>
 							</span>
@@ -45,7 +70,7 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 
 					<div className="field mt2">
 						<div className="control has-icons-left">
-							<input className="input" type="password" placeholder="Password"/>
+							<input className="input" type="password" placeholder="Password" onChange={ (e) => password = e.target.value} />
 							<span className="icon is-small is-left">
 								<i className="fas fa-lock"/>
 							</span>
@@ -62,6 +87,12 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 							<button className="button house-blue-button is-fullwidth">Login</button>
 						</p>
 					</div>
+
+					{ loginAttemptStatus &&
+					<div className="field has-text-danger">
+						{loginAttemptStatus}
+					</div>
+					}
 
 					<div className="field mt2">
 						<p className="has-text-centered">
