@@ -2,9 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { IRouterProps } from '../Interfaces/IRouterProps';
 import { IHappening, IHappeningCreate } from '../Interfaces/IHappening';
 import { Happening } from '../Components/Happening';
-import { AddHappening } from '../Components/AddHappening';
 import { useParams } from 'react-router-dom';
-import {createHappening, getTimelineGroup, updateHappening} from "../Http/Requests";
+import {createHappening, deleteHappening, getTimelineGroup, updateHappening} from "../Http/Requests";
 import {Center} from "../Components/Center";
 import { LoadingCard } from '../Components/LoadingCard';
 import moment from "moment";
@@ -91,21 +90,16 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
         timelineGroupCopy.timelines[timeIn].events = selectedTimeline.events;
 
-        setEvents(timelineGroupCopy);
-
-        setTimelineGroup(undefined);
-        setTimelineGroup( timelineGroup => timelineGroupCopy);
+        setEventsAndTimelineGroup(timelineGroupCopy);
 
     };
 
     const updateAHappening = async (happening: IHappening): Promise<void> => {
 
-        // TODO Add error handling on no id.
+        // TODO Add error handling on no happening.
         const result: IHappening | void = await updateHappening(happening.event_id, happening).catch( (e: Error) => console.log(e) );
 
         if (!result) { return; }
-
-        if (!groupId) { return setFetchTimelineError("We can't find the timeline you are looking for!"); }
 
         const cp = Object.assign({}, timelineGroup);
 
@@ -117,13 +111,42 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
            });
         });
 
-        setEvents(cp);
+        setSelectedHappening(happening);
+
+        setEventsAndTimelineGroup(cp);
+    };
+
+    const removeHappening = async (id: string) => {
+
+        // TODO Add error handling on delete failure.
+        const result = await deleteHappening(id).catch( (e: Error) => console.log(e) );
+
+        if (!result) { return; }
+
+        const cp = Object.assign({}, timelineGroup);
+
+        cp?.timelines.forEach( timeline => {
+            timeline.events.forEach( (event, index) => {
+                if (event.event_id === id) {
+                    timeline.events.splice(index, 1);
+                }
+            });
+        });
+
+        setSelectedHappening(undefined);
+
+        setEventsAndTimelineGroup(cp);
+    };
+
+    const setEventsAndTimelineGroup = (newTimelineGroup: IGroup) => {
+        setEvents(newTimelineGroup);
 
         setTimelineGroup(undefined);
-        setTimelineGroup(timelineGroup => cp);
+        setTimelineGroup(timelineGroup => newTimelineGroup);
     };
 
     // Combine the events of multiple timelines into a single array. Then sort that array based on date.
+    // This function is ALWAYS called after a post, put or deleter to make sure the events are displayed in the correct order.
     const setEvents = (group: IGroup) => {
         events = [];
 
@@ -133,17 +156,6 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
         events = sortHappenings(events);
     };
-
-    const updateEvent = (updatedHappening: IHappening) => {
-        const arr: any = [];
-        events.forEach( (event: IHappening) => {
-            if (event.event_id === updatedHappening.event_id) {
-                event = updatedHappening;
-            }
-            arr.push(event);
-        });
-        events = arr;
-    }
 
     const sortHappenings = (happenings: IHappening[]): IHappening[] => {
         // @ts-ignore
@@ -213,10 +225,10 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
                     {events.length ?
                         events.map((happening: IHappening, index: number) => {
-                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) } />
+                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) }  deleteHappening={ (id: string) => removeHappening(id) } />
                         })
                         :
-                        <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } left  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) }/>
+                        <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } left  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) } deleteHappening={ (id: string) => removeHappening(id) } />
                     }
 
                 </div>

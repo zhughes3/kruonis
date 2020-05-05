@@ -1,11 +1,9 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { IHappening } from '../Interfaces/IHappening';
 import { HappeningDate } from './HappeningDate';
-import {RemoveHappening} from "./RemoveHappening";
 
 import trash from './../Assets/Icons/trash.svg';
 import edit from './../Assets/Icons/edit-2.svg';
-import {HappeningModal} from "./HappeningModal";
 
 interface IHappeningProps {
     happening: IHappening;
@@ -16,6 +14,8 @@ interface IHappeningProps {
     selectHappening: (happening: IHappening) => void;
     openEditHappening: boolean;
     setOpenEditHappening: (openEditHappening: boolean) => void;
+
+    deleteHappening: (id: string) => void;
 }
 
 export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
@@ -28,7 +28,7 @@ export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
 
                     {/* The icons for deleting and updating a happening. These become visible on hover. */}
                     <div className="happening-update-delete-left">
-                        <RemoveHappening id={props.happening.id} />
+                        <img src={trash} alt="Remove event" onClick={ () => props.deleteHappening(props.happening.event_id) } />;
                         <img src={edit} className="ml1" alt="Edit event" onClick={ () => props.setOpenEditHappening(!props.openEditHappening) } />
                     </div>
 
@@ -50,7 +50,7 @@ export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
 
                     {/* The icons for deleting and updating a happening. These become visible on hover. */}
                     <div className="happening-update-delete-right">
-                        <img src={trash} alt="Remove event" />
+                        <img src={trash} alt="Remove event" onClick={ () => props.deleteHappening(props.happening.event_id) } />;
                         <img src={edit} className="ml1" alt="Edit event" onClick={ () => props.setOpenEditHappening(!props.openEditHappening) } />
                     </div>
 
