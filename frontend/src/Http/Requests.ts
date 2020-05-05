@@ -1,5 +1,5 @@
 import {ITimeline, ITimelineCreate} from "../Interfaces/ITimeline";
-import {httpDelete, httpGet, httpPost} from "./HttpSetup";
+import {httpDelete, httpGet, httpPost, httpPut} from "./HttpSetup";
 import {IHappening, IHappeningCreate} from "../Interfaces/IHappening";
 import {IGroup} from "../Interfaces/IGroup";
 import {IUserCreate} from "../Interfaces/IUser";
@@ -19,6 +19,11 @@ export const createTimeline = async (body: ITimelineCreate): Promise<ITimeline> 
 
 export const createHappening = async (timelineId: string, body: IHappeningCreate): Promise<IHappening> => {
     return await httpPost('timelines/' + timelineId + '/events', body);
+};
+
+export const updateHappening = async (eventId: string, body: IHappeningCreate): Promise<IHappening> => {
+    console.log(eventId);
+    return await httpPut('events/' + eventId, body);
 };
 
 export const createGroupedTimelines = async (timeline: ITimelineCreate, compareTo: ITimelineCreate): Promise<ITimeline[]> => {

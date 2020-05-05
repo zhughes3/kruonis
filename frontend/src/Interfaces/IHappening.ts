@@ -1,3 +1,5 @@
+import {ReactText} from "react";
+
 export interface IHappening {
     id: string;
     event_id: string;
@@ -11,6 +13,8 @@ export interface IHappening {
 }
 
 export interface IHappeningCreate {
+    id?: ReactText;
+    event_id?: ReactText;
     timeline_id?: string;
     title: string;
     timestamp: string;

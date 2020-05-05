@@ -4,13 +4,14 @@ import { IHappening, IHappeningCreate } from '../Interfaces/IHappening';
 import { Happening } from '../Components/Happening';
 import { AddHappening } from '../Components/AddHappening';
 import { useParams } from 'react-router-dom';
-import {createHappening, getTimelineGroup} from "../Http/Requests";
+import {createHappening, getTimelineGroup, updateHappening} from "../Http/Requests";
 import {Center} from "../Components/Center";
 import { LoadingCard } from '../Components/LoadingCard';
 import moment from "moment";
 import {ErrorCard} from "../Components/ErrorCard";
 import { IGroup } from '../Interfaces/IGroup';
 import {ITimeline} from "../Interfaces/ITimeline";
+import {HappeningModal} from "../Components/HappeningModal";
 
 // This happening is displayed if there are no happenings (events) on the timeline yet.
 const emptyTimelineHappening = {
@@ -37,6 +38,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [timelineGroup, setTimelineGroup] = useState<IGroup>();
     const [fetchTimelineError, setFetchTimelineError] = useState<string>('');
+    const [openEditModal, setOpenEditModal] = useState<boolean>(false);
 
     useEffect( () => {
         if (!groupId) { return setFetchTimelineError("We can't find the timeline you are looking for!"); }
@@ -96,6 +98,32 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
     };
 
+    const updateAHappening = async (happening: IHappening): Promise<void> => {
+
+        // TODO Add error handling on no id.
+        const result: IHappening | void = await updateHappening(happening.event_id, happening).catch( (e: Error) => console.log(e) );
+
+        if (!result) { return; }
+
+        if (!groupId) { return setFetchTimelineError("We can't find the timeline you are looking for!"); }
+
+        const cp = Object.assign({}, timelineGroup);
+
+        cp?.timelines.forEach( timeline => {
+            timeline.events.forEach( (event, index) => {
+               if (event.event_id === happening.event_id) {
+                   timeline.events[index] = happening;
+               }
+           });
+        });
+
+        setEvents(cp);
+
+        setTimelineGroup(undefined);
+        setTimelineGroup(timelineGroup => cp);
+    };
+
+    // Combine the events of multiple timelines into a single array. Then sort that array based on date.
     const setEvents = (group: IGroup) => {
         events = [];
 
@@ -105,6 +133,17 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
         events = sortHappenings(events);
     };
+
+    const updateEvent = (updatedHappening: IHappening) => {
+        const arr: any = [];
+        events.forEach( (event: IHappening) => {
+            if (event.event_id === updatedHappening.event_id) {
+                event = updatedHappening;
+            }
+            arr.push(event);
+        });
+        events = arr;
+    }
 
     const sortHappenings = (happenings: IHappening[]): IHappening[] => {
         // @ts-ignore
@@ -146,7 +185,9 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
                 )
             })}
 
-            <AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => { createNewHappening(newHappening, selectedTimeline) }} />
+            {/*<AddHappening open={open} toggleModal={toggleModal} createHappening={ (newHappening: IHappeningCreate) => { createNewHappening(newHappening, selectedTimeline) }} />*/}
+            {/* Modal used for creating new happenings. */}
+            <HappeningModal  buttonText="Update" onSubmit={ (newHappening: IHappeningCreate) => { createNewHappening(newHappening, selectedTimeline) } } title="Create event"  open={open}  toggleModal={toggleModal} />
 
             <div className="timeline-position">
 
@@ -172,10 +213,10 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
                     {events.length ?
                         events.map((happening: IHappening, index: number) => {
-                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } />
+                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) } />
                         })
                         :
-                        <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } left />
+                        <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } left  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) }/>
                     }
 
                 </div>
@@ -189,6 +230,9 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
                     </div>
                 }
             </div>
+
+            {/* Modal used for updating happenings. */}
+            <HappeningModal  buttonText="Update" onSubmit={ (result: IHappening) => {updateAHappening(result) }} title="Update event"  open={openEditModal}  toggleModal={ () => setOpenEditModal(!openEditModal) } happening={selectedHappening} />
 
         </div>
     );
