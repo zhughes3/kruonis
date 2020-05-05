@@ -3,7 +3,7 @@ import {IRouterProps} from "../Interfaces/IRouterProps";
 import {Center} from "../Components/Center";
 import {signUpAttempt} from "../Http/Requests";
 import isEmail from 'validator/lib/isEmail';
-import {checkForEmptyPassword, checkForPasswordLength, checkIfPasswordsMatch} from "../Utils/PasswordChecks";
+import { checkForEmptyPassword, checkForPasswordLength, checkIfPasswordsMatch, MIN_PASSWORD_LENGTH } from "../Utils/PasswordChecks";
 
 let email = '';
 let password = '';
@@ -38,7 +38,7 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 		}
 
 		if (!checkForPasswordLength(password)) {
-			setPasswordMismatch('Password needs to be at least 8 characters long');
+			setPasswordMismatch(`Password needs to be at least ${MIN_PASSWORD_LENGTH} characters long`);
 			error = true;
 		}
 
