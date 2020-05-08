@@ -20,13 +20,12 @@ var (
 	errBadCredentials error          = errors.New("Bad username, password combo")
 	errInvalidToken   error          = errors.New("Invalid JSON Web Token")
 	errNoBearerToken  error          = errors.New("Must supply bearer token to complete request")
+	errSetCookie      error          = errors.New("Problem creating cookie from JWT")
 	insecureEndpoints map[string]int = map[string]int{
 		"/models.TimelineService/Login":  1,
 		"/models.TimelineService/Signup": 1,
 	}
 )
-
-var NoAuth = true
 
 type claims struct {
 	Email string `json:"email"`
@@ -67,16 +66,15 @@ func (s *server) Login(ctx context.Context, in *models.LoginRequest) (*models.Lo
 		return nil, err
 	}
 
-	return &models.LoginResponse{
-		Token: token,
-	}, nil
+	if err := grpc.SetHeader(ctx, metadata.Pairs("token", token)); err != nil {
+		return nil, errSetCookie
+	}
+
+	return &models.LoginResponse{}, nil
 }
 
 func (s *server) authUnaryServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler) (interface{}, error) {
-	if NoAuth {
-		return handler(ctx, req)
-	}
 	if _, ok := insecureEndpoints[info.FullMethod]; ok {
 		// no authentication needed
 		return handler(ctx, req)

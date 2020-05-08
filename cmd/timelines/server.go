@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -89,7 +90,6 @@ func (s *server) withGRPC(ctx context.Context) (*grpc.Server, error) {
 func prepareHTTP(ctx context.Context, name string) (*http.Server, error) {
 	router := http.NewServeMux()
 
-	//gateway
 	gw, err := prepareGateway(name, ctx)
 	if err != nil {
 		log.Fatalln("unable to init grpc gateway")
@@ -119,6 +119,7 @@ func prepareGateway(target string, ctx context.Context) (http.Handler, error) {
 	}
 
 	gwMux := runtime.NewServeMux(
+		runtime.WithForwardResponseOption(httpResponseModifier),
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{OrigName: true, EmitDefaults: true}),
 		runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
 	)
@@ -129,4 +130,20 @@ func prepareGateway(target string, ctx context.Context) (http.Handler, error) {
 	}
 
 	return gwMux, nil
+}
+
+func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Message) error {
+	if md, ok := runtime.ServerMetadataFromContext(ctx); ok {
+		tkn := md.HeaderMD.Get("token")
+		if len(tkn) > 0 {
+			cookie := http.Cookie{
+				Name:     "bearer",
+				Value:    tkn[0],
+				HttpOnly: true,
+			}
+			http.SetCookie(w, &cookie)
+		}
+	}
+
+	return nil
 }
