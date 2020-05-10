@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+
 	"github.com/zhughes3/kruonis/cmd/timelines/models"
 )
 
@@ -27,6 +30,10 @@ func (s *server) CreateTimeline(ctx context.Context, t *models.Timeline) (*model
 			return nil, err
 		}
 		timeline.Tags = append(timeline.Tags, tag)
+	}
+
+	if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201")); err != nil {
+		return nil, err
 	}
 
 	return timeline, nil
@@ -86,6 +93,10 @@ func (s *server) DeleteTimelineGroup(ctx context.Context, t *models.Filter) (*mo
 func (s *server) CreateTimelineEvent(ctx context.Context, t *models.TimelineEvent) (*models.TimelineEvent, error) {
 	timelineEvent, err := s.db.insertTimelineEvent(t.GetId(), t.GetTitle(), t.GetDescription(), t.GetContent(), t.GetTimestamp())
 	if err != nil {
+		return nil, err
+	}
+
+	if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201")); err != nil {
 		return nil, err
 	}
 

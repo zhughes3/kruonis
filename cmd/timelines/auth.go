@@ -20,7 +20,6 @@ var (
 	errBadCredentials error          = errors.New("Bad username, password combo")
 	errInvalidToken   error          = errors.New("Invalid JSON Web Token")
 	errNoBearerToken  error          = errors.New("Must supply bearer token to complete request")
-	errSetCookie      error          = errors.New("Problem creating cookie from JWT")
 	insecureEndpoints map[string]int = map[string]int{
 		"/models.TimelineService/Login":  1,
 		"/models.TimelineService/Signup": 1,
@@ -44,6 +43,10 @@ func (s *server) Signup(ctx context.Context, in *models.SignupRequest) (*models.
 		return nil, err
 	}
 
+	if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201")); err != nil {
+		return nil, err
+	}
+
 	return &models.Error{
 		Response: true,
 	}, nil
@@ -58,6 +61,9 @@ func (s *server) Login(ctx context.Context, in *models.LoginRequest) (*models.Lo
 
 	if bcrypt.CompareHashAndPassword([]byte(user.GetHash()), []byte(in.GetPassword())) != nil {
 		//login unsuccessful
+		if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "401")); err != nil {
+			return nil, err
+		}
 		return nil, errBadCredentials
 	}
 
@@ -67,7 +73,7 @@ func (s *server) Login(ctx context.Context, in *models.LoginRequest) (*models.Lo
 	}
 
 	if err := grpc.SetHeader(ctx, metadata.Pairs("token", token)); err != nil {
-		return nil, errSetCookie
+		return nil, err
 	}
 
 	return &models.LoginResponse{}, nil

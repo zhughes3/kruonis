@@ -5,7 +5,10 @@ import (
 	"database/sql"
 	"net"
 	"net/http"
+	"strconv"
 	"time"
+
+	"google.golang.org/grpc/metadata"
 
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
@@ -133,16 +136,30 @@ func prepareGateway(target string, ctx context.Context) (http.Handler, error) {
 }
 
 func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Message) error {
-	if md, ok := runtime.ServerMetadataFromContext(ctx); ok {
-		tkn := md.HeaderMD.Get("token")
-		if len(tkn) > 0 {
-			cookie := http.Cookie{
-				Name:     "bearer",
-				Value:    tkn[0],
-				HttpOnly: true,
-			}
-			http.SetCookie(w, &cookie)
+	md, ok := runtime.ServerMetadataFromContext(ctx)
+	if !ok {
+		return nil
+	}
+
+	// set cookie
+	if tkn := md.HeaderMD.Get("token"); len(tkn) > 0 {
+		cookie := http.Cookie{
+			Name:     "bearer",
+			Value:    tkn[0],
+			HttpOnly: true,
 		}
+		http.SetCookie(w, &cookie)
+		grpc.SetHeader(ctx, metadata.Pairs("token", ""))
+	}
+
+	// set http status code
+	if vals := md.HeaderMD.Get("x-http-code"); len(vals) > 0 {
+		code, err := strconv.Atoi(vals[0])
+		if err != nil {
+			return err
+		}
+		w.WriteHeader(code)
+		grpc.SetHeader(ctx, metadata.Pairs("x-http-code", ""))
 	}
 
 	return nil
