@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"google.golang.org/grpc/metadata"
-
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 
@@ -111,6 +109,7 @@ func prepareHTTP(ctx context.Context, name string) (*http.Server, error) {
 	}, nil
 }
 
+// setup the grpc-gateway
 func prepareGateway(target string, ctx context.Context) (http.Handler, error) {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
@@ -149,7 +148,8 @@ func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Me
 			HttpOnly: true,
 		}
 		http.SetCookie(w, &cookie)
-		grpc.SetHeader(ctx, metadata.Pairs("token", ""))
+		delete(md.HeaderMD, "token")
+		delete(w.Header(), "Grpc-Metadata-Token")
 	}
 
 	// set http status code
@@ -159,8 +159,11 @@ func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Me
 			return err
 		}
 		w.WriteHeader(code)
-		grpc.SetHeader(ctx, metadata.Pairs("x-http-code", ""))
+		delete(md.HeaderMD, "x-http-code")
+		delete(w.Header(), "Grpc-Metadata-X-Http-Code")
 	}
+
+	delete(w.Header(), "Grpc-Metadata-Content-Type")
 
 	return nil
 }
