@@ -34,6 +34,23 @@ service TimelineService {
             description: "Login with an existing username and password. If successful, receive JWT token."
         };
     }
+    rpc Refresh(RefreshRequest) returns (RefreshResponse) {
+        option(google.api.http) = {
+            get: "/v1/users/refresh"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Refresh bearer token; check if logged in."
+        };
+    }
+    rpc Me(MeRequest) returns (MeResponse) {
+        option(google.api.http) = {
+            get: "/v1/users/me"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get user account information, including timelines associated with account."
+        };
+
+    }
     rpc CreateTimeline (Timeline) returns (Timeline) {
         option(google.api.http) = {
             post: "/v1/timelines"
@@ -153,6 +170,9 @@ message TimelineGroup {
     repeated Timeline timelines = 3;
     google.protobuf.Timestamp created_at = 4;
     google.protobuf.Timestamp updated_at = 5;
+    bool private = 6;
+    uint64 user_id = 7;
+    string uuid = 8;
 }
 
 message TimelineEvent {
@@ -191,6 +211,7 @@ message UpdateTimelineRequest {
 message UpdateTimelineGroupRequest{
     uint64 id = 1;
     string title = 2;
+    bool private = 3;
 }
 
 message ReadTimelineEventsResponse{
@@ -212,14 +233,28 @@ message LoginResponse {
 message User {
     uint64 id = 1;
     string email = 2;
-    string username = 3;
-    string hash = 4;
-    bool   isAdmin  = 5;
-    google.protobuf.Timestamp created_at = 6;
-    google.protobuf.Timestamp updated_at = 7;
+    string hash = 3;
+    bool   isAdmin  = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
 }
 
 message SignupRequest {
     string email = 1;
     string password = 2;
+}
+
+message RefreshRequest {
+
+}
+message RefreshResponse {
+
+}
+
+message MeRequest {
+
+}
+message MeResponse {
+    User user = 1;
+    repeated TimelineGroup groups = 2;
 }

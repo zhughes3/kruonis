@@ -12,7 +12,7 @@ import (
 func (s *server) CreateTimeline(ctx context.Context, t *models.Timeline) (*models.Timeline, error) {
 	groupId := t.GetGroupId()
 	if groupId == 0 {
-		timelineGroup, err := s.db.insertTimelineGroup(t.GetTitle())
+		timelineGroup, err := s.db.insertTimelineGroup(t.GetTitle(), UserIDFromContext(ctx), false)
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +74,7 @@ func (s *server) ReadTimelineGroup(ctx context.Context, t *models.Filter) (*mode
 }
 
 func (s *server) UpdateTimelineGroup(ctx context.Context, in *models.UpdateTimelineGroupRequest) (*models.TimelineGroup, error) {
-	timelineGroup, err := s.db.updateTimelineGroup(in.GetId(), in.GetTitle())
+	timelineGroup, err := s.db.updateTimelineGroup(in.GetId(), in.GetTitle(), in.GetPrivate())
 	if err != nil {
 		return nil, err
 	}

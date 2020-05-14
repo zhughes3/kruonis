@@ -140,16 +140,26 @@ func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Me
 		return nil
 	}
 
-	// set cookie
-	if tkn := md.HeaderMD.Get("token"); len(tkn) > 0 {
+	// set cookies
+	if tkn := md.HeaderMD.Get("access"); len(tkn) > 0 {
 		cookie := http.Cookie{
-			Name:     "bearer",
+			Name:     "access",
 			Value:    tkn[0],
 			HttpOnly: true,
 		}
 		http.SetCookie(w, &cookie)
-		delete(md.HeaderMD, "token")
-		delete(w.Header(), "Grpc-Metadata-Token")
+		delete(md.HeaderMD, "access")
+		delete(w.Header(), "Grpc-Metadata-Access")
+	}
+	if tkn := md.HeaderMD.Get("refresh"); len(tkn) > 0 {
+		cookie := http.Cookie{
+			Name:     "refresh",
+			Value:    tkn[0],
+			HttpOnly: true,
+		}
+		http.SetCookie(w, &cookie)
+		delete(md.HeaderMD, "refresh")
+		delete(w.Header(), "Grpc-Metadata-Refresh")
 	}
 
 	// set http status code

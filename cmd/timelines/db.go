@@ -11,6 +11,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/google/uuid"
 	"github.com/zhughes3/kruonis/cmd/timelines/models"
 )
 
@@ -37,12 +38,15 @@ func NewDB(cfg *dbConfig) *sql.DB {
 	return db
 }
 
-func (db *db) insertTimelineGroup(title string) (*models.TimelineGroup, error) {
+func (db *db) insertTimelineGroup(title string, userID uint64, isPrivate bool) (*models.TimelineGroup, error) {
 	var createdAt, updatedAt time.Time
 	var id uint64
-	sql := `INSERT INTO groups(title) VALUES($1) RETURNING id, created_at, updated_at;`
 
-	err := db.db.QueryRow(sql, title).Scan(&id, &createdAt, &updatedAt)
+	uid := uuid.New()
+
+	sql := `INSERT INTO groups(title, private, user_id, uuid) VALUES($1, $2, $3, $4) RETURNING id, created_at, updated_at;`
+
+	err := db.db.QueryRow(sql, title, isPrivate, userID, uid.String()).Scan(&id, &createdAt, &updatedAt)
 	if err != nil {
 		log.Error("Error writing timeline group to DB")
 		return nil, err
@@ -57,6 +61,9 @@ func (db *db) insertTimelineGroup(title string) (*models.TimelineGroup, error) {
 		Timelines: nil,
 		CreatedAt: created,
 		UpdatedAt: updated,
+		Private:   isPrivate,
+		UserId:    userID,
+		Uuid:      uid.String(),
 	}, nil
 }
 func (db *db) insertTimeline(gid uint64, title string) (*models.Timeline, error) {
@@ -220,18 +227,19 @@ func (db *db) updateTimeline(id uint64, title string, tags []string) (*models.Ti
 
 	return timeline, nil
 }
-func (db *db) updateTimelineGroup(id uint64, title string) (*models.TimelineGroup, error) {
+func (db *db) updateTimelineGroup(id uint64, title string, isPrivate bool) (*models.TimelineGroup, error) {
 	group := &models.TimelineGroup{}
 
 	sql := `UPDATE groups 
-		SET title = $1, updated_at = $2 WHERE id = $3 
-		RETURNING id, title, created_at, updated_at
+		SET title = $1, updated_at = $2, private = $3 
+		WHERE id = $4 
+		RETURNING id, title, created_at, updated_at, private, user_id, uuid
 	`
 
 	var createdAt, updatedAt time.Time
 
-	err := db.db.QueryRow(sql, title, time.Now(), id).
-		Scan(&group.Id, &group.Title, &createdAt, &updatedAt)
+	err := db.db.QueryRow(sql, title, time.Now(), isPrivate, id).
+		Scan(&group.Id, &group.Title, &createdAt, &updatedAt, &group.Private, &group.UserId, &group.Uuid)
 	if err != nil {
 		log.Error("Error updating timeline")
 		return nil, err
@@ -422,12 +430,12 @@ func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
 	}
 	return &event, nil
 }
-func (db *db) readUser(email string) (*models.User, error) {
+func (db *db) readUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	var createdAt, updatedAt time.Time
 	sql := `SELECT * from users WHERE email = $1;`
 
-	err := db.db.QueryRow(sql, email).Scan(&user.Id, &user.Email, &user.Hash, &createdAt, &updatedAt)
+	err := db.db.QueryRow(sql, email).Scan(&user.Id, &user.Email, &user.Hash, &createdAt, &updatedAt, &user.IsAdmin)
 	if err != nil {
 		log.Error("Error reading user from db")
 		return nil, err
@@ -442,6 +450,62 @@ func (db *db) readUser(email string) (*models.User, error) {
 
 	return &user, nil
 }
+func (db *db) readUserByID(id uint64) (*models.User, error) {
+	var user models.User
+	var createdAt, updatedAt time.Time
+	sql := `SELECT * from users WHERE id = $1;`
+
+	err := db.db.QueryRow(sql, id).Scan(&user.Id, &user.Email, &user.Hash, &createdAt, &updatedAt, &user.IsAdmin)
+	if err != nil {
+		log.Error("Error reading user from db")
+		return nil, err
+	}
+
+	if user.CreatedAt, err = convertTime(createdAt); err != nil {
+		return nil, err
+	}
+	if user.UpdatedAt, err = convertTime(updatedAt); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+func (db *db) readUserTimelineGroups(id uint64) ([]*models.TimelineGroup, error) {
+	var groups []*models.TimelineGroup
+
+	sql := `SELECT * FROM groups WHERE user_id = $1`
+	rows, err := db.db.Query(sql, id)
+	if err != nil {
+		log.Error("Error reading user timeline groups from db")
+		return nil, err
+	}
+	for rows.Next() {
+		var group models.TimelineGroup
+		var createdAt, updatedAt time.Time
+
+		err := rows.Scan(&group.Id, &group.Title, &createdAt, &updatedAt, &group.Private, &group.UserId, &group.Uuid)
+		if err != nil {
+			log.Error("Error scanning group from db")
+			return nil, err
+		}
+
+		if group.CreatedAt, err = convertTime(createdAt); err != nil {
+			return nil, err
+		}
+		if group.UpdatedAt, err = convertTime(updatedAt); err != nil {
+			return nil, err
+		}
+
+		if group.Timelines, err = db.readTimelinesWithGroupID(group.Id); err != nil {
+			return nil, err
+		}
+		groups = append(groups, &group)
+	}
+
+	return groups, nil
+}
+
+//func (db *db) readUserTimelines(id uint64) ()
 
 func (db *db) deleteTimelineGroup(id uint64) error {
 	sql := `DELETE FROM groups WHERE id = $1;`

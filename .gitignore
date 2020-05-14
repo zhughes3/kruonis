@@ -1,7 +1,5 @@
 .idea
 
-cmd/timelines/models
 cmd/timelines/vendor
-cmd/timelines/gen
 cmd/timelines/config.env
 cmd/timelines/db/config.json
