@@ -47,3 +47,12 @@ CREATE TABLE IF NOT EXISTS users (
                                      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                                      PRIMARY KEY (id)
 );
+
+ALTER TABLE groups
+    ADD COLUMN private boolean,
+    ADD COLUMN user_id integer,
+    ADD COLUMN uuid uuid,
+    ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE users
+    ADD COLUMN is_admin boolean;
