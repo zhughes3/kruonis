@@ -105,6 +105,60 @@ func (_mr *MockTimelineServiceClientMockRecorder) Me(arg0, arg1 interface{}, arg
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Me", reflect.TypeOf((*MockTimelineServiceClient)(nil).Me), _s...)
 }
 
+// ReadGroups mocks base method
+func (_m *MockTimelineServiceClient) ReadGroups(ctx context.Context, in *ReadGroupsRequest, opts ...grpc.CallOption) (*ReadGroupsResponse, error) {
+	_s := []interface{}{ctx, in}
+	for _, _x := range opts {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReadGroups", _s...)
+	ret0, _ := ret[0].(*ReadGroupsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadGroups indicates an expected call of ReadGroups
+func (_mr *MockTimelineServiceClientMockRecorder) ReadGroups(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ReadGroups", reflect.TypeOf((*MockTimelineServiceClient)(nil).ReadGroups), _s...)
+}
+
+// ReadTimelines mocks base method
+func (_m *MockTimelineServiceClient) ReadTimelines(ctx context.Context, in *ReadTimelinesRequest, opts ...grpc.CallOption) (*ReadTimelinesResponse, error) {
+	_s := []interface{}{ctx, in}
+	for _, _x := range opts {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReadTimelines", _s...)
+	ret0, _ := ret[0].(*ReadTimelinesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadTimelines indicates an expected call of ReadTimelines
+func (_mr *MockTimelineServiceClientMockRecorder) ReadTimelines(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ReadTimelines", reflect.TypeOf((*MockTimelineServiceClient)(nil).ReadTimelines), _s...)
+}
+
+// ReadUsers mocks base method
+func (_m *MockTimelineServiceClient) ReadUsers(ctx context.Context, in *ReadUsersRequest, opts ...grpc.CallOption) (*ReadUsersResponse, error) {
+	_s := []interface{}{ctx, in}
+	for _, _x := range opts {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ReadUsers", _s...)
+	ret0, _ := ret[0].(*ReadUsersResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadUsers indicates an expected call of ReadUsers
+func (_mr *MockTimelineServiceClientMockRecorder) ReadUsers(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ReadUsers", reflect.TypeOf((*MockTimelineServiceClient)(nil).ReadUsers), _s...)
+}
+
 // CreateTimeline mocks base method
 func (_m *MockTimelineServiceClient) CreateTimeline(ctx context.Context, in *Timeline, opts ...grpc.CallOption) (*Timeline, error) {
 	_s := []interface{}{ctx, in}
@@ -394,6 +448,45 @@ func (_m *MockTimelineServiceServer) Me(_param0 context.Context, _param1 *MeRequ
 // Me indicates an expected call of Me
 func (_mr *MockTimelineServiceServerMockRecorder) Me(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Me", reflect.TypeOf((*MockTimelineServiceServer)(nil).Me), arg0, arg1)
+}
+
+// ReadGroups mocks base method
+func (_m *MockTimelineServiceServer) ReadGroups(_param0 context.Context, _param1 *ReadGroupsRequest) (*ReadGroupsResponse, error) {
+	ret := _m.ctrl.Call(_m, "ReadGroups", _param0, _param1)
+	ret0, _ := ret[0].(*ReadGroupsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadGroups indicates an expected call of ReadGroups
+func (_mr *MockTimelineServiceServerMockRecorder) ReadGroups(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ReadGroups", reflect.TypeOf((*MockTimelineServiceServer)(nil).ReadGroups), arg0, arg1)
+}
+
+// ReadTimelines mocks base method
+func (_m *MockTimelineServiceServer) ReadTimelines(_param0 context.Context, _param1 *ReadTimelinesRequest) (*ReadTimelinesResponse, error) {
+	ret := _m.ctrl.Call(_m, "ReadTimelines", _param0, _param1)
+	ret0, _ := ret[0].(*ReadTimelinesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadTimelines indicates an expected call of ReadTimelines
+func (_mr *MockTimelineServiceServerMockRecorder) ReadTimelines(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ReadTimelines", reflect.TypeOf((*MockTimelineServiceServer)(nil).ReadTimelines), arg0, arg1)
+}
+
+// ReadUsers mocks base method
+func (_m *MockTimelineServiceServer) ReadUsers(_param0 context.Context, _param1 *ReadUsersRequest) (*ReadUsersResponse, error) {
+	ret := _m.ctrl.Call(_m, "ReadUsers", _param0, _param1)
+	ret0, _ := ret[0].(*ReadUsersResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadUsers indicates an expected call of ReadUsers
+func (_mr *MockTimelineServiceServerMockRecorder) ReadUsers(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ReadUsers", reflect.TypeOf((*MockTimelineServiceServer)(nil).ReadUsers), arg0, arg1)
 }
 
 // CreateTimeline mocks base method

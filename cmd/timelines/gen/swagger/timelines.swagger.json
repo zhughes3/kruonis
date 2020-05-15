@@ -14,6 +14,75 @@
     "application/json"
   ],
   "paths": {
+    "/v1/admin/groups": {
+      "get": {
+        "description": "Get a list of all timeline groups.",
+        "operationId": "ReadGroups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/modelsReadGroupsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
+            }
+          }
+        },
+        "tags": [
+          "TimelineService"
+        ]
+      }
+    },
+    "/v1/admin/timelines": {
+      "get": {
+        "description": "Get a list of all timelines.",
+        "operationId": "ReadTimelines",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/modelsReadTimelinesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
+            }
+          }
+        },
+        "tags": [
+          "TimelineService"
+        ]
+      }
+    },
+    "/v1/admin/users": {
+      "get": {
+        "description": "Get a list of all users.",
+        "operationId": "ReadUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/modelsReadUsersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
+            }
+          }
+        },
+        "tags": [
+          "TimelineService"
+        ]
+      }
+    },
     "/v1/events/{id}": {
       "get": {
         "description": "Get a timeline event.",
@@ -595,6 +664,17 @@
         }
       }
     },
+    "modelsReadGroupsResponse": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/modelsTimelineGroup"
+          }
+        }
+      }
+    },
     "modelsReadTimelineEventsResponse": {
       "type": "object",
       "properties": {
@@ -606,6 +686,28 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/modelsTimelineEvent"
+          }
+        }
+      }
+    },
+    "modelsReadTimelinesResponse": {
+      "type": "object",
+      "properties": {
+        "timelines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/modelsTimeline"
+          }
+        }
+      }
+    },
+    "modelsReadUsersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/modelsUser"
           }
         }
       }

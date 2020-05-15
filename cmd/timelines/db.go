@@ -259,6 +259,54 @@ func (db *db) updateTimelineGroup(id uint64, title string, isPrivate bool) (*mod
 	return group, nil
 }
 
+func (db *db) readTimelineGroups() (*models.ReadGroupsResponse, error) {
+	var resp models.ReadGroupsResponse
+	sql := `SELECT * FROM groups`
+
+	rows, err := db.db.Query(sql)
+	if err != nil {
+		log.Error("Error reading timeline groups from db")
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var group models.TimelineGroup
+		var createdAt, updatedAt time.Time
+		var private *bool
+		var uid *uint64
+		var uuid *string
+
+		err := rows.Scan(&group.Id, &group.Title, &createdAt, &updatedAt, &private, &uid, &uuid)
+		if err != nil {
+			log.Error("Error scanning timeline group")
+			return nil, err
+		}
+		if private != nil {
+			group.Private = *private
+		}
+		if uid != nil {
+			group.UserId = *uid
+		}
+		if uuid != nil {
+			group.Uuid = *uuid
+		}
+		if group.CreatedAt, err = convertTime(createdAt); err != nil {
+			return nil, err
+		}
+		if group.UpdatedAt, err = convertTime(updatedAt); err != nil {
+			return nil, err
+		}
+
+		if group.Timelines, err = db.readTimelinesWithGroupID(group.GetId()); err != nil {
+			return nil, err
+		}
+
+		resp.Groups = append(resp.Groups, &group)
+	}
+
+	return &resp, nil
+}
 func (db *db) readTimelineGroup(id uint64) (*models.TimelineGroup, error) {
 	var tg models.TimelineGroup
 	var createdAt, updatedAt time.Time
@@ -323,6 +371,46 @@ func (db *db) readTimelinesWithGroupID(gid uint64) ([]*models.Timeline, error) {
 	}
 
 	return timelines, nil
+}
+func (db *db) readTimelines() (*models.ReadTimelinesResponse, error) {
+	var resp models.ReadTimelinesResponse
+	sql := `SELECT * FROM timelines`
+
+	rows, err := db.db.Query(sql)
+	if err != nil {
+		log.Error("Error reading timelines from db")
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var timeline models.Timeline
+		var createdAt, updatedAt time.Time
+
+		err := rows.Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &createdAt, &updatedAt)
+		if err != nil {
+			log.Error("Error scanning timeline")
+			return nil, err
+		}
+		if timeline.CreatedAt, err = convertTime(createdAt); err != nil {
+			return nil, err
+		}
+		if timeline.UpdatedAt, err = convertTime(updatedAt); err != nil {
+			return nil, err
+		}
+
+		if timeline.Tags, err = db.readTagsWithTimelineID(timeline.GetId()); err != nil {
+			return nil, err
+		}
+
+		if timeline.Events, err = db.readTimelineEvents(timeline.GetId()); err != nil {
+			return nil, err
+		}
+
+		resp.Timelines = append(resp.Timelines, &timeline)
+	}
+
+	return &resp, nil
 }
 func (db *db) readTagsWithTimelineID(tid uint64) ([]string, error) {
 	var tags []string
@@ -429,6 +517,38 @@ func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
 		return nil, err
 	}
 	return &event, nil
+}
+func (db *db) readUsers() (*models.ReadUsersResponse, error) {
+	var resp models.ReadUsersResponse
+	sql := `SELECT id, email, created_at, updated_at, is_admin FROM users`
+
+	rows, err := db.db.Query(sql)
+	if err != nil {
+		log.Error("Error reading users from db")
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user models.User
+		var createdAt, updatedAt time.Time
+
+		err := rows.Scan(&user.Id, &user.Email, &createdAt, &updatedAt, &user.IsAdmin)
+		if err != nil {
+			log.Error("Error scanning user")
+			return nil, err
+		}
+		if user.CreatedAt, err = convertTime(createdAt); err != nil {
+			return nil, err
+		}
+		if user.UpdatedAt, err = convertTime(updatedAt); err != nil {
+			return nil, err
+		}
+
+		resp.Users = append(resp.Users, &user)
+	}
+
+	return &resp, nil
 }
 func (db *db) readUserByEmail(email string) (*models.User, error) {
 	var user models.User

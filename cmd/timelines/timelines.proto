@@ -10,9 +10,9 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
         title: "Timelines",
         version: "0.1.0"
     };
-    schemes: HTTPS;
-    consumes: "application/json";
-    produces: "application/json";
+schemes:HTTPS;
+consumes:"application/json";
+produces:"application/json";
 };
 
 service TimelineService {
@@ -42,7 +42,7 @@ service TimelineService {
             description: "Refresh bearer token; check if logged in."
         };
     }
-    rpc Me(MeRequest) returns (MeResponse) {
+    rpc Me (MeRequest) returns (MeResponse) {
         option(google.api.http) = {
             get: "/v1/users/me"
         };
@@ -50,6 +50,30 @@ service TimelineService {
             description: "Get user account information, including timelines associated with account."
         };
 
+    }
+    rpc ReadGroups (ReadGroupsRequest) returns (ReadGroupsResponse) {
+        option(google.api.http) = {
+            get: "/v1/admin/groups"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get a list of all timeline groups."
+        };
+    }
+    rpc ReadTimelines (ReadTimelinesRequest) returns (ReadTimelinesResponse) {
+        option(google.api.http) = {
+            get: "/v1/admin/timelines"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get a list of all timelines."
+        };
+    }
+    rpc ReadUsers (ReadUsersRequest) returns (ReadUsersResponse) {
+        option(google.api.http) = {
+            get: "/v1/admin/users"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get a list of all users."
+        };
     }
     rpc CreateTimeline (Timeline) returns (Timeline) {
         option(google.api.http) = {
@@ -257,4 +281,25 @@ message MeRequest {
 message MeResponse {
     User user = 1;
     repeated TimelineGroup groups = 2;
+}
+
+message ReadGroupsRequest {
+
+}
+message ReadGroupsResponse {
+    repeated TimelineGroup groups = 1;
+}
+
+message ReadTimelinesRequest {
+
+}
+message ReadTimelinesResponse {
+    repeated Timeline timelines = 1;
+}
+
+message ReadUsersRequest {
+
+}
+message ReadUsersResponse {
+    repeated User users = 1;
 }

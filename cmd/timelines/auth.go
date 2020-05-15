@@ -20,9 +20,9 @@ var (
 		"/models.TimelineService/Signup": 1,
 	}
 	adminEndpoints map[string]int = map[string]int{
-		"/models.TimelineService/GetGroups":    1,
-		"/models.TimelineService/GetTimelines": 1,
-		"/models.TimelineService/GetUsers":     1,
+		"/models.TimelineService/ReadGroups":    1,
+		"/models.TimelineService/ReadTimelines": 1,
+		"/models.TimelineService/ReadUsers":     1,
 	}
 )
 
