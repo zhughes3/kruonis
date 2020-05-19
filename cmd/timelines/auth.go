@@ -166,5 +166,8 @@ func (s *server) generateJWTRefreshToken(id uint64) (string, error) {
 }
 
 func stripBearerPrefix(in string) string {
-	return in[7:]
+	if len(in) > 7 {
+		return in[7:]
+	}
+	return ""
 }

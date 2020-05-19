@@ -87,6 +87,24 @@ func (_mr *MockTimelineServiceClientMockRecorder) Refresh(arg0, arg1 interface{}
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Refresh", reflect.TypeOf((*MockTimelineServiceClient)(nil).Refresh), _s...)
 }
 
+// Ping mocks base method
+func (_m *MockTimelineServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	_s := []interface{}{ctx, in}
+	for _, _x := range opts {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "Ping", _s...)
+	ret0, _ := ret[0].(*PingResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Ping indicates an expected call of Ping
+func (_mr *MockTimelineServiceClientMockRecorder) Ping(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Ping", reflect.TypeOf((*MockTimelineServiceClient)(nil).Ping), _s...)
+}
+
 // Me mocks base method
 func (_m *MockTimelineServiceClient) Me(ctx context.Context, in *MeRequest, opts ...grpc.CallOption) (*MeResponse, error) {
 	_s := []interface{}{ctx, in}
@@ -435,6 +453,19 @@ func (_m *MockTimelineServiceServer) Refresh(_param0 context.Context, _param1 *R
 // Refresh indicates an expected call of Refresh
 func (_mr *MockTimelineServiceServerMockRecorder) Refresh(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Refresh", reflect.TypeOf((*MockTimelineServiceServer)(nil).Refresh), arg0, arg1)
+}
+
+// Ping mocks base method
+func (_m *MockTimelineServiceServer) Ping(_param0 context.Context, _param1 *PingRequest) (*PingResponse, error) {
+	ret := _m.ctrl.Call(_m, "Ping", _param0, _param1)
+	ret0, _ := ret[0].(*PingResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Ping indicates an expected call of Ping
+func (_mr *MockTimelineServiceServerMockRecorder) Ping(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "Ping", reflect.TypeOf((*MockTimelineServiceServer)(nil).Ping), arg0, arg1)
 }
 
 // Me mocks base method

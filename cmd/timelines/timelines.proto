@@ -42,6 +42,14 @@ service TimelineService {
             description: "Refresh bearer token; check if logged in."
         };
     }
+    rpc Ping(PingRequest) returns (PingResponse) {
+        option(google.api.http) = {
+            get: "/v1/users/ping"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Check if user is logged in."
+        };
+    }
     rpc Me (MeRequest) returns (MeResponse) {
         option(google.api.http) = {
             get: "/v1/users/me"
@@ -302,4 +310,10 @@ message ReadUsersRequest {
 }
 message ReadUsersResponse {
     repeated User users = 1;
+}
+message PingRequest {
+
+}
+message PingResponse {
+    bool response = 1;
 }

@@ -19,7 +19,7 @@ type UserWithTimelines struct {
 func (s *server) Signup(ctx context.Context, in *models.SignupRequest) (*models.Error, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(in.GetPassword()), bcrypt.DefaultCost)
 	if err != nil {
-		log.Error("Problem generating hash from password: %v", in.GetPassword())
+		log.Errorf("Problem generating hash from password: %s", in.GetPassword())
 		return nil, err
 	}
 
@@ -83,6 +83,14 @@ func (s *server) Refresh(ctx context.Context, in *models.RefreshRequest) (*model
 	}
 
 	return &models.RefreshResponse{}, nil
+}
+
+func (s *server) Ping(ctx context.Context, in *models.PingRequest) (*models.PingResponse, error) {
+	userID := UserIDFromContext(ctx)
+	if userID == 0 {
+		return &models.PingResponse{Response: false}, nil
+	}
+	return &models.PingResponse{Response: true}, nil
 }
 
 func (s *server) Me(ctx context.Context, in *models.MeRequest) (*models.MeResponse, error) {

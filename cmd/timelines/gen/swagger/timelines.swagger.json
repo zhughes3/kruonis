@@ -542,6 +542,29 @@
         ]
       }
     },
+    "/v1/users/ping": {
+      "get": {
+        "description": "Check if user is logged in.",
+        "operationId": "Ping",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/modelsPingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
+            }
+          }
+        },
+        "tags": [
+          "TimelineService"
+        ]
+      }
+    },
     "/v1/users/refresh": {
       "get": {
         "description": "Refresh bearer token; check if logged in.",
@@ -661,6 +684,15 @@
           "items": {
             "$ref": "#/definitions/modelsTimelineGroup"
           }
+        }
+      }
+    },
+    "modelsPingResponse": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     },

@@ -65,8 +65,13 @@ func (s *server) DeleteTimeline(ctx context.Context, t *models.Filter) (*models.
 }
 
 func (s *server) ReadTimelineGroup(ctx context.Context, t *models.Filter) (*models.TimelineGroup, error) {
-	tg, err := s.db.readTimelineGroup(t.GetId())
+	tg, err := s.db.readTimelineGroup(ctx, t.GetId())
 	if err != nil {
+		if err == errUnauthorized {
+			if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "401")); err != nil {
+				return nil, err
+			}
+		}
 		return nil, err
 	}
 

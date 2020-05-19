@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -18,6 +20,8 @@ import (
 type db struct {
 	db *sql.DB
 }
+
+var errUnauthorized = errors.New("Unauthorized")
 
 func NewDB(cfg *dbConfig) *sql.DB {
 	dbinfo := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", cfg.user, cfg.password, cfg.host, cfg.port, cfg.name, "disable")
@@ -307,14 +311,32 @@ func (db *db) readTimelineGroups() (*models.ReadGroupsResponse, error) {
 
 	return &resp, nil
 }
-func (db *db) readTimelineGroup(id uint64) (*models.TimelineGroup, error) {
+func (db *db) readTimelineGroup(ctx context.Context, id uint64) (*models.TimelineGroup, error) {
+	_uid := UserIDFromContext(ctx)
+
 	var tg models.TimelineGroup
 	var createdAt, updatedAt time.Time
+	var private *bool
+	var user_id *uint64
+	var uuid *string
 	sql := `SELECT * from groups WHERE id = $1;`
-	err := db.db.QueryRow(sql, id).Scan(&tg.Id, &tg.Title, &createdAt, &updatedAt)
+	err := db.db.QueryRow(sql, id).Scan(&tg.Id, &tg.Title, &createdAt, &updatedAt, &private, &user_id, &uuid)
 	if err != nil {
 		log.Error("Error reading timeline group from db")
 		return nil, err
+	}
+
+	if private != nil {
+		tg.Private = *private
+	}
+	if user_id != nil {
+		tg.UserId = *user_id
+		if _uid != tg.UserId {
+			return nil, errUnauthorized
+		}
+	}
+	if uuid != nil {
+		tg.Uuid = *uuid
 	}
 
 	if tg.CreatedAt, err = convertTime(createdAt); err != nil {
