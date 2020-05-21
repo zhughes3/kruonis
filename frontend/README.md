@@ -1,5 +1,79 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Hey there other person!
+
+Thanks for helping out with the project,I hope you have a blast working on it. :) <br />
+Please allow me to tell you a couple of things about the project.
+
+### Project Structure
+
+The project is still pretty small and has a very basic structure, as seen and explained below. 
+
+#### `Project tree`
+
+```bash
+├───Assets
+│   └───Icons
+├───Components
+├───Containers
+├───Http
+├───Interfaces
+│   └───Enums
+└───Utils
+```
+
+#### `Assets`
+
+Contains all images, fonts, icons, etc.
+
+#### `Components`
+
+Every page (`Container`) consists of components. For example: A page contains a form.
+The page can be found in the `Containers` folder. The form can be found here, in the `Components` folder.
+
+#### `Containers`
+
+The `Containers` folder holds the root of a page. So when you navigate to the homepage, the code for that page starts in:
+`Containers -> Home.tsx`
+A synonym for the word Container would be: Page.
+
+#### `Http`
+
+This project uses the fetch api to make http requests. This option was chosen because the API is present natively in all
+major browsers, and no additional packages will have to be installed.
+
+##### `Structure`
+
+This folder contains two files: `HttpSetup.ts`, and `Requests.ts`.
+
+1. The `HttpSetup.ts` file contains all basic information we need to create a request (url, port, etc). It also contains 
+    basic `GET`, `PUT`, `POST`, `DELETE` functions that all function in the `Requests.ts` file (described below) use.
+
+2.  The `Requests.ts` file contains all requests made to the api. Not every available endpoint on the API has a request yet,
+    so you may need to add some.
+    
+#### `Interfaces`
+
+Because this project uses typescript, we can add interfaces to our objects, props etc. Please add all interfaces to this folder. <br />
+<b>Please use Interfaces wherever possible! It makes code much more maintainable and easier to read.</b>
+
+##### `Enums`
+    
+Likewise, please add all enums to this folder. <br />
+<b>Please use Enums wherever possible! It makes code much more maintainable and easier to read.</b>
+
+#### `Utils`
+
+This folder contains functions or variables that are used in multiple files.
+For example: password checks are stored in there, since these are checked on creating an account and resetting a password.
+
+## Redux
+
+Redux has not been added to the project yet. So far there has been no reason to. State is management within components,
+and never travels more than 1 component down or up.
+
+If the situation arises where data needs to traverse 2 or more components, please add redux to handle those state changes.
+
 ## Available Scripts
 
 In the project directory, you can run:

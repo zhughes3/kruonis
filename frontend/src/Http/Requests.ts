@@ -5,10 +5,6 @@ import {IGroup} from "../Interfaces/IGroup";
 import {IUserCreate} from "../Interfaces/IUser";
 import {IBoolResponse} from "../Interfaces/IBoolResponse";
 
-export const getTimeline = async (id: string): Promise<ITimeline> => {
-    return httpGet('timelines/' + id);
-};
-
 export const getTimelineGroup = async (groupId: string): Promise<IGroup> => {
     return httpGet('groups/' + groupId);
 };
@@ -22,17 +18,20 @@ export const createHappening = async (timelineId: string, body: IHappeningCreate
 };
 
 export const updateHappening = async (eventId: string, body: IHappeningCreate): Promise<IHappening> => {
-    console.log(eventId);
     return await httpPut('events/' + eventId, body);
 };
 
 export const createGroupedTimelines = async (timeline: ITimelineCreate, compareTo: ITimelineCreate): Promise<ITimeline[]> => {
+    // Create the first timeline.
     const firstTimeline: ITimeline = await httpPost('timelines', timeline);
 
+    // The first timeline returned a group_id, add that to the second timeline.
     compareTo.group_id = firstTimeline.group_id;
 
+    // Now that the group id has been set, create the second timeline.
     const secondTimeline: ITimeline = await httpPost('timelines', compareTo);
 
+    // Finally, return both timelines.
     return [firstTimeline, secondTimeline]
 };
 
@@ -47,7 +46,12 @@ export const signUpAttempt = async (body: IUserCreate): Promise<boolean> => {
 }
 
 // Returns true if login was successful.
-export const loginAttempt = async (body: IUserCreate): Promise<boolean> => {
-    const result: IBoolResponse = await httpPost('users/login', body)
+export const loginAttempt = async (body: IUserCreate): Promise<any> => {
+    return await httpPost('users/login', body);
+}
+
+// Returns true if login was successful.
+export const checkIfLoggedIn = async (): Promise<any> => {
+    const result: IBoolResponse = await httpGet('users/ping');
     return result.response;
 }

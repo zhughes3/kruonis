@@ -15,6 +15,14 @@ body {
     font-weight: normal;
 }
 
+.space-around {
+    justify-content: space-around;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
 .house-blue-button {
     background-color: #3362db !important;
     color: white !important;
@@ -81,7 +89,7 @@ body {
     position: absolute;
     width: 70vw;
     height: 65vh;
-    top: 0px;
+    top: 0;
 }
 
 .home_intro_text {
@@ -112,7 +120,7 @@ body {
     background: #FFFFFF;
     border: 2px solid #3362DB;
     box-sizing: border-box;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 5px;
     width: 439px;
 
@@ -332,6 +340,14 @@ body {
     cursor: pointer;
 }
 
+.table-item {
+    padding: 7px 7px 24px;
+}
+
+.table-border-bottom {
+    border-bottom: 1px solid #cde5ec;
+}
+
 .color-white {
     color: #FFFFFF !important;
 }
@@ -345,7 +361,6 @@ body {
 .font-size-18 {
     font-size: 18px;
 }
-
 
 .ml1 {
     margin-left: 10px;
@@ -487,8 +502,8 @@ body {
 
     .home-left-side {
         position: relative;
-        top: 0px;
-        left: 0px;
+        top: 0;
+        left: 0;
     }
 
     .home_intro_text {

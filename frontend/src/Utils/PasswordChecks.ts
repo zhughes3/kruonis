@@ -1,5 +1,5 @@
 // Changing this will change the accepted minimal password length, and also the error messages when shown when inputting a too short password.
-export const MIN_PASSWORD_LENGTH: number = 8;
+export const MIN_PASSWORD_LENGTH: number = 6;
 
 export const checkForEmptyPassword = (password: string): boolean => {
 	return !!password.length;
