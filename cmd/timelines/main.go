@@ -10,7 +10,7 @@ import (
 )
 
 type serverConfig struct {
-	rpcHost, rpcPort, httpHost, httpPort, jwtKey string
+	rpcHost, rpcPort, httpHost, httpPort, jwtKey, frontend string
 }
 
 type dbConfig struct {
@@ -57,6 +57,7 @@ func getServerConfig(cfg *viper.Viper) *serverConfig {
 		httpHost: cfg.GetString("http_host"),
 		httpPort: cfg.GetString("http_port"),
 		jwtKey:   cfg.GetString("jwt_key"),
+		frontend: cfg.GetString("frontend_url"),
 	}
 }
 

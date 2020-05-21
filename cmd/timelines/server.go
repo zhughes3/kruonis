@@ -19,12 +19,13 @@ import (
 )
 
 type server struct {
-	name       string
-	lis        net.Listener
-	grpcServer *grpc.Server
-	httpServer *http.Server
-	db         *db
-	jwtKey     []byte
+	name        string
+	lis         net.Listener
+	grpcServer  *grpc.Server
+	httpServer  *http.Server
+	db          *db
+	jwtKey      []byte
+	frontendUrl string
 }
 
 func NewServer(cfg *serverConfig, l net.Listener, d *sql.DB) *server {
@@ -34,7 +35,8 @@ func NewServer(cfg *serverConfig, l net.Listener, d *sql.DB) *server {
 		db: &db{
 			db: d,
 		},
-		jwtKey: []byte(cfg.jwtKey),
+		jwtKey:      []byte(cfg.jwtKey),
+		frontendUrl: cfg.frontend,
 	}
 }
 
@@ -59,7 +61,7 @@ func (s *server) Start() error {
 		return err
 	}
 
-	s.httpServer, err = prepareHTTP(ctx, s.name)
+	s.httpServer, err = s.prepareHTTP(ctx, s.name)
 	if err != nil {
 		log.Fatalln("unable to init http server")
 		return err
@@ -88,7 +90,7 @@ func (s *server) withGRPC(ctx context.Context) (*grpc.Server, error) {
 	return grpcServer, nil
 }
 
-func prepareHTTP(ctx context.Context, name string) (*http.Server, error) {
+func (s *server) prepareHTTP(ctx context.Context, name string) (*http.Server, error) {
 	router := http.NewServeMux()
 
 	gw, err := prepareGateway(name, ctx)
@@ -98,7 +100,21 @@ func prepareHTTP(ctx context.Context, name string) (*http.Server, error) {
 	}
 	router.Handle("/", gw)
 
-	handler := cors.AllowAll().Handler(router)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{s.frontendUrl},
+		AllowCredentials: true,
+		AllowedMethods: []string{
+			http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
+		AllowedHeaders: []string{"*"},
+	})
+
+	handler := c.Handler(router)
 
 	return &http.Server{
 		Addr:         name,
