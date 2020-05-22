@@ -3,11 +3,15 @@ package main
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+
+	"google.golang.org/grpc/metadata"
 
 	"github.com/dgrijalva/jwt-go"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -46,13 +50,13 @@ func (s *server) authUnaryServerInterceptor(ctx context.Context, req interface{}
 	}
 
 	md, ok := metadata.FromIncomingContext(ctx)
-	if ok && md.Get("authorization") != nil {
-		authHeader := md.Get("authorization")
-		jwtoken := stripBearerPrefix(authHeader[0])
+	if ok && md.Get("grpcgateway-cookie") != nil {
+		cookieHeader := md.Get("grpcgateway-cookie")
+		tokens := tokensFromCookieHeader(cookieHeader[0])
 
 		// handle refresh bearer token
 		if info.FullMethod == "/models.TimelineService/Refresh" {
-			claims, err := s.validateRefreshToken(jwtoken)
+			claims, err := s.validateRefreshToken(tokens.Refresh)
 			if err != nil {
 				return nil, err
 			}
@@ -61,7 +65,7 @@ func (s *server) authUnaryServerInterceptor(ctx context.Context, req interface{}
 		}
 
 		// handle access bearer token
-		claims, err := s.validateAccessToken(jwtoken)
+		claims, err := s.validateAccessToken(tokens.Access)
 		if err != nil {
 			return nil, err
 		}
@@ -165,9 +169,32 @@ func (s *server) generateJWTRefreshToken(id uint64) (string, error) {
 	return tokenString, nil
 }
 
-func stripBearerPrefix(in string) string {
-	if len(in) > 7 {
-		return in[7:]
+type Tokens struct {
+	Refresh, Access string
+}
+
+func tokensFromCookieHeader(in string) *Tokens {
+	tokens := strings.Split(in, ";")
+	if len(tokens) != 2 {
+		return nil
 	}
-	return ""
+
+	ret := &Tokens{}
+	for _, token := range tokens {
+		kv := strings.Split(token, "=")
+		if len(tokens) != 2 {
+			return nil
+		}
+		switch strings.TrimSpace(kv[0]) {
+		case "refresh":
+			ret.Refresh = kv[1]
+		case "access":
+			ret.Access = kv[1]
+		default:
+			log.Error("Unkown key in cookie header: ", kv[0], " with value: ", kv[1])
+
+		}
+	}
+
+	return ret
 }

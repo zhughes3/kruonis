@@ -162,6 +162,7 @@ func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Me
 			Name:     "access",
 			Value:    tkn[0],
 			HttpOnly: true,
+			Path:     "/",
 		}
 		http.SetCookie(w, &cookie)
 		delete(md.HeaderMD, "access")
@@ -172,6 +173,7 @@ func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Me
 			Name:     "refresh",
 			Value:    tkn[0],
 			HttpOnly: true,
+			Path:     "/",
 		}
 		http.SetCookie(w, &cookie)
 		delete(md.HeaderMD, "refresh")

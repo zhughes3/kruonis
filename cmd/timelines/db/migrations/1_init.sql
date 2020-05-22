@@ -4,6 +4,9 @@ CREATE TABLE IF NOT EXISTS groups (
     title TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    private boolean DEFAULT false,
+    user_id integer,
+    uuid uuid,
     PRIMARY KEY(id)
 );
 

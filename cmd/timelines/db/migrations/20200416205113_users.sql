@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
    hash text NOT NULL,
    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+   is_admin boolean DEFAULT false,
    PRIMARY KEY (id)
 );
 -- +gooser Down
