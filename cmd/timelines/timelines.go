@@ -97,9 +97,7 @@ func (s *server) CreateTimelineEvent(ctx context.Context, t *models.TimelineEven
 		return nil, err
 	}
 
-	if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201")); err != nil {
-		return nil, err
-	}
+	grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201"))
 
 	return timelineEvent, nil
 }
