@@ -42,7 +42,7 @@ services:
     environment:
       SWAGGER_JSON: /swagger.json
     ports:
-      - "8081:8080"
+      - "8082:8080"
     volumes:
       - ./cmd/timelines/gen/swagger/timelines.swagger.json:/swagger.json
     networks:
