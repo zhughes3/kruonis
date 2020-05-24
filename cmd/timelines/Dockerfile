@@ -20,5 +20,5 @@ WORKDIR /root/
 COPY --from=builder /app/timelines .
 COPY --from=builder /app/config.env .
 
-EXPOSE 8080
+EXPOSE 8080 8081
 CMD ["./timelines"]
