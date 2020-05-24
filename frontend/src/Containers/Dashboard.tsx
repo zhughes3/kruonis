@@ -5,6 +5,7 @@ import trash from "../Assets/Icons/trash.svg";
 import {deleteTimelineGroup, getUser} from "../Http/Requests";
 import {IFullOrder} from "../Interfaces/IFullOrder";
 import {IGroup} from "../Interfaces/IGroup";
+import {Link} from "react-router-dom";
 
 export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 
@@ -36,7 +37,7 @@ export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 					{ user && user.groups &&
 						user.groups.map( (group: IGroup) =>
 							<div className="columns is-gapless table-border-bottom table-item space-between">
-								<div>{group.title}</div>
+								<Link to={`timeline/${group.id}`}>{group.title}</Link>
 								<img src={trash} alt="Remove event" onClick={ () => deleteGroup(group.id) } />
 							</div>
 						)
