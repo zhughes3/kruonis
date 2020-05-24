@@ -13,9 +13,9 @@ const getReqConfig = (reqMethod: ReqMethod, body?: any): any => {
         method: reqMethod, // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
+        credentials: 'include', // include, *same-origin, omit
         headers: {
-        'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         redirect: 'follow', // manual, *follow, error
         referrerPolicy: 'no-referrer',
@@ -24,7 +24,7 @@ const getReqConfig = (reqMethod: ReqMethod, body?: any): any => {
 };
 
 export const httpGet = async (url: string): Promise<any> => {
-    let response: Response = await fetch(makeUrl(url));
+    let response: Response = await fetch(makeUrl(url), getReqConfig(ReqMethod.GET));
     return await response.json();
 };
 

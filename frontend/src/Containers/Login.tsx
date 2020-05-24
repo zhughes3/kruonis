@@ -17,14 +17,18 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 
 		if (errorFound()) { return; }
 
-		const result = await loginAttempt({email, password});
+		const result = await loginAttempt({email, password}).catch(e => console.log(e));
 		console.log(result);
 
 		resetRegisterData();
 		// @ts-ignore
 		document.getElementById("login-form")?.reset();
 
-		props.history.push('/');
+		if (props.location.state && props.location.state.from) {
+			return props.history.push(props.location.state.from);
+		}
+
+		return props.history.push('/');
 	}
 
 	const resetRegisterData = (): void => {

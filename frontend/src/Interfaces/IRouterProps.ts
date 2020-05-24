@@ -24,6 +24,7 @@ export interface Location {
     search:   string;
     hash:     string;
     key:      string;
+    state:    any;
 }
 
 export interface Match {
