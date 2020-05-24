@@ -138,8 +138,8 @@ func (db *db) insertTag(tag string, tid uint64) (uint64, error) {
 func (db *db) insertUser(username, hash string) (*models.User, error) {
 	var user models.User
 	var createdAt, updatedAt time.Time
-	sql := `INSERT INTO users(email, hash) VALUES($1, $2) RETURNING id, email, hash, created_at, updated_at;`
-	err := db.db.QueryRow(sql, username, hash).Scan(&user.Id, &user.Email, &user.Hash, &createdAt, &updatedAt)
+	sql := `INSERT INTO users(email, hash) VALUES($1, $2) RETURNING id, email, created_at, updated_at, is_admin;`
+	err := db.db.QueryRow(sql, username, hash).Scan(&user.Id, &user.Email, &createdAt, &updatedAt, &user.IsAdmin)
 	if err != nil {
 		log.Error("Error writing user to db")
 		return nil, err
@@ -598,12 +598,13 @@ func (db *db) readUsers() (*models.ReadUsersResponse, error) {
 
 	return &resp, nil
 }
-func (db *db) readUserByEmail(email string) (*models.User, error) {
+func (db *db) readUserByEmail(email string) (*UserWithHash, error) {
 	var user models.User
+	var hash string
 	var createdAt, updatedAt time.Time
-	sql := `SELECT * from users WHERE email = $1;`
+	sql := `SELECT id, email, hash, created_at, updated_at, is_admin from users WHERE email = $1;`
 
-	err := db.db.QueryRow(sql, email).Scan(&user.Id, &user.Email, &user.Hash, &createdAt, &updatedAt, &user.IsAdmin)
+	err := db.db.QueryRow(sql, email).Scan(&user.Id, &user.Email, &hash, &createdAt, &updatedAt, &user.IsAdmin)
 	if err != nil {
 		log.Error("Error reading user from db")
 		return nil, err
@@ -616,14 +617,17 @@ func (db *db) readUserByEmail(email string) (*models.User, error) {
 		return nil, err
 	}
 
-	return &user, nil
+	return &UserWithHash{
+		User: user,
+		hash: hash,
+	}, nil
 }
 func (db *db) readUserByID(id uint64) (*models.User, error) {
 	var user models.User
 	var createdAt, updatedAt time.Time
-	sql := `SELECT * from users WHERE id = $1;`
+	sql := `SELECT id, email, created_at, updated_at, is_admin from users WHERE id = $1;`
 
-	err := db.db.QueryRow(sql, id).Scan(&user.Id, &user.Email, &user.Hash, &createdAt, &updatedAt, &user.IsAdmin)
+	err := db.db.QueryRow(sql, id).Scan(&user.Id, &user.Email, &createdAt, &updatedAt, &user.IsAdmin)
 	if err != nil {
 		log.Error("Error reading user from db")
 		return nil, err

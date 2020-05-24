@@ -16,6 +16,11 @@ type UserWithTimelines struct {
 	timelines []*models.TimelineGroup
 }
 
+type UserWithHash struct {
+	models.User
+	hash string
+}
+
 func (s *server) Signup(ctx context.Context, in *models.SignupRequest) (*models.Error, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(in.GetPassword()), bcrypt.DefaultCost)
 	if err != nil {
@@ -41,7 +46,7 @@ func (s *server) Login(ctx context.Context, in *models.LoginRequest) (*models.Lo
 		return nil, err
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(user.GetHash()), []byte(in.GetPassword())) != nil {
+	if bcrypt.CompareHashAndPassword([]byte(user.hash), []byte(in.GetPassword())) != nil {
 		//login unsuccessful
 		grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "401"))
 		return nil, errBadCredentials

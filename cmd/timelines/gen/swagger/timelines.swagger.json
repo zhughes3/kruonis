@@ -934,9 +934,6 @@
         "email": {
           "type": "string"
         },
-        "hash": {
-          "type": "string"
-        },
         "isAdmin": {
           "type": "boolean",
           "format": "boolean"
