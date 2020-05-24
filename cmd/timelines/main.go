@@ -9,6 +9,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+type imageServerConfig struct {
+	acctName, acctKey, containerName string
+}
+
 type serverConfig struct {
 	rpcHost, rpcPort, httpHost, httpPort, jwtKey, frontend string
 }
@@ -30,6 +34,7 @@ func main() {
 	}
 	sCfg := getServerConfig(config)
 	dbCfg := getDBConfig(config)
+	imageServerConfig := getImageServerConfig(config)
 	conn, err := net.Listen("tcp", ":"+sCfg.httpPort)
 	if err != nil {
 		panic(err)
@@ -39,8 +44,8 @@ func main() {
 	db := NewDB(dbCfg)
 	defer db.Close()
 
-	s := NewServer(sCfg, conn, db)
-
+	imageClient := NewImageClient(imageServerConfig)
+	s := NewServer(sCfg, conn, db, imageClient)
 	s.Start()
 }
 
@@ -68,5 +73,13 @@ func getDBConfig(cfg *viper.Viper) *dbConfig {
 		port:     cfg.GetString("db_port"),
 		user:     cfg.GetString("db_user"),
 		password: cfg.GetString("db_password"),
+	}
+}
+
+func getImageServerConfig(cfg *viper.Viper) *imageServerConfig {
+	return &imageServerConfig{
+		acctName:      cfg.GetString("blob_account"),
+		acctKey:       cfg.GetString("blob_key"),
+		containerName: cfg.GetString("environment"),
 	}
 }

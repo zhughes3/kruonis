@@ -32,9 +32,7 @@ func (s *server) CreateTimeline(ctx context.Context, t *models.Timeline) (*model
 		timeline.Tags = append(timeline.Tags, tag)
 	}
 
-	if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201")); err != nil {
-		return nil, err
-	}
+	grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201"))
 
 	return timeline, nil
 }
@@ -68,9 +66,7 @@ func (s *server) ReadTimelineGroup(ctx context.Context, t *models.Filter) (*mode
 	tg, err := s.db.readTimelineGroup(ctx, t.GetId())
 	if err != nil {
 		if err == errUnauthorized {
-			if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "401")); err != nil {
-				return nil, err
-			}
+			grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "401"))
 		}
 		return nil, err
 	}

@@ -151,6 +151,23 @@ func (db *db) insertUser(username, hash string) (*models.User, error) {
 	return &user, nil
 }
 
+func (db *db) updateTimelineEventWithImageURL(eventID int, imageURL string) (string, error) {
+	var imgURL string
+	sql := `UPDATE events
+			SET image_url = $1, updated_at = $2
+			WHERE id = $3
+			RETURNING image_url;`
+
+	now := time.Now()
+	err := db.db.QueryRow(sql, imageURL, now, eventID).Scan(&imgURL)
+	if err != nil {
+		log.Error("Error updating timeline event with image URL")
+		return "", err
+	}
+
+	return imgURL, nil
+}
+
 func (db *db) updateTimelineEvent(eventID uint64, title, description, content string, t *timestamp.Timestamp) (*models.TimelineEvent, error) {
 	event := &models.TimelineEvent{}
 	sql := `UPDATE events

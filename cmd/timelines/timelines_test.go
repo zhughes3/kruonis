@@ -4,9 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/zhughes3/kruonis/cmd/timelines/models"
-
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/zhughes3/kruonis/cmd/timelines/models"
 )
 
 func TestServer_CreateTimeline(t *testing.T) {

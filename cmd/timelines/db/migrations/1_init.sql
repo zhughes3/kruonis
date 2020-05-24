@@ -1,4 +1,4 @@
--- +gooser Up
+-- +goose Up
 CREATE TABLE IF NOT EXISTS groups (
     id SERIAL,
     title TEXT NOT NULL,
@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS events (
    content TEXT,
    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+   image_url TEXT,
    PRIMARY KEY(id),
    FOREIGN KEY (timeline_id) REFERENCES timelines(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -43,7 +44,7 @@ CREATE TABLE IF NOT EXISTS tags (
       FOREIGN KEY (timeline_id) REFERENCES timelines (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- +gooser Down
+-- +goose Down
 
 DROP TABLE IF EXISTS tags;
 DROP TABLE IF EXISTS events;

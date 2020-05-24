@@ -1,4 +1,4 @@
--- +gooser Up
+-- +goose Up
 -- SQL in this section is executed when the migration is applied.
 
 CREATE TABLE IF NOT EXISTS users (
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
    is_admin boolean DEFAULT false,
    PRIMARY KEY (id)
 );
--- +gooser Down
+-- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
 DROP TABLE IF EXISTS users;

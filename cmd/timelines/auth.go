@@ -74,6 +74,7 @@ func (s *server) authUnaryServerInterceptor(ctx context.Context, req interface{}
 			if claims.IsAdmin {
 				return handler(NewContextWithUserID(ctx, claims.UserID), req)
 			}
+			grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "403"))
 			return nil, err
 		}
 

@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 
@@ -22,13 +24,15 @@ type server struct {
 	name        string
 	lis         net.Listener
 	grpcServer  *grpc.Server
-	httpServer  *http.Server
+	grpcGateway *http.Server
+	imageServer *http.Server
+	imageClient *ImageClient
 	db          *db
 	jwtKey      []byte
 	frontendUrl string
 }
 
-func NewServer(cfg *serverConfig, l net.Listener, d *sql.DB) *server {
+func NewServer(cfg *serverConfig, l net.Listener, d *sql.DB, i *ImageClient) *server {
 	return &server{
 		name: cfg.httpHost + ":" + cfg.httpPort,
 		lis:  l,
@@ -37,6 +41,7 @@ func NewServer(cfg *serverConfig, l net.Listener, d *sql.DB) *server {
 		},
 		jwtKey:      []byte(cfg.jwtKey),
 		frontendUrl: cfg.frontend,
+		imageClient: i,
 	}
 }
 
@@ -61,11 +66,13 @@ func (s *server) Start() error {
 		return err
 	}
 
-	s.httpServer, err = s.prepareHTTP(ctx, s.name)
+	s.grpcGateway, err = s.prepareHTTP(ctx, s.name)
 	if err != nil {
 		log.Fatalln("unable to init http server")
 		return err
 	}
+
+	s.imageServer, err = s.prepareImageServer()
 
 	// start servers
 	go func() {
@@ -75,8 +82,19 @@ func (s *server) Start() error {
 	}()
 
 	go func() {
-		if err := s.httpServer.Serve(httpL); err != nil {
+		if err := s.grpcGateway.Serve(httpL); err != nil {
 			log.Fatalln("unable to start http server")
+		}
+	}()
+
+	go func() {
+		conn, err := net.Listen("tcp", ":8081")
+		if err != nil {
+			panic(err)
+		}
+		defer conn.Close()
+		if err := s.imageServer.Serve(conn); err != nil {
+			log.Fatalln("unable to start picture server")
 		}
 	}()
 
@@ -88,6 +106,18 @@ func (s *server) withGRPC(ctx context.Context) (*grpc.Server, error) {
 		grpc.UnaryInterceptor(s.authUnaryServerInterceptor))
 	models.RegisterTimelineServiceServer(grpcServer, s)
 	return grpcServer, nil
+}
+
+func (s *server) prepareImageServer() (*http.Server, error) {
+	r := mux.NewRouter()
+	r.HandleFunc("/v1/events/{id:[0-9]+}/img", s.CreatePictureHandler).HeadersRegexp("Content-Type", "image/.")
+	return &http.Server{
+		Handler:      r,
+		Addr:         "127.0.0.1:8081",
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}, nil
 }
 
 func (s *server) prepareHTTP(ctx context.Context, name string) (*http.Server, error) {

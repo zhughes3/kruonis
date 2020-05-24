@@ -12,6 +12,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/ory/dockertest/v3"
+	"github.com/pressly/goose"
 )
 
 var (
@@ -26,7 +27,7 @@ func getTestServer(db *sql.DB) *server {
 		httpPort: "8081",
 	}
 
-	return NewServer(scfg, nil, db)
+	return NewServer(scfg, nil, db, nil)
 }
 
 func getDatabaseConn(res *dockertest.Resource) *sql.DB {
@@ -55,7 +56,7 @@ func pgdsn(dbname, host, user, password string) string {
 
 func runDB(pool *dockertest.Pool) *dockertest.Resource {
 	res, err := pool.RunWithOptions(&dockertest.RunOptions{
-		Repository: "kruonis_postgres",
+		Repository: "postgres",
 		Tag:        "latest",
 		Env: []string{
 			fmt.Sprintf("POSTGRES_DB=%s", "timelines"),
@@ -92,15 +93,22 @@ func runDB(pool *dockertest.Pool) *dockertest.Resource {
 		log.Fatalf("Could not connect to docker postgres: %s", err)
 	}
 
-	// run migration here
-	//if err := runMigrations(db); err != nil {
-	//	log.Fatalf("Unable to run migrations: %s", err)
-	//}
+	if err := runMigrations(db); err != nil {
+		log.Fatalf("Unable to run migrations: %s", err)
+	}
 
 	return res
 }
 
 func runMigrations(db *sql.DB) error {
+	mig := []string{
+		"./db/migrations",
+	}
+	for _, m := range mig {
+		if err := goose.Run("up", db, m); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

@@ -3,6 +3,9 @@ CREATE TABLE IF NOT EXISTS groups (
                                       title TEXT NOT NULL,
                                       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                                       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                                      private boolean DEFAULT false,
+                                      user_id integer,
+                                      uuid uuid,
                                       PRIMARY KEY(id)
 );
 
@@ -25,6 +28,7 @@ CREATE TABLE IF NOT EXISTS events (
                                       content TEXT,
                                       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                                       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                                      image_url TEXT,
                                       PRIMARY KEY(id),
                                       FOREIGN KEY (timeline_id) REFERENCES timelines(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -45,14 +49,6 @@ CREATE TABLE IF NOT EXISTS users (
                                      hash text NOT NULL,
                                      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                                      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                                     is_admin boolean DEFAULT false,
                                      PRIMARY KEY (id)
 );
-
-ALTER TABLE groups
-    ADD COLUMN private boolean DEFAULT false,
-    ADD COLUMN user_id integer,
-    ADD COLUMN uuid uuid,
-    ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users(id);
-
-ALTER TABLE users
-    ADD COLUMN is_admin boolean DEFAULT false;

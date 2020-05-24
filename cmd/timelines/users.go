@@ -28,9 +28,7 @@ func (s *server) Signup(ctx context.Context, in *models.SignupRequest) (*models.
 		return nil, err
 	}
 
-	if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201")); err != nil {
-		return nil, err
-	}
+	grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "201"))
 
 	return &models.Error{
 		Response: true,
@@ -38,7 +36,6 @@ func (s *server) Signup(ctx context.Context, in *models.SignupRequest) (*models.
 }
 
 func (s *server) Login(ctx context.Context, in *models.LoginRequest) (*models.LoginResponse, error) {
-	//call user db get hash for username
 	user, err := s.db.readUserByEmail(in.GetEmail())
 	if err != nil {
 		return nil, err
@@ -46,9 +43,7 @@ func (s *server) Login(ctx context.Context, in *models.LoginRequest) (*models.Lo
 
 	if bcrypt.CompareHashAndPassword([]byte(user.GetHash()), []byte(in.GetPassword())) != nil {
 		//login unsuccessful
-		if err := grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "401")); err != nil {
-			return nil, err
-		}
+		grpc.SetHeader(ctx, metadata.Pairs("x-http-code", "401"))
 		return nil, errBadCredentials
 	}
 
@@ -59,12 +54,8 @@ func (s *server) Login(ctx context.Context, in *models.LoginRequest) (*models.Lo
 	}
 
 	if len(tokens) == 2 {
-		if err := grpc.SetHeader(ctx, metadata.Pairs("access", tokens["access"])); err != nil {
-			return nil, err
-		}
-		if err := grpc.SetHeader(ctx, metadata.Pairs("refresh", tokens["refresh"])); err != nil {
-			return nil, err
-		}
+		grpc.SetHeader(ctx, metadata.Pairs("access", tokens["access"]))
+		grpc.SetHeader(ctx, metadata.Pairs("refresh", tokens["refresh"]))
 	}
 
 	return &models.LoginResponse{}, nil
@@ -78,9 +69,7 @@ func (s *server) Refresh(ctx context.Context, in *models.RefreshRequest) (*model
 		return nil, err
 	}
 
-	if err := grpc.SetHeader(ctx, metadata.Pairs("access", accessToken)); err != nil {
-		return nil, err
-	}
+	grpc.SetHeader(ctx, metadata.Pairs("access", accessToken))
 
 	return &models.RefreshResponse{}, nil
 }
