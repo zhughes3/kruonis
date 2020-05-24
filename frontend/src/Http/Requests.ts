@@ -13,14 +13,6 @@ export const createTimeline = async (body: ITimelineCreate): Promise<ITimeline> 
     return await httpPost('timelines', body);
 };
 
-export const createHappening = async (timelineId: string, body: IHappeningCreate): Promise<IHappening> => {
-    return await httpPost('timelines/' + timelineId + '/events', body);
-};
-
-export const updateHappening = async (eventId: string, body: IHappeningCreate): Promise<IHappening> => {
-    return await httpPut('events/' + eventId, body);
-};
-
 export const createGroupedTimelines = async (timeline: ITimelineCreate, compareTo: ITimelineCreate): Promise<ITimeline[]> => {
     // Create the first timeline.
     const firstTimeline: ITimeline = await httpPost('timelines', timeline);
@@ -33,6 +25,18 @@ export const createGroupedTimelines = async (timeline: ITimelineCreate, compareT
 
     // Finally, return both timelines.
     return [firstTimeline, secondTimeline]
+};
+
+export const deleteTimelineGroup = async (timelineGroupId: string): Promise<void> => {
+    return await httpDelete('groups/' + timelineGroupId);
+}
+
+export const createHappening = async (timelineId: string, body: IHappeningCreate): Promise<IHappening> => {
+    return await httpPost('timelines/' + timelineId + '/events', body);
+};
+
+export const updateHappening = async (eventId: string, body: IHappeningCreate): Promise<IHappening> => {
+    return await httpPut('events/' + eventId, body);
 };
 
 export const deleteHappening = async (happeningId: string): Promise<any> => {
@@ -54,4 +58,8 @@ export const loginAttempt = async (body: IUserCreate): Promise<any> => {
 export const checkIfLoggedIn = async (): Promise<any> => {
     const result: IBoolResponse = await httpGet('users/ping').catch( (e: Error) => console.log(e) );
     return result.response;
+}
+
+export const getUser = async (): Promise<any> => {
+    return await httpGet('users/me');
 }

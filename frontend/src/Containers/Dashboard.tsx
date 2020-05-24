@@ -1,13 +1,28 @@
-import React, {FunctionComponent, useEffect} from 'react';
+import React, {FunctionComponent, useEffect, useState} from 'react';
 import {IRouterProps} from "../Interfaces/IRouterProps";
 import {AbsoluteCenter} from "../Components/AbsoluteCenter";
 import trash from "../Assets/Icons/trash.svg";
+import {deleteTimelineGroup, getUser} from "../Http/Requests";
+import {IFullOrder} from "../Interfaces/IFullOrder";
+import {IGroup} from "../Interfaces/IGroup";
 
 export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 
+	const [user, setUser] = useState<IFullOrder>();
+
 	useEffect(() => {
-		// TODO fetch all timelines for a user.
-	});
+		fetchMyData();
+	}, []);
+
+	const fetchMyData = async () => {
+		const result = await getUser();
+		setUser(result);
+	};
+
+	const deleteGroup = async (id: string): Promise<void> => {
+		await deleteTimelineGroup(id).catch( (e: Error) => console.log(e) );
+		fetchMyData();
+	};
 
 	return (
 		<AbsoluteCenter>
@@ -17,18 +32,15 @@ export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 				</div>
 
 				<div className="mt-36">
-					<div className="columns is-gapless table-border-bottom table-item space-between">
-						<div>WW 1 - WW 2</div>
-						<img src={trash} alt="Remove event" onClick={ () => {} } />
-					</div>
-					<div className="columns is-gapless table-border-bottom table-item space-between">
-						<div>The Netherlands - USA</div>
-						<img src={trash} alt="Remove event" onClick={ () => {} } />
-					</div>
-					<div className="columns is-gapless table-item space-between">
-						<div>Drake - Eminem</div>
-						<img src={trash} alt="Remove event" onClick={ () => {} } />
-					</div>
+
+					{ user && user.groups &&
+						user.groups.map( (group: IGroup) =>
+							<div className="columns is-gapless table-border-bottom table-item space-between">
+								<div>{group.title}</div>
+								<img src={trash} alt="Remove event" onClick={ () => deleteGroup(group.id) } />
+							</div>
+						)
+					}
 				</div>
 			</div>
 		</AbsoluteCenter>
