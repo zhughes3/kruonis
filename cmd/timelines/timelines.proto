@@ -216,6 +216,7 @@ message TimelineEvent {
     string content = 6;
     google.protobuf.Timestamp created_at = 7;
     google.protobuf.Timestamp updated_at = 8;
+    string image_url = 9;
 }
 
 message Filter {

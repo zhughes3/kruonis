@@ -504,8 +504,9 @@ func (db *db) readTimeline(id uint64) (*models.Timeline, error) {
 }
 func (db *db) readTimelineEvents(tid uint64) ([]*models.TimelineEvent, error) {
 	var events []*models.TimelineEvent
+	var imageURL sql.NullString
 
-	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at
+	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at, image_url
 			FROM events
 			WHERE timeline_id = $1
 			`
@@ -518,7 +519,10 @@ func (db *db) readTimelineEvents(tid uint64) ([]*models.TimelineEvent, error) {
 	for rows.Next() {
 		var event models.TimelineEvent
 		var timestamp, createdAt, updatedAt time.Time
-		rows.Scan(&event.EventId, &event.Id, &event.Title, &timestamp, &event.Description, &event.Content, &createdAt, &updatedAt)
+		rows.Scan(&event.EventId, &event.Id, &event.Title, &timestamp, &event.Description, &event.Content, &createdAt, &updatedAt, &imageURL)
+		if imageURL.Valid {
+			event.ImageUrl = imageURL.String
+		}
 		if event.CreatedAt, err = convertTime(createdAt); err != nil {
 			return nil, err
 		}
@@ -536,15 +540,19 @@ func (db *db) readTimelineEvents(tid uint64) ([]*models.TimelineEvent, error) {
 }
 func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
 	var event models.TimelineEvent
+	var imageURL sql.NullString
 	var timestamp, createdAt, updatedAt time.Time
-	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at
+	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at, image_url
 			FROM events
 			WHERE id = $1
 			`
-	err := db.db.QueryRow(sql, id).Scan(&event.EventId, &event.Id, &event.Title, &timestamp, &event.Description, &event.Content, &createdAt, &updatedAt)
+	err := db.db.QueryRow(sql, id).Scan(&event.EventId, &event.Id, &event.Title, &timestamp, &event.Description, &event.Content, &createdAt, &updatedAt, &imageURL)
 	if err != nil {
 		log.Error("Error reading event from db")
 		return nil, err
+	}
+	if imageURL.Valid {
+		event.ImageUrl = imageURL.String
 	}
 	if event.CreatedAt, err = convertTime(createdAt); err != nil {
 		return nil, err
@@ -555,6 +563,7 @@ func (db *db) readTimelineEvent(id uint64) (*models.TimelineEvent, error) {
 	if event.Timestamp, err = convertTime(timestamp); err != nil {
 		return nil, err
 	}
+
 	return &event, nil
 }
 func (db *db) readUsers() (*models.ReadUsersResponse, error) {

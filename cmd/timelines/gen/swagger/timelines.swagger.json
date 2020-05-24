@@ -825,6 +825,9 @@
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "image_url": {
+          "type": "string"
         }
       }
     },
