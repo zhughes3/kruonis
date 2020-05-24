@@ -44,6 +44,14 @@ body {
     max-width: 70vw;
 }
 
+.navigation-bar {
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .login {
     width: 100vw;
     height: 100vh;
@@ -376,6 +384,22 @@ body {
 }
 .ml5 {
     margin-left: 50px;
+}
+
+.mr1 {
+    margin-right: 10px;
+}
+.mr2 {
+    margin-right: 20px;
+}
+.mr3 {
+    margin-right: 30px;
+}
+.mr4 {
+    margin-right: 40px;
+}
+.mr5 {
+    margin-right: 50px;
 }
 
 .mt1 {

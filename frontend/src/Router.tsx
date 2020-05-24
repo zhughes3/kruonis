@@ -8,12 +8,16 @@ import { Timeline } from "./Containers/Timeline";
 import {NoMatch} from "./Containers/NoMatch";
 import {Dashboard} from "./Containers/Dashboard";
 import {PrivateRoute} from "./Components/PrivateRoute";
+import {Navbar} from "./Components/Navbar";
 
 export const Router = () => {
 
     return (
         <BrowserRouter>
             <div>
+
+                <Navbar />
+
                 <Switch>
                     <Route path="/" exact component={Home} />
                     <Route path="/login" component={Login} />
@@ -22,6 +26,7 @@ export const Router = () => {
                     <PrivateRoute path="/dashboard" component={Dashboard} />
                     <Route component={NoMatch} />
                 </Switch>
+
             </div>
         </BrowserRouter>
     );
