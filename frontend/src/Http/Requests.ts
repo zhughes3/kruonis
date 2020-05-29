@@ -27,6 +27,10 @@ export const createGroupedTimelines = async (timeline: ITimelineCreate, compareT
     return [firstTimeline, secondTimeline]
 };
 
+export const updateTimelineGroup = async (group: IGroup): Promise<IGroup> => {
+    return await httpPut('groups/' + group.id, group);
+}
+
 export const deleteTimelineGroup = async (timelineGroupId: string): Promise<void> => {
     return await httpDelete('groups/' + timelineGroupId);
 }

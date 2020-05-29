@@ -1,11 +1,14 @@
 import React, {FunctionComponent, useEffect, useState} from 'react';
 import {IRouterProps} from "../Interfaces/IRouterProps";
 import {AbsoluteCenter} from "../Components/AbsoluteCenter";
-import trash from "../Assets/Icons/trash.svg";
-import {deleteTimelineGroup, getUser} from "../Http/Requests";
+import {deleteTimelineGroup, getUser, updateTimelineGroup} from "../Http/Requests";
 import {IFullOrder} from "../Interfaces/IFullOrder";
 import {IGroup} from "../Interfaces/IGroup";
 import {Link} from "react-router-dom";
+
+import eye from "../Assets/Icons/eye.svg";
+import eyeOff from "../Assets/Icons/eye-off.svg";
+import trash from "../Assets/Icons/trash.svg";
 
 export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 
@@ -25,6 +28,23 @@ export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 		fetchMyData();
 	};
 
+	const togglePrivatePublic = async (group: IGroup, isPrivate: boolean): Promise<void> => {
+		group.private = isPrivate;
+		const result = await updateTimelineGroup(group);
+
+		let tempUser = Object.assign({}, user);
+
+		tempUser.groups = tempUser?.groups.map( g => {
+			if (g.id === result.id) {
+				g = result;
+			}
+
+			return g;
+		});
+
+		setUser(tempUser);
+	}
+
 	return (
 		<AbsoluteCenter>
 			<div className="has-text-left">
@@ -36,9 +56,16 @@ export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 
 					{ user && user.groups &&
 						user.groups.map( (group: IGroup) =>
-							<div className="columns is-gapless table-border-bottom table-item space-between">
+							<div key={group.id} className="columns is-gapless table-border-bottom table-item space-between">
 								<Link to={`timeline/${group.id}`}>{group.title}</Link>
-								<img src={trash} alt="Remove event" onClick={ () => deleteGroup(group.id) } />
+								<div>
+									{ group.private ?
+										<img src={eyeOff} alt="Private" onClick={() => togglePrivatePublic(group, false)}/>
+										:
+										<img src={eye} alt="Public" onClick={() => togglePrivatePublic(group, true)}/>
+									}
+									<img className="ml2" src={trash} alt="Remove" onClick={ () => deleteGroup(group.id) } />
+								</div>
 							</div>
 						)
 					}
