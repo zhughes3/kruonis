@@ -42,6 +42,8 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
     useEffect( () => {
         if (!groupId) { return setFetchTimelineError("We can't find the timeline you are looking for!"); }
         fetchTimeLine(groupId);
+
+        return undefined;
     }, [groupId]);
 
     const fetchTimeLine = async (id: string): Promise<void> => {

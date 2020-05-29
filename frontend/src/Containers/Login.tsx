@@ -77,9 +77,9 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 							<i className="fas fa-lock"/>
 						</span>
 						<div className="has-text-right mt1">
-							<a className="has-text-right has-text-grey-dark" onClick={ () => props.history.push('reset-password') }>
+							<span className="has-text-right has-text-grey-dark cursor-pointer" onClick={ () => props.history.push('reset-password') }>
 								Forgot password?
-							</a>
+							</span>
 						</div>
 					</div>
 				</div>
@@ -98,12 +98,12 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 
 				<div className="field mt2">
 					<p className="has-text-centered">
-						<a onClick={ () => props.history.push('register') }>
+						<span className="cursor-pointer" onClick={ () => props.history.push('register') }>
 							<span className="icon is-small is-left">
 								<i className="fas fa-user" />
 							</span>
 							<span className="ml1 has-text-grey-dark">Create new account</span>
-						</a>
+						</span>
 					</p>
 				</div>
 			</form>

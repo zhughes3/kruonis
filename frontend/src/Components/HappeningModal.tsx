@@ -1,7 +1,6 @@
 import React, {FormEvent, useEffect, useState} from 'react';
 import {IHappening, IHappeningCreate} from '../Interfaces/IHappening';
 import moment from "moment";
-import edit from "../Assets/Icons/edit-2.svg";
 
 interface IHappeningModalProps {
 	open: boolean;

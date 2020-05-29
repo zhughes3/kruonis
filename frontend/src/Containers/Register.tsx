@@ -123,12 +123,12 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 
 				<div className="field mt2">
 					<p className="has-text-centered">
-						<a onClick={ () => props.history.push('login') }>
+						<span className="cursor-pointer" onClick={ () => props.history.push('login') }>
 							<span className="icon is-small is-left">
 								<i className="fas fa-arrow-left" />
 							</span>
 							<span className="ml1 has-text-grey-dark">Back to login</span>
-						</a>
+						</span>
 					</p>
 				</div>
 			</form>
