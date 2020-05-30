@@ -251,7 +251,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
                 {selectedHappening &&
                     <div className="animated fadeInRight fast">
                         <div className="happening-info-title">{selectedHappening?.title}</div>
-                        { selectedHappening?.image_url && <img className="mt2" src={selectedHappening?.image_url} alt="Image" /> }
+                        { selectedHappening?.image_url && <img className="mt2" style={{maxHeight: 400}} src={selectedHappening?.image_url} alt="Image" /> }
                         <div className="mt-10 happening-info-content">{selectedHappening?.content}</div>
                     </div>
                 }
