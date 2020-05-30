@@ -344,6 +344,10 @@ body {
     letter-spacing: 0.025em;
 }
 
+.happening-info-content {
+    white-space: pre-wrap;
+}
+
 .cursor-pointer {
     cursor: pointer;
 }
