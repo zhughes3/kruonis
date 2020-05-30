@@ -117,6 +117,15 @@ service TimelineService {
             description: "Delete a timeline."
         };
     }
+    rpc ListTrendingTimelineGroups(TrendingTimelineGroupsRequest) returns (TrendingTimelineGroupsResponse) {
+        option (google.api.http) = {
+            get: "/v1/groups/trending"
+        };
+        option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+            description: "Get trending timeline groups."
+        };
+
+    }
     rpc ReadTimelineGroup (Filter) returns (TimelineGroup) {
         option (google.api.http) = {
             get: "/v1/groups/{id}"
@@ -316,4 +325,10 @@ message PingRequest {
 }
 message PingResponse {
     bool response = 1;
+}
+
+message TrendingTimelineGroupsRequest {}
+
+message TrendingTimelineGroupsResponse {
+    repeated TimelineGroup groups = 1;
 }

@@ -111,8 +111,13 @@ func (s *server) withGRPC(ctx context.Context) (*grpc.Server, error) {
 func (s *server) prepareImageServer() (*http.Server, error) {
 	r := mux.NewRouter()
 	r.HandleFunc("/v1/events/{id:[0-9]+}/img", s.CreatePictureHandler).HeadersRegexp("Content-Type", "image/.")
+
+	c := s.NewCorsConfig()
+
+	handler := c.Handler(r)
+
 	return &http.Server{
-		Handler:      r,
+		Handler:      handler,
 		Addr:         "127.0.0.1:8081",
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -130,19 +135,7 @@ func (s *server) prepareHTTP(ctx context.Context, name string) (*http.Server, er
 	}
 	router.Handle("/", gw)
 
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{s.frontendUrl},
-		AllowCredentials: true,
-		AllowedMethods: []string{
-			http.MethodHead,
-			http.MethodGet,
-			http.MethodPost,
-			http.MethodPut,
-			http.MethodPatch,
-			http.MethodDelete,
-		},
-		AllowedHeaders: []string{"*"},
-	})
+	c := s.NewCorsConfig()
 
 	handler := c.Handler(router)
 
@@ -224,4 +217,20 @@ func httpResponseModifier(ctx context.Context, w http.ResponseWriter, p proto.Me
 	delete(w.Header(), "Grpc-Metadata-Content-Type")
 
 	return nil
+}
+
+func (s *server) NewCorsConfig() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins:   []string{s.frontendUrl},
+		AllowCredentials: true,
+		AllowedMethods: []string{
+			http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
+		AllowedHeaders: []string{"*"},
+	})
 }

@@ -249,6 +249,24 @@ func (_mr *MockTimelineServiceClientMockRecorder) DeleteTimeline(arg0, arg1 inte
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "DeleteTimeline", reflect.TypeOf((*MockTimelineServiceClient)(nil).DeleteTimeline), _s...)
 }
 
+// ListTrendingTimelineGroups mocks base method
+func (_m *MockTimelineServiceClient) ListTrendingTimelineGroups(ctx context.Context, in *TrendingTimelineGroupsRequest, opts ...grpc.CallOption) (*TrendingTimelineGroupsResponse, error) {
+	_s := []interface{}{ctx, in}
+	for _, _x := range opts {
+		_s = append(_s, _x)
+	}
+	ret := _m.ctrl.Call(_m, "ListTrendingTimelineGroups", _s...)
+	ret0, _ := ret[0].(*TrendingTimelineGroupsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListTrendingTimelineGroups indicates an expected call of ListTrendingTimelineGroups
+func (_mr *MockTimelineServiceClientMockRecorder) ListTrendingTimelineGroups(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	_s := append([]interface{}{arg0, arg1}, arg2...)
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ListTrendingTimelineGroups", reflect.TypeOf((*MockTimelineServiceClient)(nil).ListTrendingTimelineGroups), _s...)
+}
+
 // ReadTimelineGroup mocks base method
 func (_m *MockTimelineServiceClient) ReadTimelineGroup(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*TimelineGroup, error) {
 	_s := []interface{}{ctx, in}
@@ -570,6 +588,19 @@ func (_m *MockTimelineServiceServer) DeleteTimeline(_param0 context.Context, _pa
 // DeleteTimeline indicates an expected call of DeleteTimeline
 func (_mr *MockTimelineServiceServerMockRecorder) DeleteTimeline(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "DeleteTimeline", reflect.TypeOf((*MockTimelineServiceServer)(nil).DeleteTimeline), arg0, arg1)
+}
+
+// ListTrendingTimelineGroups mocks base method
+func (_m *MockTimelineServiceServer) ListTrendingTimelineGroups(_param0 context.Context, _param1 *TrendingTimelineGroupsRequest) (*TrendingTimelineGroupsResponse, error) {
+	ret := _m.ctrl.Call(_m, "ListTrendingTimelineGroups", _param0, _param1)
+	ret0, _ := ret[0].(*TrendingTimelineGroupsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListTrendingTimelineGroups indicates an expected call of ListTrendingTimelineGroups
+func (_mr *MockTimelineServiceServerMockRecorder) ListTrendingTimelineGroups(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCallWithMethodType(_mr.mock, "ListTrendingTimelineGroups", reflect.TypeOf((*MockTimelineServiceServer)(nil).ListTrendingTimelineGroups), arg0, arg1)
 }
 
 // ReadTimelineGroup mocks base method

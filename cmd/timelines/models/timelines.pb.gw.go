@@ -419,6 +419,24 @@ func local_request_TimelineService_DeleteTimeline_0(ctx context.Context, marshal
 
 }
 
+func request_TimelineService_ListTrendingTimelineGroups_0(ctx context.Context, marshaler runtime.Marshaler, client TimelineServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq TrendingTimelineGroupsRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := client.ListTrendingTimelineGroups(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_TimelineService_ListTrendingTimelineGroups_0(ctx context.Context, marshaler runtime.Marshaler, server TimelineServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq TrendingTimelineGroupsRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := server.ListTrendingTimelineGroups(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_TimelineService_ReadTimelineGroup_0(ctx context.Context, marshaler runtime.Marshaler, client TimelineServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq Filter
 	var metadata runtime.ServerMetadata
@@ -1144,6 +1162,26 @@ func RegisterTimelineServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 
 	})
 
+	mux.Handle("GET", pattern_TimelineService_ListTrendingTimelineGroups_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_TimelineService_ListTrendingTimelineGroups_0(rctx, inboundMarshaler, server, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_TimelineService_ListTrendingTimelineGroups_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("GET", pattern_TimelineService_ReadTimelineGroup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1585,6 +1623,26 @@ func RegisterTimelineServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 
 	})
 
+	mux.Handle("GET", pattern_TimelineService_ListTrendingTimelineGroups_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_TimelineService_ListTrendingTimelineGroups_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_TimelineService_ListTrendingTimelineGroups_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("GET", pattern_TimelineService_ReadTimelineGroup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1773,6 +1831,8 @@ var (
 
 	pattern_TimelineService_DeleteTimeline_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "timelines", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
+	pattern_TimelineService_ListTrendingTimelineGroups_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "groups", "trending"}, "", runtime.AssumeColonVerbOpt(true)))
+
 	pattern_TimelineService_ReadTimelineGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "groups", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_TimelineService_UpdateTimelineGroup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "groups", "id"}, "", runtime.AssumeColonVerbOpt(true)))
@@ -1814,6 +1874,8 @@ var (
 	forward_TimelineService_UpdateTimeline_0 = runtime.ForwardResponseMessage
 
 	forward_TimelineService_DeleteTimeline_0 = runtime.ForwardResponseMessage
+
+	forward_TimelineService_ListTrendingTimelineGroups_0 = runtime.ForwardResponseMessage
 
 	forward_TimelineService_ReadTimelineGroup_0 = runtime.ForwardResponseMessage
 

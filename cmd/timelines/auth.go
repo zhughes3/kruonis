@@ -20,8 +20,9 @@ var (
 	errBadRefreshToken error          = errors.New("Invalid refresh token. Must login.")
 	errNoBearerToken   error          = errors.New("Must supply bearer token to complete request")
 	insecureEndpoints  map[string]int = map[string]int{
-		"/models.TimelineService/Login":  1,
-		"/models.TimelineService/Signup": 1,
+		"/models.TimelineService/Login":                      1,
+		"/models.TimelineService/Signup":                     1,
+		"/models.TimelineService/ListTrendingTimelineGroups": 1,
 	}
 	adminEndpoints map[string]int = map[string]int{
 		"/models.TimelineService/ReadGroups":    1,
@@ -192,8 +193,7 @@ func tokensFromCookieHeader(in string) *Tokens {
 		case "access":
 			ret.Access = kv[1]
 		default:
-			log.Error("Unkown key in cookie header: ", kv[0], " with value: ", kv[1])
-
+			log.Error("Unknown key in cookie header: ", kv[0], " with value: ", kv[1])
 		}
 	}
 
