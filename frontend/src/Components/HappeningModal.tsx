@@ -1,4 +1,4 @@
-import React, {FormEvent, useEffect, useState} from 'react';
+import React, {FormEvent, useEffect, useState, ChangeEvent} from 'react';
 import {IHappening, IHappeningCreate} from '../Interfaces/IHappening';
 import moment from "moment";
 
@@ -20,6 +20,7 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 	const [errorMessage, setErrorMessage] = useState<string>('');
 
 	const [title, setTitle] = useState<string>('');
+	const [image, setImage] = useState<File>();
 	const [description, setDescription] = useState<string>('');
 	const [content, setContent] = useState<string>('');
 	const [timestamp, setTimestamp] = useState<string>('');
@@ -50,6 +51,7 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 			timestamp: moment.utc(timestamp).format(),
 			description,
 			content,
+			image,
 		};
 
 		props.onSubmit(happeningResult);
@@ -69,6 +71,11 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 		props.toggleModal();
 	};
 
+	const selectImage = (e:  ChangeEvent<HTMLInputElement>): void => {
+		if (!e.target.files) { return; }
+		setImage(e.target.files[0]);
+	}
+
 	return (
 		<div className={`modal ${props.open && 'is-active'}`}>
 			<div className="modal-background" onClick={() => closeModal()}/>
@@ -85,23 +92,41 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 							<label className="label">Name</label>
 							<div className="control">
 								<input className="input" type="text" placeholder="Event name" value={title}
-									   onChange={(e) => setTitle(e.target.value) }/>
+									   onChange={(e) => setTitle(e.target.value)}/>
+							</div>
+						</div>
+
+						<div className="field">
+							<label className="label">Image</label>
+							<div className="file has-name">
+								<label className="file-label">
+									<input className="file-input" type="file" name="resume" onChange={ (e) => selectImage(e) }/>
+									<span className="file-cta">
+									<span className="file-icon">
+										<i className="fas fa-upload" />
+									</span>
+									<span className="file-label">Choose a file…</span>
+								</span>
+									<span className="file-name">{ image ? image.name : 'No image selected'}</span>
+								</label>
 							</div>
 						</div>
 
 						<div className="field">
 							<label className="label">Date</label>
 							<div className="control">
-								<input className="input" type="date" name="event-date-input" id="event-date" value={timestamp}
-									   onChange={(e) => setTimestamp(e.target.value)} />
+								<input className="input" type="date" name="event-date-input" id="event-date"
+									   value={timestamp}
+									   onChange={(e) => setTimestamp(e.target.value)}/>
 							</div>
 						</div>
 
 						<div className="field">
 							<label className="label">Short description</label>
 							<div className="control">
-								<input className="input" type="text" placeholder="A short description" value={description}
-									   onChange={(e) => setDescription(e.target.value) }/>
+								<input className="input" type="text" placeholder="A short description"
+									   value={description}
+									   onChange={(e) => setDescription(e.target.value)}/>
 							</div>
 						</div>
 
@@ -111,7 +136,7 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 								<textarea className="textarea"
 										  value={content}
 										  placeholder="This information is displayed when you click the event"
-										  onChange={(e) => setContent(e.target.value) }/>
+										  onChange={(e) => setContent(e.target.value)}/>
 							</div>
 						</div>
 
@@ -125,5 +150,5 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 			</div>
 			<button className="modal-close is-large" aria-label="close" onClick={() => closeModal()}/>
 		</div>
-	);
+);
 };

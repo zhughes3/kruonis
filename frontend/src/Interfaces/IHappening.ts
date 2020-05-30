@@ -10,6 +10,7 @@ export interface IHappening {
     content: string;
     created_at: string;
     updated_at: string;
+    image_url?: string;
 }
 
 export interface IHappeningCreate {
@@ -20,4 +21,5 @@ export interface IHappeningCreate {
     timestamp: string;
     description: string;
     content: string;
+    image?: File;
 }
