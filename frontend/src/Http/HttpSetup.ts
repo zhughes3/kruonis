@@ -13,14 +13,14 @@ const makeUrl = (url: string, image?: boolean): string => {
     return `${BASE_URL}:${image ? IMAGE_PORT : PORT}/${API_BASE}/${url}`;
 };
 
-const getReqConfig = (reqMethod: ReqMethod, body?: any): any => {
+const getReqConfig = (reqMethod: ReqMethod, body?: any, image?: boolean): any => {
     return {
         method: reqMethod, // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
         credentials: 'include', // include, *same-origin, omit
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': image ? 'image/jpeg' : 'application/json',
         },
         redirect: 'follow', // manual, *follow, error
         referrerPolicy: 'no-referrer',
@@ -35,11 +35,14 @@ export const httpGet = async (url: string): Promise<any> => {
     return await response.json();
 };
 
-// If you want to post an image, just set image to true when calling this function. The right PORT will be set automatically.
-// Also, if you are sending an image, the body will not be stringified.
+// If you want to post an image, just set image to true when calling this function.
 export const httpPost = async (url: string, body: any, image?: boolean): Promise<any> => {
 
-    let response: Response = await fetch(makeUrl(url, image), getReqConfig(ReqMethod.POST, image ? body : JSON.stringify(body)));
+    if (!image) {
+        body = JSON.stringify(body);
+    }
+
+    let response: Response = await fetch(makeUrl(url, image), getReqConfig(ReqMethod.POST, body, image));
 
     return await response.json();
 };

@@ -81,8 +81,8 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
         // If the happening contains an image, upload it.
         if (happening.image) {
-            const image: any = await createImage(result.event_id, happening.image).catch((e: Error) => console.log(e));
-            console.log(image);
+            const image_url: { Url: string } = await createImage(result.event_id, happening.image);
+            result.image_url = image_url.Url;
         }
 
         const timelineGroupCopy = Object.assign(timelineGroup, {});
@@ -109,17 +109,22 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
         if (!result) { return; }
 
+        if (happening.image) {
+            const image_url: { Url: string } = await createImage(result.event_id, happening.image);
+            result.image_url = image_url.Url;
+        }
+
         const cp = Object.assign({}, timelineGroup);
 
         cp?.timelines.forEach( timeline => {
             timeline.events.forEach( (event, index) => {
-               if (event.event_id === happening.event_id) {
-                   timeline.events[index] = happening;
+               if (event.event_id === result.event_id) {
+                   timeline.events[index] = result;
                }
            });
         });
 
-        setSelectedHappening(happening);
+        setSelectedHappening(result);
 
         setEventsAndTimelineGroup(cp);
     };
@@ -246,6 +251,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
                 {selectedHappening &&
                     <div className="animated fadeInRight fast">
                         <div className="happening-info-title">{selectedHappening?.title}</div>
+                        { selectedHappening?.image_url && <img className="mt2" src={selectedHappening?.image_url} alt="Image" /> }
                         <div className="mt-10">{selectedHappening?.content}</div>
                     </div>
                 }
