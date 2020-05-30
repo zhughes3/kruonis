@@ -139,3 +139,14 @@ func (s *server) DeleteTimelineEvent(ctx context.Context, t *models.Filter) (*mo
 
 	return &models.Error{Response: true}, nil
 }
+
+func (s *server) ListTrendingTimelineGroups(ctx context.Context, in *models.TrendingTimelineGroupsRequest) (*models.TrendingTimelineGroupsResponse, error) {
+	// TODO this needs to get the last timeline groups, sorted by hit count
+	resp, err := s.db.readTimelineGroups()
+	if err != nil {
+		return nil, err
+	}
+	return &models.TrendingTimelineGroupsResponse{
+		Groups: resp.Groups,
+	}, nil
+}

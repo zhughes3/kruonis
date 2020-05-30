@@ -183,6 +183,29 @@
         ]
       }
     },
+    "/v1/groups/trending": {
+      "get": {
+        "description": "Get trending timeline groups.",
+        "operationId": "ListTrendingTimelineGroups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/modelsTrendingTimelineGroupsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
+            }
+          }
+        },
+        "tags": [
+          "TimelineService"
+        ]
+      }
+    },
     "/v1/groups/{id}": {
       "get": {
         "description": "Get a timeline group.",
@@ -865,6 +888,17 @@
         },
         "uuid": {
           "type": "string"
+        }
+      }
+    },
+    "modelsTrendingTimelineGroupsResponse": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/modelsTimelineGroup"
+          }
         }
       }
     },
