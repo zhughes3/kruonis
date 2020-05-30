@@ -3,7 +3,7 @@ import { IRouterProps } from '../Interfaces/IRouterProps';
 import { IHappening, IHappeningCreate } from '../Interfaces/IHappening';
 import { Happening } from '../Components/Happening';
 import { useParams } from 'react-router-dom';
-import {createHappening, deleteHappening, getTimelineGroup, updateHappening} from "../Http/Requests";
+import {createHappening, createImage, deleteHappening, getTimelineGroup, updateHappening} from "../Http/Requests";
 import {Center} from "../Components/Center";
 import { LoadingCard } from '../Components/LoadingCard';
 import moment from "moment";
@@ -74,10 +74,16 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
     const createNewHappening = async (happening: IHappeningCreate, timelineId: string): Promise<void> => {
 
-        // TODO Add error handling on no id.
+        // TODO Add error handling on no (timelineId?) id.
         const result: IHappening | void = await createHappening(timelineId, happening).catch( (e: Error) => console.log(e) );
 
         if (!result) { return; }
+
+        // If the happening contains an image, upload it.
+        if (happening.image) {
+            const image: any = await createImage(result.event_id, happening.image).catch((e: Error) => console.log(e));
+            console.log(image);
+        }
 
         const timelineGroupCopy = Object.assign(timelineGroup, {});
         let timeIn = 0;

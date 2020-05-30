@@ -47,6 +47,10 @@ export const deleteHappening = async (happeningId: string): Promise<any> => {
     return await httpDelete('events/' + happeningId);
 }
 
+export const createImage = async (eventId: string, image: File): Promise<string> => {
+    return await httpPost('events/' + eventId + '/img', image, true);
+}
+
 // Returns true if the register attempt was successful.
 export const signUpAttempt = async (body: IUserCreate): Promise<boolean> => {
     const result: IBoolResponse = await httpPost('users/signup', body)
