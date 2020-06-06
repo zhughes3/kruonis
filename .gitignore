@@ -1,4 +1,5 @@
 .idea
+**/*.env
 
 cmd/timelines/vendor
 cmd/timelines/config.env
