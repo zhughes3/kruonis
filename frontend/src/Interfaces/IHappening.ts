@@ -11,6 +11,8 @@ export interface IHappening {
     created_at: string;
     updated_at: string;
     image_url?: string;
+    // IHappening can have an image file during on update on the front end (when selecting a new image).
+    image?: File;
 }
 
 export interface IHappeningCreate {

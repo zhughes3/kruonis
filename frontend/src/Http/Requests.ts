@@ -47,7 +47,7 @@ export const deleteHappening = async (happeningId: string): Promise<any> => {
     return await httpDelete('events/' + happeningId);
 }
 
-export const createImage = async (eventId: string, image: File): Promise<string> => {
+export const createImage = async (eventId: string, image: File): Promise<{Url: string}> => {
     return await httpPost('events/' + eventId + '/img', image, true);
 }
 

@@ -107,7 +107,7 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 									</span>
 									<span className="file-label">Choose a file…</span>
 								</span>
-									<span className="file-name">{ image ? image.name : 'No image selected'}</span>
+									<span className="file-name">{ image ? image.name : props.happening?.image_url ? 'Unknown_name.' + props.happening?.image_url.split('.')[5] : 'No image selected'}</span>
 								</label>
 							</div>
 						</div>
