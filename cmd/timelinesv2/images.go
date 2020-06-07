@@ -86,6 +86,7 @@ func (i *imageBlobStoreClient) SendCreateBlobRequest(ctx context.Context, data [
 }
 
 func (i *imageBlobStoreClient) SendDeleteBlobRequest(ctx context.Context, url string) (*azblob.BlobDeleteResponse, error) {
+	//TODO there is a better way to strip the file from the absolute path
 	split := strings.Split(url, "/")
 	file := split[len(split)-1]
 	blob := i.containerURL.NewBlockBlobURL(file)
