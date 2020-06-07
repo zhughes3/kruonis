@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -84,13 +85,20 @@ func (i *imageBlobStoreClient) SendCreateBlobRequest(ctx context.Context, data [
 	return "", errUnknownContentType
 }
 
+func (i *imageBlobStoreClient) SendDeleteBlobRequest(ctx context.Context, url string) (*azblob.BlobDeleteResponse, error) {
+	split := strings.Split(url, "/")
+	file := split[len(split)-1]
+	blob := i.containerURL.NewBlockBlobURL(file)
+	return blob.Delete(ctx, "", azblob.BlobAccessConditions{})
+}
+
 func (s *server) CreateEventImageHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
 	claims := AccessTokenClaimsFromContext(r.Context())
 
-	if claims.UserID == 0 {
+	if claims.UserID == 0 && !claims.IsAdmin {
 		http.Error(w, errInvalidUser.Error(), http.StatusUnauthorized)
 		return
 	}
@@ -123,13 +131,97 @@ func (s *server) CreateEventImageHandler(w http.ResponseWriter, r *http.Request)
 	w.Write(respJSON)
 }
 func (s *server) UpdateEventImageHandler(w http.ResponseWriter, r *http.Request) {
-	//TODO
+	vars := mux.Vars(r)
+	id := vars["id"]
+	ctx := r.Context()
 
+	claims := AccessTokenClaimsFromContext(ctx)
+
+	if claims.UserID == 0 && !claims.IsAdmin {
+		http.Error(w, errInvalidUser.Error(), http.StatusUnauthorized)
+		return
+	}
+	imageURL, err := s.db.readImageUrlFromEvent(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := s.imageClient.SendDeleteBlobRequest(ctx, imageURL)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if resp.Response().StatusCode == http.StatusAccepted {
+		s.db.deleteImageUrlFromEvent(id)
+	}
+
+	contentType := r.Header.Get("content-type")
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	newImageURL, err := s.imageClient.SendCreateBlobRequest(r.Context(), body, contentType)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	cpr := CreatePictureResponse{Url: s.imageClient.urlPrefix + newImageURL}
+
+	s.db.updateTimelineEventWithImageURL(id, cpr.Url)
+	respJSON, err := json.Marshal(cpr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(respJSON)
 }
 
 func (s *server) DeleteEventImageHandler(w http.ResponseWriter, r *http.Request) {
-	//TODO
+	vars := mux.Vars(r)
+	id := vars["id"]
+	ctx := r.Context()
 
+	claims := AccessTokenClaimsFromContext(ctx)
+
+	if claims.UserID == 0 && !claims.IsAdmin {
+		http.Error(w, errInvalidUser.Error(), http.StatusUnauthorized)
+		return
+	}
+	imageURL, err := s.db.readImageUrlFromEvent(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := s.imageClient.SendDeleteBlobRequest(ctx, imageURL)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if resp.Response().StatusCode == http.StatusAccepted {
+		s.db.deleteImageUrlFromEvent(id)
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+
+	respJSON, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(respJSON)
 }
 
 func randomString() string {

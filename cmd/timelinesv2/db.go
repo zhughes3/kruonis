@@ -335,6 +335,17 @@ func (db *db) readUserTimelineGroups(id uint64) ([]*Group, error) {
 
 	return groups, nil
 }
+func (db *db) readImageUrlFromEvent(id string) (string, error) {
+	var imageURL sql.NullString
+	sql := `SELECT image_url FROM events WHERE id = $1`
+	err := db.db.QueryRow(sql, id).Scan(&imageURL)
+	if err != nil || !imageURL.Valid {
+		log.Error("Error reading event image url from db.")
+		return "", err
+	}
+
+	return imageURL.String, nil
+}
 
 func (db *db) insertGroup(title string, userID uint64, isPrivate bool) (*Group, error) {
 	var group Group
@@ -523,5 +534,10 @@ func (db *db) deleteGroup(id string) error {
 		log.Error("Error deleting group from DB")
 		return err
 	}
+	return nil
+}
+func (db *db) deleteImageUrlFromEvent(id string) error {
+	sql := `UPDATE events SET image_url = null WHERE id = $1`
+	db.db.QueryRow(sql, id)
 	return nil
 }
