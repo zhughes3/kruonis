@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 
-docker-compose --env-file=cmd/timelines/config.env down
+docker-compose --env-file=cmd/timelinesv2/config.env down
