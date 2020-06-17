@@ -66,11 +66,11 @@ export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 								<Link to={`timeline/${group.id}`}>{group.title}</Link>
 								<div>
 									{ group.private ?
-										<img src={eyeOff} alt="Private" onClick={() => togglePrivatePublic(group, false)}/>
+										<img className="cursor-pointer" src={eyeOff} alt="Private" onClick={() => togglePrivatePublic(group, false)}/>
 										:
-										<img src={eye} alt="Public" onClick={() => togglePrivatePublic(group, true)}/>
+										<img className="cursor-pointer" src={eye} alt="Public" onClick={() => togglePrivatePublic(group, true)}/>
 									}
-									<img className="ml2" src={trash} alt="Remove" onClick={ () => deleteGroup(group.id) } />
+									<img className="ml2 cursor-pointer" src={trash} alt="Remove" onClick={ () => deleteGroup(group.id) } />
 								</div>
 							</div>
 						)

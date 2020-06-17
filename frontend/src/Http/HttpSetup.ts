@@ -2,15 +2,13 @@ import {ReqMethod} from "../Interfaces/Enums/ReqMethod";
 
 const BASE_URL = 'http://localhost';
 const PORT = '8080';
-// This port is only used for posting images.
-const IMAGE_PORT = '8081';
 const API_BASE = 'v1';
 
 // This function created the URL used to communicate with the API.
 // The image boolean exists because it the images are posted to a different port then other content.
 // If you set images to true, you'll send data to a different port then if it is false.
-const makeUrl = (url: string, image?: boolean): string => {
-    return `${BASE_URL}:${image ? IMAGE_PORT : PORT}/${API_BASE}/${url}`;
+const makeUrl = (url: string): string => {
+    return `${BASE_URL}:${PORT}/${API_BASE}/${url}`;
 };
 
 const getReqConfig = (reqMethod: ReqMethod, body?: any, image?: boolean): any => {
@@ -42,7 +40,7 @@ export const httpPost = async (url: string, body: any, image?: boolean): Promise
         body = JSON.stringify(body);
     }
 
-    let response: Response = await fetch(makeUrl(url, image), getReqConfig(ReqMethod.POST, body, image));
+    let response: Response = await fetch(makeUrl(url), getReqConfig(ReqMethod.POST, body, image));
 
     return await response.json();
 };

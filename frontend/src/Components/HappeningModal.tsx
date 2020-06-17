@@ -45,8 +45,6 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 
 		const happeningResult: IHappeningCreate = {
 			id: props.happening ? props.happening.id : 0,
-			// event_id is needed for updating.
-			event_id: props.happening ? props.happening.event_id : 0,
 			title,
 			timestamp: moment.utc(timestamp).format(),
 			description,

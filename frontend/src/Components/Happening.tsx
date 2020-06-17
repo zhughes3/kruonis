@@ -28,7 +28,7 @@ export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
 
                     {/* The icons for deleting and updating a happening. These become visible on hover. */}
                     <div className="happening-update-delete-left">
-                        <img src={trash} alt="Remove event" onClick={ () => props.deleteHappening(props.happening.event_id) } />
+                        <img src={trash} alt="Remove event" onClick={ () => props.deleteHappening(props.happening.id) } />
                         <img src={edit} className="ml1" alt="Edit event" onClick={ () => props.setOpenEditHappening(!props.openEditHappening) } />
                     </div>
 
@@ -50,7 +50,7 @@ export const Happening: React.FunctionComponent<IHappeningProps> = (props) => {
 
                     {/* The icons for deleting and updating a happening. These become visible on hover. */}
                     <div className="happening-update-delete-right">
-                        <img src={trash} alt="Remove event" onClick={ () => props.deleteHappening(props.happening.event_id) } />
+                        <img src={trash} alt="Remove event" onClick={ () => props.deleteHappening(props.happening.id) } />
                         <img src={edit} className="ml1" alt="Edit event" onClick={ () => props.setOpenEditHappening(!props.openEditHappening) } />
                     </div>
 
