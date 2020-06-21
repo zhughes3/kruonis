@@ -22,7 +22,6 @@ import {HappeningModal} from "../Components/HappeningModal";
 // This happening is displayed if there are no happenings (events) on the timeline yet.
 const emptyTimelineHappening = {
     id: '1',
-    // event_id: '1',
     timeline_id: '1',
     title: 'No events yet',
     timestamp: moment().format(),
@@ -188,8 +187,11 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
     };
 
     const sortHappenings = (happenings: IHappening[]): IHappening[] => {
-        // @ts-ignore
-        return happenings.sort( (a, b) => a.timestamp > b.timestamp)
+        return happenings.sort( (a, b) => {
+            if (a.timestamp < b.timestamp) { return -1; }
+            if ( a.timestamp > b.timestamp) { return 1; }
+            return 0;
+        });
     };
 
     const toggleModal = (): void => {
