@@ -3,14 +3,7 @@ import { IRouterProps } from '../Interfaces/IRouterProps';
 import { IHappening, IHappeningCreate } from '../Interfaces/IHappening';
 import { Happening } from '../Components/Happening';
 import { useParams } from 'react-router-dom';
-import {
-    checkIfLoggedIn,
-    createHappening,
-    createImage,
-    deleteHappening,
-    getTimelineGroup,
-    updateHappening
-} from "../Http/Requests";
+import { createHappening, createImage, deleteHappening, getTimelineGroup, updateHappening } from "../Http/Requests";
 import {Center} from "../Components/Center";
 import { LoadingCard } from '../Components/LoadingCard';
 import moment from "moment";
@@ -63,7 +56,10 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
             console.log(e);
         });
 
+        console.log(result);
+
         if (result && result.id) {
+            // The events are sorted and set in the setEvens function below.
             setEvents(result);
 
             setTimelineGroup(result);
@@ -72,7 +68,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
         // If a response has no .id, it's probably a 404 (no official 404).
         // Send user to home screen if timeline does not exist.
         // TODO implement message for user when navigating to timeline that doesn't exist.
-        if (result && !result.id) {
+        if (!result) {
             props.history.push('/');
         }
 
