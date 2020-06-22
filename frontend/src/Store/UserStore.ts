@@ -1,6 +1,5 @@
 import { observable } from "mobx"
 import {createContext} from "react";
-import {IUser} from "../Interfaces/IUser";
 import {IFullOrder} from "../Interfaces/IFullOrder";
 
 class UserStore {
