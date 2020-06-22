@@ -2,7 +2,7 @@ import {ITimeline, ITimelineCreate} from "../Interfaces/ITimeline";
 import {httpDelete, httpGet, httpPost, httpPut} from "./HttpSetup";
 import {IHappening, IHappeningCreate} from "../Interfaces/IHappening";
 import {IGroup} from "../Interfaces/IGroup";
-import {IUser, IUserCreate} from "../Interfaces/IUser";
+import {IUserCreate} from "../Interfaces/IUser";
 import {IBoolResponse} from "../Interfaces/IBoolResponse";
 import {IFullOrder} from "../Interfaces/IFullOrder";
 

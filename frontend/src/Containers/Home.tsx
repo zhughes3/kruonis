@@ -1,6 +1,5 @@
 import React, { FormEvent, useState } from 'react';
 import { IRouterProps } from '../Interfaces/IRouterProps';
-import isAlphanumeric from 'validator/lib/isAlphanumeric';
 
 import home_blue_stain from './../Assets/home_blue_stain.svg';
 import { createTimeline, createGroupedTimelines } from '../Http/Requests';
@@ -19,8 +18,8 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
         e.preventDefault();
 
         // Check if we have a name, remove the spaces from name so we can check if it contains illegal characters.
-        if (!timelineName || !legalName(timelineName) || (timelineCompareName && !legalName(timelineCompareName))) {
-            return setError("Don't forget to name your timeline ( Letters and numbers only )!");
+        if (!timelineName) {
+            return setError("Don't forget to name your timeline!");
         }
 
         try {
@@ -42,10 +41,6 @@ export const Home: React.FunctionComponent<IRouterProps> = (props) => {
             setError('Woops, something went wrong!');
             setLoading(false);
         }
-    };
-
-    const legalName = (name: string): boolean => {
-        return isAlphanumeric(name.split(" ").join(''))
     };
 
     return (

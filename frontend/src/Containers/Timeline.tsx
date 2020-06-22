@@ -32,7 +32,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
     let { groupId } = useParams();
 
     const [open, setOpen] = useState<boolean>(false);
-    const [selectedHappening, setSelectedHappening] = useState<IHappening>();
+    const [selectedHappening, setSelectedHappening] = useState<IHappening | undefined>();
     const [loading, setLoading] = useState<boolean>(true);
     const [timelineGroup, setTimelineGroup] = useState<IGroup>();
     const [fetchTimelineError, setFetchTimelineError] = useState<string>('');
@@ -55,8 +55,6 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
             // TODO implement proper behaviour when someone is trying to checkout a private timeline that does not belong to them.
             console.log(e);
         });
-
-        console.log(result);
 
         if (result && result.id) {
             // The events are sorted and set in the setEvens function below.
@@ -190,6 +188,15 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
         });
     };
 
+    // If the happening a user has clicked on is not active, display it. If it is, hide it.
+    const toggleHappening = (happening: IHappening) => {
+        if (selectedHappening?.id !== happening.id) {
+            return setSelectedHappening(happening)
+        }
+
+        return setSelectedHappening(undefined);
+    };
+
     const toggleModal = (): void => {
         setOpen(!open);
     };
@@ -253,10 +260,10 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
 
                     {events.length ?
                         events.map((happening: IHappening, index: number) => {
-                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.timeline_id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) }  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) }  deleteHappening={ (id: string) => removeHappening(id) } />
+                            return <Happening className="pb-70 cursor-pointer" key={index} left={happening.timeline_id === timelineGroup?.timelines[0].id} happening={happening} selectHappening={ (happening: IHappening) => toggleHappening(happening) }  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) }  deleteHappening={ (id: string) => removeHappening(id) } />
                         })
                         :
-                        <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => setSelectedHappening(happening) } left  openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) } deleteHappening={ (id: string) => removeHappening(id) } />
+                        <Happening className="pb-70 cursor-pointer" key={1} happening={emptyTimelineHappening} selectHappening={ (happening: IHappening) => toggleHappening(happening) } left openEditHappening={openEditModal} setOpenEditHappening={ (open) => setOpenEditModal(open) } deleteHappening={ (id: string) => removeHappening(id) } />
                     }
 
                 </div>

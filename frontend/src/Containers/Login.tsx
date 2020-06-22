@@ -23,6 +23,7 @@ export const Login: React.FunctionComponent<IRouterProps> = observer( (props) =>
 
 		// Returns a 401 on faulty login.
 		const result = await loginAttempt({email, password}).catch(e => console.log(e));
+		console.log(result);
 
 		const user = await getUser();
 

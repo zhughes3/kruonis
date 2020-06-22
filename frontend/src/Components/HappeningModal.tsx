@@ -62,6 +62,7 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 		setDescription('');
 		setContent('');
 		setTimestamp('');
+		setImage(undefined);
 		// @ts-ignore
 		document.getElementById("happening-form")?.reset();
 
