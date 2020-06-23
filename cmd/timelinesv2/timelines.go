@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/gorilla/mux"
 )
 
@@ -42,8 +40,8 @@ type (
 )
 
 func (s *server) CreateTimelineHandler(w http.ResponseWriter, r *http.Request) {
-	log.Debug("Create Timeline")
 	var body CreateTimelineRequest
+	claims := AccessTokenClaimsFromContext(r.Context())
 
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
@@ -52,7 +50,7 @@ func (s *server) CreateTimelineHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if body.GroupId == 0 {
-		group, err := s.db.insertGroup(body.Title, 0, false)
+		group, err := s.db.insertGroup(body.Title, claims.UserID, false)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

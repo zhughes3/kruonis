@@ -15,6 +15,7 @@ import (
 var (
 	errBadAccessToken  error           = errors.New("Invalid access token.")
 	errBadRefreshToken error           = errors.New("Invalid refresh token. Must login.")
+	errForbiddenRoute  error           = errors.New("Access forbidden.")
 	insecureEndpoints  map[string]bool = map[string]bool{
 		"/v1/Login":              true,
 		"/v1/Signup":             true,
@@ -67,6 +68,10 @@ func (s *server) authMiddleware(next http.Handler) http.Handler {
 
 		// handle refresh token
 		if routeName == "/v1/Refresh" {
+			if len(refresh) == 0 {
+				http.Error(w, errBadAccessToken.Error(), http.StatusUnauthorized)
+				return
+			}
 			claims, err := s.validateRefreshToken(refresh)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
@@ -78,24 +83,29 @@ func (s *server) authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// handle access token
-		claims, err := s.validateAccessToken(access)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if _, ok := adminEndpoints[routeName]; ok {
-			if claims.IsAdmin {
-				next.ServeHTTP(w, r.WithContext(NewContextWithAccessTokenClaims(ctx, *claims)))
+		if len(access) > 0 {
+			// handle access token
+			claims, err := s.validateAccessToken(access)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			http.Error(w, err.Error(), http.StatusForbidden)
+
+			if _, ok := adminEndpoints[routeName]; ok {
+				if claims.IsAdmin {
+					next.ServeHTTP(w, r.WithContext(NewContextWithAccessTokenClaims(ctx, *claims)))
+					return
+				}
+				http.Error(w, errForbiddenRoute.Error(), http.StatusForbidden)
+				return
+			}
+
+			// Call the next handler, which can be another middleware in the chain, or the final handler.
+			next.ServeHTTP(w, r.WithContext(NewContextWithAccessTokenClaims(ctx, *claims)))
 			return
 		}
 
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r.WithContext(NewContextWithAccessTokenClaims(ctx, *claims)))
+		next.ServeHTTP(w, r)
 		return
 	})
 }
