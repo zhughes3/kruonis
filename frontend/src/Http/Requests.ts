@@ -4,6 +4,7 @@ import {IHappening, IHappeningCreate} from "../Interfaces/IHappening";
 import {IGroup} from "../Interfaces/IGroup";
 import {IUserCreate} from "../Interfaces/IUser";
 import {IBoolResponse} from "../Interfaces/IBoolResponse";
+import {IFullOrder} from "../Interfaces/IFullOrder";
 
 export const getTimelineGroup = async (groupId: string): Promise<IGroup> => {
     return httpGet('groups/' + groupId);
@@ -57,18 +58,18 @@ export const signUpAttempt = async (body: IUserCreate): Promise<boolean> => {
     return result.response;
 }
 
-// Returns true if login was successful.
+// Returns true if login was successful. Returns a 401 on faulty login.
 export const loginAttempt = async (body: IUserCreate): Promise<any> => {
     return await httpPost('users/login', body);
 }
 
 // Returns true if login was successful.
-export const checkIfLoggedIn = async (): Promise<any> => {
+export const checkIfLoggedIn = async (): Promise<boolean> => {
     const result: IBoolResponse = await httpGet('users/ping').catch( (e: Error) => console.log(e) );
     if (!result) { return false; }
     return result.response;
 }
 
-export const getUser = async (): Promise<any> => {
+export const getUser = async (): Promise<IFullOrder> => {
     return await httpGet('users/me');
 }

@@ -11,6 +11,7 @@ import {checkIfLoggedIn} from "../Http/Requests";
 // @ts-ignore
 export const PrivateRoute = ({ component, ...options }) => {
 
+
 	const [loading, setLoading] = useState<boolean>(true);
 	const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
@@ -25,7 +26,7 @@ export const PrivateRoute = ({ component, ...options }) => {
 				return;
 			}
 
-			// On success.
+			// On success
 			setLoggedIn(true);
 			setLoading(false);
 		}).catch( (e: Error) => {

@@ -1,12 +1,16 @@
-import React, {FormEvent, useState} from 'react';
+import React, {FormEvent, useContext, useState} from 'react';
 import {IRouterProps} from "../Interfaces/IRouterProps";
-import {loginAttempt} from "../Http/Requests";
+import {getUser, loginAttempt} from "../Http/Requests";
 import isEmail from 'validator/lib/isEmail';
 import {checkForPasswordLength} from "../Utils/PasswordChecks";
+import {observer} from "mobx-react";
+import {UserStoreContext} from "../Store/UserStore";
 
 let email = '';
 let password = '';
-export const Login: React.FunctionComponent<IRouterProps> = (props) => {
+export const Login: React.FunctionComponent<IRouterProps> = observer( (props) => {
+
+	const userStore = useContext(UserStoreContext)
 
 	const [loginAttemptStatus, setLoginAttemptStatus] = useState<string>('');
 
@@ -17,8 +21,13 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 
 		if (errorFound()) { return; }
 
+		// Returns a 401 on faulty login.
 		const result = await loginAttempt({email, password}).catch(e => console.log(e));
 		console.log(result);
+
+		const user = await getUser();
+
+		userStore.setUser(user);
 
 		resetRegisterData();
 		// @ts-ignore
@@ -28,7 +37,7 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 			return props.history.push(props.location.state.from);
 		}
 
-		return props.history.push('/');
+		return props.history.push('/dashboard');
 	}
 
 	const resetRegisterData = (): void => {
@@ -109,5 +118,5 @@ export const Login: React.FunctionComponent<IRouterProps> = (props) => {
 			</form>
 		</div>
 	)
-}
+});
 
