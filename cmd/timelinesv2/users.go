@@ -65,6 +65,21 @@ func (s *server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access",
+		HttpOnly: true,
+		Path:     "/",
+		MaxAge: -1,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh",
+		HttpOnly: true,
+		Path:     "/",
+		MaxAge: -1,
+	})
+}
+
 func (s *server) SignupHandler(w http.ResponseWriter, r *http.Request) {
 	var body accountCredentials
 
@@ -121,7 +136,7 @@ func (s *server) PingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(respJSON)
 }
 
-func (s *server) MeHandler(w http.ResponseWriter, r *http.Request) {
+func (s *server) ReadMeHandler(w http.ResponseWriter, r *http.Request) {
 	claims := AccessTokenClaimsFromContext(r.Context())
 	groups, err := s.db.readUserTimelineGroups(claims.UserID)
 	if err != nil {
