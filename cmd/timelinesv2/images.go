@@ -54,9 +54,13 @@ func newImageBlobStoreClient(cfg *imageBlobStoreConfig) *imageBlobStoreClient {
 	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
 	urlString := fmt.Sprintf("https://%s.blob.core.windows.net/%s", cfg.acctName, cfg.containerName)
 	url, _ := url.Parse(urlString)
+	containerURL := azblob.NewContainerURL(*url, p)
+	log.WithFields(log.Fields{
+		"Url": urlString,
+	}).Info("Connected to Azure Blob Store")
 
 	return &imageBlobStoreClient{
-		containerURL: azblob.NewContainerURL(*url, p),
+		containerURL: containerURL,
 		urlPrefix:    urlString + "/",
 	}
 }
