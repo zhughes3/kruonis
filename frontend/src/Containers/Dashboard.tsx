@@ -9,6 +9,7 @@ import {Link} from "react-router-dom";
 import eye from "../Assets/Icons/eye.svg";
 import eyeOff from "../Assets/Icons/eye-off.svg";
 import trash from "../Assets/Icons/trash.svg";
+import {LogoutButton} from "../Components/LogoutButton";
 
 export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 
@@ -76,6 +77,8 @@ export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 						)
 					}
 				</div>
+
+				<LogoutButton className="mt4" />
 			</div>
 		</AbsoluteCenter>
 	);

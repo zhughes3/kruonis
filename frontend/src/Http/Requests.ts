@@ -63,6 +63,10 @@ export const loginAttempt = async (body: IUserCreate): Promise<any> => {
     return await httpPost('users/login', body);
 }
 
+export const logoutAttempt = async (): Promise<void> => {
+    return await httpGet('users/logout');
+}
+
 // Returns true if login was successful.
 export const checkIfLoggedIn = async (): Promise<boolean> => {
     const result: IBoolResponse = await httpGet('users/ping').catch( (e: Error) => console.log(e) );

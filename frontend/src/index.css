@@ -462,6 +462,33 @@ body {
 .pb-70 {
     padding-bottom: 70px;
 }
+.p1 {
+    padding: 10px;
+}
+.p2 {
+    padding: 20px;
+}
+.p3 {
+    padding: 30px;
+}
+.p4 {
+    padding: 40px;
+}
+.p5 {
+    padding: 50px;
+}
+.pl3 {
+    padding-left: 30px !important;
+}
+.pr3 {
+    padding-right: 30px !important;
+}
+.pt1 {
+    padding-top: 21px !important;
+}
+.pb1 {
+    padding-bottom: 21px !important;
+}
 
 .error-center {
     display: flex;
