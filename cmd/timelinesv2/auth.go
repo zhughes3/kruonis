@@ -39,7 +39,7 @@ type (
 	accessTokenClaims struct {
 		UserID  uint64 `json:"id"`
 		Email   string `json:"email"`
-		IsAdmin bool   `json: "is_admin"`
+		IsAdmin bool   `json:"is_admin"`
 		jwt.StandardClaims
 	}
 	refreshTokenClaims struct {
