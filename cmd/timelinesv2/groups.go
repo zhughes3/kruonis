@@ -44,7 +44,7 @@ func (s *server) ReadGroupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if group.Private && group.UserId != claims.UserID {
-		http.Error(w, err.Error(), http.StatusForbidden)
+		http.Error(w, errForbiddenRoute.Error(), http.StatusForbidden)
 		return
 	}
 
