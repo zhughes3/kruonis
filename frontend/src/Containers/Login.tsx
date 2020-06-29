@@ -61,6 +61,10 @@ export const Login: React.FunctionComponent<IRouterProps> = observer( (props) =>
 		return error;
 	}
 
+	const onSignIn = (e: any) => {
+		console.log('I exist', e);
+	}
+
 	return (
 		<div className="login">
 			<form id="login-form" onSubmit={handleLogin}>
@@ -99,10 +103,16 @@ export const Login: React.FunctionComponent<IRouterProps> = observer( (props) =>
 				</div>
 
 				{ loginAttemptStatus &&
-				<div className="field has-text-danger">
-					{loginAttemptStatus}
-				</div>
+					<div className="field has-text-danger">
+						{loginAttemptStatus}
+					</div>
 				}
+
+				<div className="field mt3">
+					<p className="control">
+						<span className="g-signin2" data-onsuccess="onSignIn" />
+					</p>
+				</div>
 
 				<div className="field mt2">
 					<p className="has-text-centered">
