@@ -23,6 +23,11 @@ type (
 		User
 		hash string
 	}
+
+	privateDetails struct {
+		UserID uint64
+		IsPrivate bool
+	}
 )
 
 func newDB(cfg *databaseConfig) *db {
@@ -540,4 +545,68 @@ func (db *db) deleteImageUrlFromEvent(id string) error {
 	sql := `UPDATE events SET image_url = null WHERE id = $1`
 	db.db.QueryRow(sql, id)
 	return nil
+}
+// func (db *db) readEventPrivateDetails(id string) (privateDetails, error) {
+// 	var p privateDetails
+// 	sql := `
+// 		SELECT groups.user_id, groups.private 
+// 		FROM events 
+// 		FULL JOIN timelines ON events.timeline_id = timelines.id 
+// 		FULL JOIN groups ON timelines.group_id = groups.id 
+// 		WHERE events.id = $1;`
+
+// 	err := db.db.QueryRow(sql, id).Scan(&p.UserID, &p.IsPrivate)
+// 	if err != nil {
+// 		log.Error("Error selecting timeline events private details")
+// 	}
+
+// 	return p, err
+// }
+// func (db *db) readTimelinePrivateDetails(id string) (privateDetails, error) {
+// 	var p privateDetails
+// 	sql := `
+// 		SELECT groups.user_id, groups.private
+// 		FROM timelines
+// 		FULL JOIN groups on timelines.group_id = groups.id
+// 		WHERE timelines.id = $1`
+
+// 	err := db.db.QueryRow(sql, id).Scan(&p.UserID, &p.IsPrivate)
+// 	if err != nil {
+// 		log.Error("Error selecting timelines private details")
+// 	}
+
+// 	return p, err
+// }
+
+func (db *db) isEventPrivate(id string) (bool, error) {
+	var b bool
+	sql := `
+		SELECT groups.private 
+		FROM events 
+		FULL JOIN timelines ON events.timeline_id = timelines.id 
+		FULL JOIN groups ON timelines.group_id = groups.id 
+		WHERE events.id = $1;`
+
+	err := db.db.QueryRow(sql, id).Scan(&b)
+	if err != nil {
+		log.Error("Error selecting timeline events private details")
+	}
+
+	return b, err
+}
+
+func (db *db) isTimelinePrivate(id string) (bool, error) {
+	var b bool
+	sql := `
+		SELECT groups.private
+		FROM timelines
+		FULL JOIN groups on timelines.group_id = groups.id
+		WHERE timelines.id = $1`
+
+	err := db.db.QueryRow(sql, id).Scan(&b)
+	if err != nil {
+		log.Error("Error selecting timelines private details")
+	}
+
+	return b, err
 }
