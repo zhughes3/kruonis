@@ -125,3 +125,8 @@ func (s *server) ListTrendingGroupsHandler(w http.ResponseWriter, r *http.Reques
 	// TODO this should be returned in popularity order
 	s.AdminListGroupsHandler(w, r)
 }
+
+func (s *server) ListPublicGroupsHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO 
+	s.AdminListGroupsHandler(w, r)
+}

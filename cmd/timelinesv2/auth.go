@@ -8,8 +8,6 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/dgrijalva/jwt-go"
-
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -69,8 +67,6 @@ func (s *server) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		currentRoute := mux.CurrentRoute(r)
 		routeName := currentRoute.GetName()
-
-		log.Println(routeName)
 
 		if _, ok := insecureEndpoints[routeName]; ok {
 			// no authentication needed
