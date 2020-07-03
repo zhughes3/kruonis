@@ -1,9 +1,10 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 )
@@ -16,7 +17,8 @@ func (s *server) loggingMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 		log.WithFields(log.Fields{
 			"Duration": time.Since(start).String(),
-		}).Info(routeName)
+			"Method": routeName,
+		}).Info("request info")
 		return
 	})
 }

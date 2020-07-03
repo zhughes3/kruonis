@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -140,7 +141,7 @@ func (db *db) readGroup(id string) (*Group, error) {
 	} else {
 		sql = `SELECT * from groups WHERE id = $1;`
 	}
-	err := db.db.QueryRow(sql, id).Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid)
+	err := db.db.QueryRow(sql, id).Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid, &group.Views)
 	if err != nil {
 		log.Error("Error reading timeline group from db")
 		return nil, err
@@ -609,4 +610,22 @@ func (db *db) isTimelinePrivate(id string) (bool, error) {
 	}
 
 	return b, err
+}
+
+func (db *db) incrementGroupViews(id string) error {
+	ctx := context.Background()
+	tx, err := db.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	_, err = tx.ExecContext(ctx, `UPDATE groups SET views = views + 1 WHERE id = $1`, id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
 }

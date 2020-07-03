@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS groups (
     private boolean DEFAULT false,
     user_id integer,
     uuid uuid,
+    views integer DEFAULT 0,
     PRIMARY KEY(id)
 );
 
