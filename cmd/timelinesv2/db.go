@@ -367,7 +367,11 @@ func (db *db) insertGroup(title string, userID uint64, isPrivate bool) (*Group, 
 }
 func (db *db) insertTimeline(gid uint64, title string) (*Timeline, error) {
 	var timeline Timeline
-	sql := `INSERT INTO timelines(group_id, title) VALUES($1, $2) RETURNING id, group_id, title, created_at, updated_at;`
+	sql := `INSERT INTO timelines(group_id, title)
+			SELECT *
+			FROM (SELECT $1::integer, $2) x
+			WHERE (SELECT COUNT(*) FROM timelines WHERE group_id = $1::integer) < 2
+			RETURNING id, group_id, title, created_at, updated_at;`
 
 	err := db.db.QueryRow(sql, gid, title).Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
 	if err != nil {
