@@ -1,6 +1,7 @@
-import React, {FormEvent, useEffect, useState, ChangeEvent} from 'react';
+import React, {FormEvent, useEffect, useState, ChangeEvent, useContext} from 'react';
 import {IHappening, IHappeningCreate} from '../Interfaces/IHappening';
 import moment from "moment";
+import {UserStoreContext} from "../Store/UserStore";
 
 interface IHappeningModalProps {
 	open: boolean;
@@ -16,6 +17,8 @@ interface IHappeningModalProps {
 }
 
 export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (props) => {
+
+	const userStore = useContext(UserStoreContext)
 
 	const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -95,18 +98,21 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 							</div>
 						</div>
 
+						{/* TODO an anonymous user should see a disabled upload field with the text: please create an account in order to upload images. */}
 						<div className="field">
 							<label className="label">Image</label>
+							{ !userStore.user && <p>Login to enable image uploads.</p> }
 							<div className="file has-name">
 								<label className="file-label">
-									<input className="file-input" type="file" name="resume" onChange={ (e) => selectImage(e) }/>
+									<input className="file-input" type="file" name="resume" onChange={(e) => selectImage(e)} disabled={!!userStore.user} />
 									<span className="file-cta">
-									<span className="file-icon">
-										<i className="fas fa-upload" />
-									</span>
-									<span className="file-label">Choose a file…</span>
+								<span className="file-icon">
+									<i className="fas fa-upload"/>
 								</span>
-									<span className="file-name">{ image ? image.name : props.happening?.image_url ? 'Unknown_name.' + props.happening?.image_url.split('.')[5] : 'No image selected'}</span>
+								<span className="file-label">Choose a file…</span>
+							</span>
+									<span
+										className="file-name">{image ? image.name : props.happening?.image_url ? 'Unknown_name.' + props.happening?.image_url.split('.')[5] : 'No image selected'}</span>
 								</label>
 							</div>
 						</div>
@@ -149,5 +155,5 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 			</div>
 			<button className="modal-close is-large" aria-label="close" onClick={() => closeModal()}/>
 		</div>
-);
+	);
 };
