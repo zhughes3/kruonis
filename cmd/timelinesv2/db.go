@@ -645,10 +645,10 @@ func (db *db) insertGroupView(id string) error {
 
 func (db *db) getTrendingGroups() error {
 	//TODO
-	sql := `select id, count(*) as views
-	from group_views
-	where time between date_trunc('day', time) and date_trunc('day', time) + '24 hours'
-	group by id
-	order by views desc`
+	// sql := `select id, count(*) as views
+	// from group_views
+	// where time between date_trunc('day', time) and date_trunc('day', time) + '24 hours'
+	// group by id
+	// order by views desc`
 	return nil
 }
