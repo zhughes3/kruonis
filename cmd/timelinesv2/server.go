@@ -69,9 +69,9 @@ func (s *server) Start() error {
 func (s *server) prepareServer() (*http.Server, error) {
 	r := mux.NewRouter()
 
-	s.addHttpRoutes(r)
-
-	r.Use(s.authMiddleware)
+	s.addHTTPRoutes(r)
+	
+	r.Use(s.loggingMiddleware, s.authMiddleware)
 	handler := s.cors.Handler(r)
 
 	return &http.Server{
@@ -83,7 +83,9 @@ func (s *server) prepareServer() (*http.Server, error) {
 	}, nil
 }
 
-func (s *server) addHttpRoutes(r *mux.Router) {
+func (s *server) addHTTPRoutes(r *mux.Router) {
+	r.HandleFunc("/v1/groups/trending", s.ListTrendingGroupsHandler).Methods(http.MethodGet).Name("/v1/ListTrendingGroups")
+	r.HandleFunc("/v1/groups/public", s.ListPublicGroupsHandler).Methods(http.MethodGet).Name("/v1/ListPublicGroups")
 	r.HandleFunc("/v1/timelines", s.CreateTimelineHandler).Methods(http.MethodPost).Name("/v1/CreateTimeline")
 	r.HandleFunc("/v1/timelines/{id}", s.ReadTimelineHandler).Methods(http.MethodGet).Name("/v1/ReadTimeline")
 	r.HandleFunc("/v1/timelines/{id}", s.UpdateTimelineHandler).Methods(http.MethodPut).Name("/v1/UpdateTimeline")
@@ -105,7 +107,6 @@ func (s *server) addHttpRoutes(r *mux.Router) {
 	r.HandleFunc("/v1/users/ping", s.PingHandler).Methods(http.MethodGet).Name("/v1/Ping")
 	r.HandleFunc("/v1/users/refresh", s.RefreshHandler).Methods(http.MethodGet).Name("/v1/Refresh")
 	r.HandleFunc("/v1/users/me", s.ReadMeHandler).Methods(http.MethodGet).Name("/v1/ReadMe")
-	r.HandleFunc("/v1/groups/trending", s.ListTrendingGroupsHandler).Methods(http.MethodGet).Name("/v1/ListTrendingGroups")
 	r.HandleFunc("/v1/admin/users", s.AdminListUsersHandler).Methods(http.MethodGet).Name("/v1/AdminListUsers")
 	r.HandleFunc("/v1/admin/groups", s.AdminListGroupsHandler).Methods(http.MethodGet).Name("/v1/AdminListGroups")
 	r.HandleFunc("/v1/admin/timelines", s.AdminListTimelinesHandler).Methods(http.MethodGet).Name("/v1/AdminListTimelines")

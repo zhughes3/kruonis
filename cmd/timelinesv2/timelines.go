@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -60,6 +61,10 @@ func (s *server) CreateTimelineHandler(w http.ResponseWriter, r *http.Request) {
 
 	timeline, err := s.db.insertTimeline(body.GroupId, body.Title)
 	if err != nil {
+		if err.Error() == sql.ErrNoRows.Error() {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -8,8 +8,6 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/dgrijalva/jwt-go"
-
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -33,6 +31,23 @@ var (
 		"/v1/UpdateEventImage": true,
 		"/v1/DeleteEventImage": true,
 	}
+	eventEndpoints map[string]bool = map[string]bool{
+		"/v1/ReadEvent": true,
+		"/v1/UpdateEvent": true,
+		"/v1/DeleteEvent": true,
+	}
+	timelineEndpoints map[string]bool = map[string]bool {
+		"/v1/ReadTimeline": true,
+		"/v1/UpdateTimeline": true,
+		"/v1/DeleteTimeline": true,
+		"/v1/ReadTimelineEvents": true,
+		"/v1/CreateTimelineEvent": true,
+	}
+	imageEndpoints map[string]bool = map[string]bool {
+		"/v1/CreateEventImage": true,
+		"/v1/UpdateEventImage": true,
+		"/v1/DeleteEventImage": true,
+	}
 )
 
 type (
@@ -52,8 +67,6 @@ func (s *server) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		currentRoute := mux.CurrentRoute(r)
 		routeName := currentRoute.GetName()
-
-		log.Println(routeName)
 
 		if _, ok := insecureEndpoints[routeName]; ok {
 			// no authentication needed
@@ -102,6 +115,19 @@ func (s *server) authMiddleware(next http.Handler) http.Handler {
 
 			// Call the next handler, which can be another middleware in the chain, or the final handler.
 			next.ServeHTTP(w, r.WithContext(NewContextWithAccessTokenClaims(ctx, *claims)))
+			return
+		}
+
+		// anonymous request
+		// check proper authentication for specific routes
+		err := s.anonymousUserChecks(r, routeName)
+		if err != nil {
+			if err == errForbiddenRoute {
+				http.Error(w, errForbiddenRoute.Error(), http.StatusForbidden)
+				return
+			}
+
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -203,4 +229,38 @@ func (s *server) generateJWTRefreshToken(id uint64) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func (s *server) anonymousUserChecks(r *http.Request, routeName string) error {
+	// block access if group is private or if image endpoint
+	if _, ok := eventEndpoints[routeName]; ok {
+		
+		vars := mux.Vars(r)
+		id := vars["id"]
+		isPrivate, err := s.db.isEventPrivate(id)
+		if err != nil {
+			return err
+		}
+		if isPrivate {
+			return errForbiddenRoute
+		}
+	}
+	if _, ok := timelineEndpoints[routeName]; ok {
+		// block access if group is private
+		vars := mux.Vars(r)
+		id := vars["id"]
+		isPrivate, err := s.db.isTimelinePrivate(id)
+		if err != nil {
+			return err
+		}
+
+		if isPrivate {
+			return errForbiddenRoute
+		}
+	}
+	if _, ok := imageEndpoints[routeName]; ok {
+		return errForbiddenRoute
+	}
+
+	return nil
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -22,6 +23,11 @@ type (
 	userWithHash struct {
 		User
 		hash string
+	}
+
+	privateDetails struct {
+		UserID uint64
+		IsPrivate bool
 	}
 )
 
@@ -135,7 +141,7 @@ func (db *db) readGroup(id string) (*Group, error) {
 	} else {
 		sql = `SELECT * from groups WHERE id = $1;`
 	}
-	err := db.db.QueryRow(sql, id).Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid)
+	err := db.db.QueryRow(sql, id).Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid, &group.Views)
 	if err != nil {
 		log.Error("Error reading timeline group from db")
 		return nil, err
@@ -361,7 +367,11 @@ func (db *db) insertGroup(title string, userID uint64, isPrivate bool) (*Group, 
 }
 func (db *db) insertTimeline(gid uint64, title string) (*Timeline, error) {
 	var timeline Timeline
-	sql := `INSERT INTO timelines(group_id, title) VALUES($1, $2) RETURNING id, group_id, title, created_at, updated_at;`
+	sql := `INSERT INTO timelines(group_id, title)
+			SELECT *
+			FROM (SELECT $1::integer, $2) x
+			WHERE (SELECT COUNT(*) FROM timelines WHERE group_id = $1::integer) < 2
+			RETURNING id, group_id, title, created_at, updated_at;`
 
 	err := db.db.QueryRow(sql, gid, title).Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
 	if err != nil {
@@ -539,5 +549,87 @@ func (db *db) deleteGroup(id string) error {
 func (db *db) deleteImageUrlFromEvent(id string) error {
 	sql := `UPDATE events SET image_url = null WHERE id = $1`
 	db.db.QueryRow(sql, id)
+	return nil
+}
+// func (db *db) readEventPrivateDetails(id string) (privateDetails, error) {
+// 	var p privateDetails
+// 	sql := `
+// 		SELECT groups.user_id, groups.private 
+// 		FROM events 
+// 		FULL JOIN timelines ON events.timeline_id = timelines.id 
+// 		FULL JOIN groups ON timelines.group_id = groups.id 
+// 		WHERE events.id = $1;`
+
+// 	err := db.db.QueryRow(sql, id).Scan(&p.UserID, &p.IsPrivate)
+// 	if err != nil {
+// 		log.Error("Error selecting timeline events private details")
+// 	}
+
+// 	return p, err
+// }
+// func (db *db) readTimelinePrivateDetails(id string) (privateDetails, error) {
+// 	var p privateDetails
+// 	sql := `
+// 		SELECT groups.user_id, groups.private
+// 		FROM timelines
+// 		FULL JOIN groups on timelines.group_id = groups.id
+// 		WHERE timelines.id = $1`
+
+// 	err := db.db.QueryRow(sql, id).Scan(&p.UserID, &p.IsPrivate)
+// 	if err != nil {
+// 		log.Error("Error selecting timelines private details")
+// 	}
+
+// 	return p, err
+// }
+
+func (db *db) isEventPrivate(id string) (bool, error) {
+	var b bool
+	sql := `
+		SELECT groups.private 
+		FROM events 
+		FULL JOIN timelines ON events.timeline_id = timelines.id 
+		FULL JOIN groups ON timelines.group_id = groups.id 
+		WHERE events.id = $1;`
+
+	err := db.db.QueryRow(sql, id).Scan(&b)
+	if err != nil {
+		log.Error("Error selecting timeline events private details")
+	}
+
+	return b, err
+}
+
+func (db *db) isTimelinePrivate(id string) (bool, error) {
+	var b bool
+	sql := `
+		SELECT groups.private
+		FROM timelines
+		FULL JOIN groups on timelines.group_id = groups.id
+		WHERE timelines.id = $1`
+
+	err := db.db.QueryRow(sql, id).Scan(&b)
+	if err != nil {
+		log.Error("Error selecting timelines private details")
+	}
+
+	return b, err
+}
+
+func (db *db) incrementGroupViews(id string) error {
+	ctx := context.Background()
+	tx, err := db.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	_, err = tx.ExecContext(ctx, `UPDATE groups SET views = views + 1 WHERE id = $1`, id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 	return nil
 }

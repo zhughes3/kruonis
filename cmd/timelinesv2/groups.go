@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var uuidRegex = regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$")
@@ -23,6 +25,7 @@ type (
 		UpdatedAt time.Time   `json:"updated_at,omitempty"`
 		Private   bool        `json:"private,omitempty"`
 		UserId    uint64      `json:"user_id,omitempty"`
+		Views     uint64 	  `json:"views,omitempty"`
 	}
 
 	UpdateGroupRequest struct {
@@ -47,6 +50,13 @@ func (s *server) ReadGroupHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errForbiddenRoute.Error(), http.StatusForbidden)
 		return
 	}
+
+	go func(id string) {
+		err := s.db.incrementGroupViews(id)
+		if err != nil {
+			log.Errorf("Error incrementing group views: %s", err)
+		}
+	}(id)
 
 	w.WriteHeader(http.StatusOK)
 	respJSON, _ := json.Marshal(group)
@@ -123,5 +133,10 @@ func (s *server) DeleteGroupHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) ListTrendingGroupsHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO this should be returned in popularity order
+	s.AdminListGroupsHandler(w, r)
+}
+
+func (s *server) ListPublicGroupsHandler(w http.ResponseWriter, r *http.Request) {
+	// TODO 
 	s.AdminListGroupsHandler(w, r)
 }

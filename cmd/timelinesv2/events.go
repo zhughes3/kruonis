@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Event - a struct representing a timeline event
 type Event struct {
 	Id          uint64    `json:"id,omitempty"`
 	TimelineId  uint64    `json:"timeline_id,omitempty"`
