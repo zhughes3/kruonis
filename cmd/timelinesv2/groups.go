@@ -58,6 +58,13 @@ func (s *server) ReadGroupHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}(id)
 
+	go func(id string) {
+		err := s.db.insertGroupView(id)
+		if err != nil {
+			log.Errorf("Error inserting group view: %s", err)
+		}
+	}(id)
+
 	w.WriteHeader(http.StatusOK)
 	respJSON, _ := json.Marshal(group)
 

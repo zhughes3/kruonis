@@ -633,3 +633,22 @@ func (db *db) incrementGroupViews(id string) error {
 	}
 	return nil
 }
+
+func (db *db) insertGroupView(id string) error {
+	sql := `INSERT INTO group_views (id) VALUES ($1);`
+	_, err := db.db.Query(sql, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (db *db) getTrendingGroups() error {
+	//TODO
+	sql := `select id, count(*) as views
+	from group_views
+	where time between date_trunc('day', time) and date_trunc('day', time) + '24 hours'
+	group by id
+	order by views desc`
+	return nil
+}
