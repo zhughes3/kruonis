@@ -1,5 +1,5 @@
 import React, {useContext, useEffect} from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { Switch, Route, useLocation } from "react-router-dom";
 
 import { Home } from './Containers/Home';
 import { Login } from "./Containers/Login";
@@ -16,34 +16,43 @@ import {UserStoreContext} from "./Store/UserStore";
 export const Router = observer( () => {
 
     const userStore = useContext(UserStoreContext)
+    let location = useLocation();
 
-    // When we open the website, check if a user is logged in. If they are, get the user data and put in the global store.
+    // When we open the website and on every page change, check if a user is logged in. If they are, get the user data and put in the global store. Otherwise remove the user data from the global store.
     useEffect(() => {
         checkIfLoggedIn().then( async (result: boolean) => {
-            if(!result) { return; }
-            const user = await getUser();
-            userStore.setUser(user);
+            // If the user is not logged in, set the user in the global state to undefined.
+            if(!result) {
+                userStore.setUser(undefined);
+                return;
+            }
+
+            // if the user is logged in, but no user is stored in the global state, store it.
+            if (!userStore.user) {
+                const user = await getUser();
+                userStore.setUser(user);
+            }
+        // If an error occurs, we set the user in the global state to undefined, but we don't attempt a logout.
         }).catch( (e: Error) => {
             console.log('Error: ', e)
+            userStore.setUser(undefined);
         });
-    }, []);
+    }, [location]);
 
     return (
-        <BrowserRouter>
-            <div>
+        <div>
 
-                <Navbar />
+            <Navbar />
 
-                <Switch>
-                    <Route path="/" exact component={Home} />
-                    <Route path="/login" component={Login} />
-                    <Route path="/register" component={Register} />
-                    <Route path="/timeline/:groupId" component={Timeline} />
-                    <PrivateRoute path="/dashboard" component={Dashboard} />
-                    <Route component={NoMatch} />
-                </Switch>
+            <Switch>
+                <Route path="/" exact component={Home} />
+                <Route path="/login" component={Login} />
+                <Route path="/register" component={Register} />
+                <Route path="/timeline/:groupId" component={Timeline} />
+                <PrivateRoute path="/dashboard" component={Dashboard} />
+                <Route component={NoMatch} />
+            </Switch>
 
-            </div>
-        </BrowserRouter>
+        </div>
     );
 });

@@ -55,7 +55,7 @@ export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 
 				<div className="mt-36">
 
-					{ user && !user.groups.length &&
+					{ user && !user.groups &&
 						<div className="columns is-gapless table-border-bottom table-item space-between">
 							<div>Looks like you don't have any timelines yet. <Link to={'/'}>Let's go make some!</Link></div>
 						</div>
