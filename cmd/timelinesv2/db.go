@@ -63,7 +63,7 @@ func (db *db) readGroups() ([]*Group, error) {
 
 	for rows.Next() {
 		var group Group
-		err := rows.Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid)
+		err := rows.Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid, &group.Views)
 		if err != nil {
 			log.Error("Error scanning timeline group")
 			return nil, err
@@ -328,7 +328,7 @@ func (db *db) readUserTimelineGroups(id uint64) ([]*Group, error) {
 	}
 	for rows.Next() {
 		var group Group
-		err := rows.Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid)
+		err := rows.Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid, &group.Views)
 		if err != nil {
 			log.Error("Error scanning group from db")
 			return nil, err
