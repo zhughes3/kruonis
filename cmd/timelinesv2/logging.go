@@ -17,7 +17,7 @@ func (s *server) loggingMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 		log.WithFields(log.Fields{
 			"Duration": time.Since(start).String(),
-			"Method": routeName,
+			"Method":   routeName,
 		}).Info("request info")
 		return
 	})

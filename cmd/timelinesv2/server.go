@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -63,6 +65,11 @@ func (s *server) Start() error {
 	}
 	defer conn.Close()
 
+	log.WithFields(log.Fields{
+		"Port": s.port,
+		"Host": s.host,
+	}).Info("API Server started")
+
 	return s.server.Serve(conn)
 }
 
@@ -70,7 +77,7 @@ func (s *server) prepareServer() (*http.Server, error) {
 	r := mux.NewRouter()
 
 	s.addHTTPRoutes(r)
-	
+
 	r.Use(s.loggingMiddleware, s.authMiddleware)
 	handler := s.cors.Handler(r)
 

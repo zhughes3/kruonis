@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -13,6 +14,7 @@ import (
 var (
 	errBadAccessToken  error           = errors.New("Invalid access token.")
 	errBadRefreshToken error           = errors.New("Invalid refresh token. Must login.")
+	errExpiredTokens   error           = errors.New("Expired tokens.")
 	errForbiddenRoute  error           = errors.New("Access forbidden.")
 	insecureEndpoints  map[string]bool = map[string]bool{
 		"/v1/Login":              true,
@@ -32,18 +34,18 @@ var (
 		"/v1/DeleteEventImage": true,
 	}
 	eventEndpoints map[string]bool = map[string]bool{
-		"/v1/ReadEvent": true,
+		"/v1/ReadEvent":   true,
 		"/v1/UpdateEvent": true,
 		"/v1/DeleteEvent": true,
 	}
-	timelineEndpoints map[string]bool = map[string]bool {
-		"/v1/ReadTimeline": true,
-		"/v1/UpdateTimeline": true,
-		"/v1/DeleteTimeline": true,
-		"/v1/ReadTimelineEvents": true,
+	timelineEndpoints map[string]bool = map[string]bool{
+		"/v1/ReadTimeline":        true,
+		"/v1/UpdateTimeline":      true,
+		"/v1/DeleteTimeline":      true,
+		"/v1/ReadTimelineEvents":  true,
 		"/v1/CreateTimelineEvent": true,
 	}
-	imageEndpoints map[string]bool = map[string]bool {
+	imageEndpoints map[string]bool = map[string]bool{
 		"/v1/CreateEventImage": true,
 		"/v1/UpdateEventImage": true,
 		"/v1/DeleteEventImage": true,
@@ -82,7 +84,7 @@ func (s *server) authMiddleware(next http.Handler) http.Handler {
 		// handle refresh token
 		if routeName == "/v1/Refresh" {
 			if len(refresh) == 0 {
-				http.Error(w, errBadAccessToken.Error(), http.StatusUnauthorized)
+				http.Error(w, errBadRefreshToken.Error(), http.StatusUnauthorized)
 				return
 			}
 			claims, err := s.validateRefreshToken(refresh)
@@ -99,7 +101,32 @@ func (s *server) authMiddleware(next http.Handler) http.Handler {
 		if len(access) > 0 {
 			// handle access token
 			claims, err := s.validateAccessToken(access)
+
 			if err != nil {
+				if strings.HasPrefix(err.Error(), "token is expired by") {
+					refreshClaims, err := s.validateRefreshToken(refresh)
+					if err != nil && strings.HasPrefix(err.Error(), "token is expired by") {
+						setLogoutCookies(w)
+						http.Error(w, errExpiredTokens.Error(), http.StatusBadRequest)
+						return
+					}
+					user, err := s.db.readUserByID(refreshClaims.UserID)
+					if err != nil {
+						http.Error(w, err.Error(), http.StatusBadRequest)
+						return
+					}
+					a, err := s.generateJWTAccessToken(user.Id, user.Email, user.IsAdmin)
+					if err != nil {
+						http.Error(w, err.Error(), http.StatusBadRequest)
+						return
+					}
+					http.SetCookie(w, &http.Cookie{
+						Name:     "access",
+						Value:    a,
+						HttpOnly: true,
+						Path:     "/",
+					})
+				}
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
@@ -154,6 +181,7 @@ func (s *server) validateAccessToken(encodedToken string) (*accessTokenClaims, e
 	tkn, err := jwt.ParseWithClaims(encodedToken, claims, func(token *jwt.Token) (interface{}, error) {
 		return s.jwtKey, nil
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +262,6 @@ func (s *server) generateJWTRefreshToken(id uint64) (string, error) {
 func (s *server) anonymousUserChecks(r *http.Request, routeName string) error {
 	// block access if group is private or if image endpoint
 	if _, ok := eventEndpoints[routeName]; ok {
-		
 		vars := mux.Vars(r)
 		id := vars["id"]
 		isPrivate, err := s.db.isEventPrivate(id)

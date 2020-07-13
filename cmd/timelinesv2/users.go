@@ -66,18 +66,7 @@ func (s *server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access",
-		HttpOnly: true,
-		Path:     "/",
-		MaxAge: -1,
-	})
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh",
-		HttpOnly: true,
-		Path:     "/",
-		MaxAge: -1,
-	})
+	setLogoutCookies(w)
 }
 
 func (s *server) SignupHandler(w http.ResponseWriter, r *http.Request) {
@@ -154,4 +143,19 @@ func (s *server) ReadMeHandler(w http.ResponseWriter, r *http.Request) {
 	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(respJSON)
+}
+
+func setLogoutCookies(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access",
+		HttpOnly: true,
+		Path:     "/",
+		MaxAge:   -1,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh",
+		HttpOnly: true,
+		Path:     "/",
+		MaxAge:   -1,
+	})
 }

@@ -26,8 +26,12 @@ type (
 	}
 
 	privateDetails struct {
-		UserID uint64
+		UserID    uint64
 		IsPrivate bool
+	}
+	trendingGroup struct {
+		ID    uint64
+		Views int
 	}
 )
 
@@ -551,13 +555,14 @@ func (db *db) deleteImageUrlFromEvent(id string) error {
 	db.db.QueryRow(sql, id)
 	return nil
 }
+
 // func (db *db) readEventPrivateDetails(id string) (privateDetails, error) {
 // 	var p privateDetails
 // 	sql := `
-// 		SELECT groups.user_id, groups.private 
-// 		FROM events 
-// 		FULL JOIN timelines ON events.timeline_id = timelines.id 
-// 		FULL JOIN groups ON timelines.group_id = groups.id 
+// 		SELECT groups.user_id, groups.private
+// 		FROM events
+// 		FULL JOIN timelines ON events.timeline_id = timelines.id
+// 		FULL JOIN groups ON timelines.group_id = groups.id
 // 		WHERE events.id = $1;`
 
 // 	err := db.db.QueryRow(sql, id).Scan(&p.UserID, &p.IsPrivate)
@@ -643,12 +648,31 @@ func (db *db) insertGroupView(id string) error {
 	return nil
 }
 
-func (db *db) getTrendingGroups() error {
-	//TODO
-	// sql := `select id, count(*) as views
-	// from group_views
-	// where time between date_trunc('day', time) and date_trunc('day', time) + '24 hours'
-	// group by id
-	// order by views desc`
-	return nil
+func (db *db) getTrendingGroups(interval string) ([]*trendingGroup, error) {
+	sql := fmt.Sprintf(
+		`select id, count(*) as views
+		from group_views
+		where time >= NOW() - '1 %s'::INTERVAL
+		group by id
+		order by views desc;`, interval)
+
+	rows, err := db.db.Query(sql)
+	if err != nil {
+		log.Error("Error reading user timeline groups from db")
+		return nil, err
+	}
+
+	defer rows.Close()
+	var groups []*trendingGroup
+	for rows.Next() {
+		tg := &trendingGroup{}
+		err := rows.Scan(&tg.ID, &tg.Views)
+		if err != nil {
+			log.Error("Error scanning trending group from db")
+			return nil, err
+		}
+		groups = append(groups, tg)
+	}
+
+	return groups, nil
 }

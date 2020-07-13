@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -12,8 +13,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	Hour  = "hour"
+	Day   = "day"
+	Week  = "week"
+	Month = "month"
+)
+
 var uuidRegex = regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$")
 var errInvalidGroupOperation = errors.New("Cannot update a group that you didn't create.")
+var errInvalidTrendingGroupsParam = errors.New(`Query param "interval" required with one of the following values: "hour", "day", "week", "month"`)
 
 type (
 	Group struct {
@@ -25,7 +34,7 @@ type (
 		UpdatedAt time.Time   `json:"updated_at,omitempty"`
 		Private   bool        `json:"private,omitempty"`
 		UserId    uint64      `json:"user_id,omitempty"`
-		Views     uint64 	  `json:"views,omitempty"`
+		Views     uint64      `json:"views,omitempty"`
 	}
 
 	UpdateGroupRequest struct {
@@ -139,11 +148,38 @@ func (s *server) DeleteGroupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) ListTrendingGroupsHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO this should be returned in popularity order
-	s.AdminListGroupsHandler(w, r)
+	vals := r.URL.Query()
+	if len(vals) == 0 {
+		http.Error(w, errInvalidTrendingGroupsParam.Error(), http.StatusBadRequest)
+		return
+	}
+	if intervalSlice, ok := vals["interval"]; ok {
+		if len(intervalSlice) != 1 {
+			http.Error(w, errInvalidTrendingGroupsParam.Error(), http.StatusBadRequest)
+			return
+		}
+
+		interval := strings.ToLower(intervalSlice[0])
+		switch interval {
+		case Hour, Day, Week, Month:
+			groups, err := s.db.getTrendingGroups(interval)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			respJSON, _ := json.Marshal(groups)
+
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(respJSON)
+		default:
+			http.Error(w, errInvalidTrendingGroupsParam.Error(), http.StatusBadRequest)
+			return
+		}
+	}
 }
 
 func (s *server) ListPublicGroupsHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO 
+	// TODO
 	s.AdminListGroupsHandler(w, r)
 }
