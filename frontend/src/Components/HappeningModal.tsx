@@ -2,6 +2,7 @@ import React, {FormEvent, useEffect, useState, ChangeEvent, useContext} from 're
 import {IHappening, IHappeningCreate} from '../Interfaces/IHappening';
 import moment from "moment";
 import {UserStoreContext} from "../Store/UserStore";
+import {Link} from "react-router-dom";
 
 interface IHappeningModalProps {
 	open: boolean;
@@ -98,13 +99,12 @@ export const HappeningModal: React.FunctionComponent<IHappeningModalProps> = (pr
 							</div>
 						</div>
 
-						{/* TODO an anonymous user should see a disabled upload field with the text: please create an account in order to upload images. */}
 						<div className="field">
 							<label className="label">Image</label>
-							{ !userStore.user && <p>Login to enable image uploads.</p> }
+							{ !userStore.user && <p className="mb1 has-text-primary"><Link to={'/login'}>Login</Link> to enable image uploads.</p> }
 							<div className="file has-name">
 								<label className="file-label">
-									<input className="file-input" type="file" name="resume" onChange={(e) => selectImage(e)} disabled={!!userStore.user} />
+									<input className="file-input" type="file" name="resume" onChange={(e) => selectImage(e)} disabled={ !userStore.user } />
 									<span className="file-cta">
 								<span className="file-icon">
 									<i className="fas fa-upload"/>
