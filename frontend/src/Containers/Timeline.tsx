@@ -11,6 +11,8 @@ import {ErrorCard} from "../Components/ErrorCard";
 import { IGroup } from '../Interfaces/IGroup';
 import {ITimeline} from "../Interfaces/ITimeline";
 import {HappeningModal} from "../Components/HappeningModal";
+import edit from "../Assets/Icons/edit-2.svg";
+import {TimelineTitles} from "../Components/TimelineTitles";
 
 // This happening is displayed if there are no happenings (events) on the timeline yet.
 const emptyTimelineHappening = {
@@ -201,7 +203,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
         setOpen(!open);
     };
 
-    if (loading) {
+    if (loading ) {
         return (
             <Center>
                 <LoadingCard text="Loading your timeline..." />
@@ -209,7 +211,7 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
         )
     }
 
-    if (fetchTimelineError) {
+    if (fetchTimelineError || !timelineGroup) {
         return (
             <Center>
                 <ErrorCard text="Something went wrong when we tried to fetch your timeline." />
@@ -239,23 +241,13 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
             <div className="timeline-position">
 
                 {!events.length &&
-                    <div className="notification is-link animated fadeIn fast" style={{maxWidth: 500, marginLeft: -340, marginBottom: 50}}>
+                    <div className="notification is-link animated fadeIn fast" style={{maxWidth: 500, marginLeft: -283, marginBottom: 50}}>
                         <div><b>Welcome to your new timeline</b></div>
                         <div>To start adding events, click the "+" button on the bottom left of your screen.</div>
                     </div>
                 }
 
-                <div className="timeline_title animated fadeInUp faster" style={{marginLeft: -315}}>{timelineGroup?.title}</div>
-
-                {/* The timeline titles. */}
-                <div className="columns">
-                    { timelineGroup?.timelines.map( (timeLine: ITimeline, index: number) => {
-                        if (index === 0) {
-                            return <div key={index} className="timeline_name animated fadeInUp faster" style={{marginLeft: -300, width: 320}}>{timeLine?.title}</div>
-                        }
-                        return <div key={index} className="timeline_name animated fadeInUp faster" style={{marginLeft: 160}}>{timeLine?.title}</div>
-                    })}
-                </div>
+                <TimelineTitles timelineGroup={timelineGroup} />
 
                 {/* The timeline events. */}
                 <div className="steps is-vertical is-centered is-small animated fadeInUp timeline-space">

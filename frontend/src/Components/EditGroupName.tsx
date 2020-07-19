@@ -2,17 +2,23 @@ import React, {FormEvent, useEffect, useState} from 'react';
 import {updateTimelineGroup} from "../Http/Requests";
 import {IGroup} from "../Interfaces/IGroup";
 import {ErrorCard} from "./ErrorCard";
+import {ITimeline} from "../Interfaces/ITimeline";
 
 interface IEditGroupNameProps {
 	open: boolean;
 	group: IGroup | undefined;
 	toggleModal: () => void;
-	updateTitle: () => void;
+	updateTitle: (group?: IGroup) => void;
 }
 
 export const EditGroupName: React.FunctionComponent<IEditGroupNameProps> = (props) => {
 
 	const [title, setTitle] = useState<string | undefined>(props.group ? props.group.title : '');
+	const [group, setGroup] = useState<IGroup>();
+
+	useEffect(() => {
+		setGroup(props.group);
+	}, [props.group])
 
 	useEffect(() => {
 		setTitle(props.group ? props.group.title : '');
@@ -23,14 +29,28 @@ export const EditGroupName: React.FunctionComponent<IEditGroupNameProps> = (prop
 
 		if (!props.group) { return; }
 
-		const group = JSON.parse(JSON.stringify(props.group));
-		group.title = title;
+		const updateGroup = JSON.parse(JSON.stringify(group));
+		updateGroup.title = title;
+		console.log(updateGroup);
 
-		await updateTimelineGroup(group);
+		await updateTimelineGroup(updateGroup);
 
-		props.updateTitle();
+		props.updateTitle(group);
 
 		closeModal();
+	}
+
+	const updateTimelineTitle = (title: string, id: string): void => {
+
+		const updateGroup = JSON.parse(JSON.stringify(group));
+
+		updateGroup?.timelines?.forEach( (tim: ITimeline) => {
+			if (tim.id === id) {
+				tim.title = title
+			}
+		});
+
+		setGroup(updateGroup);
 	}
 
 	const closeModal = () => {
@@ -62,6 +82,17 @@ export const EditGroupName: React.FunctionComponent<IEditGroupNameProps> = (prop
 								<input className="input" type="text" placeholder="Event name" value={title} onChange={ (e) => setTitle( e.target.value ) } />
 							</div>
 						</div>
+
+						{ group?.timelines.map( (timeLine: ITimeline, index: number) => {
+							return (
+								<div key={timeLine.id} className="field mt2">
+								<label className="label">Timeline #{index + 1}</label>
+								<div className="control">
+									<input className="input" type="text" placeholder="Event name" value={timeLine.title} onChange={ (e) => updateTimelineTitle(e.target.value, timeLine.id) } />
+								</div>
+							</div>
+							);
+						})}
 
 						<div className="field mt2">
 							<button className="button is-success" type="submit">Save changes</button>
