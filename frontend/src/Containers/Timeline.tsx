@@ -245,11 +245,13 @@ export const Timeline: React.FunctionComponent<IRouterProps> = (props) => {
                     </div>
                 }
 
+                <div className="timeline_title animated fadeInUp faster" style={{marginLeft: -315}}>{timelineGroup?.title}</div>
+
                 {/* The timeline titles. */}
                 <div className="columns">
                     { timelineGroup?.timelines.map( (timeLine: ITimeline, index: number) => {
                         if (index === 0) {
-                            return <div key={index} className="timeline_name animated fadeInUp faster" style={{marginLeft: -300}}>{timeLine?.title}</div>
+                            return <div key={index} className="timeline_name animated fadeInUp faster" style={{marginLeft: -300, width: 320}}>{timeLine?.title}</div>
                         }
                         return <div key={index} className="timeline_name animated fadeInUp faster" style={{marginLeft: 160}}>{timeLine?.title}</div>
                     })}

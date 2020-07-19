@@ -183,9 +183,18 @@ body {
     color: #000000;
 }
 
+.timeline_title {
+    margin-bottom: 110px;
+    font-size: 52px;
+    line-height: 23px;
+    /* or 44% */
+
+    letter-spacing: 0.025em;
+}
+
 .timeline_name {
     margin-bottom: 150px;
-    font-size: 52px;
+    font-size: 38px;
     line-height: 23px;
     /* or 44% */
 
