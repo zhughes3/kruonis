@@ -1,14 +1,17 @@
-import React, {FormEvent, useState} from 'react';
+import React, {FormEvent, useContext, useState} from 'react';
 import {IRouterProps} from "../Interfaces/IRouterProps";
-import {signUpAttempt} from "../Http/Requests";
+import {getUser, loginAttempt, signUpAttempt} from "../Http/Requests";
 import isEmail from 'validator/lib/isEmail';
 import { checkForEmptyPassword, checkForPasswordLength, checkIfPasswordsMatch, MIN_PASSWORD_LENGTH } from "../Utils/PasswordChecks";
+import {UserStoreContext} from "../Store/UserStore";
 
 let email = '';
 let password = '';
 let repeatPassword = '';
 
 export const Register: React.FunctionComponent<IRouterProps> = (props) => {
+
+	const userStore = useContext(UserStoreContext)
 
 	const [passwordMismatch, setPasswordMismatch] = useState<string>('');
 	const [validEmail, setValidEmail] = useState<string>('');
@@ -24,7 +27,14 @@ export const Register: React.FunctionComponent<IRouterProps> = (props) => {
 
 		if(result) {
 			resetRegisterData();
-			props.history.push('login');
+
+			await loginAttempt({email, password}).catch(e => console.log(e));
+
+			const user = await getUser();
+
+			userStore.setUser(user);
+
+			props.history.push('/dashboard');
 		}
 	}
 

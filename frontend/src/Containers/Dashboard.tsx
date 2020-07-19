@@ -6,14 +6,18 @@ import {IFullOrder} from "../Interfaces/IFullOrder";
 import {IGroup} from "../Interfaces/IGroup";
 import {Link} from "react-router-dom";
 
+import edit from '../Assets/Icons/edit-2.svg';
 import eye from "../Assets/Icons/eye.svg";
 import eyeOff from "../Assets/Icons/eye-off.svg";
 import trash from "../Assets/Icons/trash.svg";
 import {LogoutButton} from "../Components/LogoutButton";
+import {EditGroupName} from "../Components/EditGroupName";
 
 export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 
 	const [user, setUser] = useState<IFullOrder>();
+	const [selectedGroup, setSelectedGroup] = useState<IGroup>();
+	const [openEditGroupName, setOpenEditGroupName] = useState<boolean>(false);
 
 	useEffect(() => {
 		fetchMyData();
@@ -64,19 +68,24 @@ export const Dashboard: FunctionComponent<IRouterProps> = (props) => {
 					{ user && user.groups &&
 						user.groups.map( (group: IGroup) =>
 							<div key={group.id} className="columns is-gapless table-border-bottom table-item space-between">
+
 								<Link to={`timeline/${group.id}`}>{group.title}</Link>
+
 								<div>
+									<img className="cursor-pointer mr2" src={edit} alt="Private" title="Edit name" onClick={ () => { setSelectedGroup(group); setOpenEditGroupName(!openEditGroupName) } } />
 									{ group.private ?
-										<img className="cursor-pointer" src={eyeOff} alt="Private" onClick={() => togglePrivatePublic(group, false)}/>
+										<img className="cursor-pointer" src={eyeOff} alt="Private" title="Timeline is currently private" onClick={() => togglePrivatePublic(group, false)}/>
 										:
-										<img className="cursor-pointer" src={eye} alt="Public" onClick={() => togglePrivatePublic(group, true)}/>
+										<img className="cursor-pointer" src={eye} alt="Public" title="Timeline is currently public" onClick={() => togglePrivatePublic(group, true)}/>
 									}
-									<img className="ml2 cursor-pointer" src={trash} alt="Remove" onClick={ () => deleteGroup(group.id) } />
+									<img className="ml2 cursor-pointer" src={trash} alt="Remove" title="Remove timeline" onClick={ () => deleteGroup(group.id) } />
 								</div>
 							</div>
 						)
 					}
 				</div>
+
+				<EditGroupName open={openEditGroupName} group={selectedGroup} toggleModal={() => setOpenEditGroupName(!openEditGroupName)} updateTitle={ () => fetchMyData() }/>
 
 				<LogoutButton className="mt4" />
 			</div>
