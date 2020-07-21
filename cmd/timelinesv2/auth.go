@@ -12,10 +12,10 @@ import (
 )
 
 var (
-	errBadAccessToken  error           = errors.New("Invalid access token.")
-	errBadRefreshToken error           = errors.New("Invalid refresh token. Must login.")
-	errExpiredTokens   error           = errors.New("Expired tokens.")
-	errForbiddenRoute  error           = errors.New("Access forbidden.")
+	errBadAccessToken  error           = errors.New("Invalid access token")
+	errBadRefreshToken error           = errors.New("Invalid refresh token. Must login")
+	errExpiredTokens   error           = errors.New("Expired tokens")
+	errForbiddenRoute  error           = errors.New("Access forbidden")
 	insecureEndpoints  map[string]bool = map[string]bool{
 		"/v1/Login":              true,
 		"/v1/Signup":             true,
@@ -115,7 +115,7 @@ func (s *server) authMiddleware(next http.Handler) http.Handler {
 						http.Error(w, err.Error(), http.StatusBadRequest)
 						return
 					}
-					a, err := s.generateJWTAccessToken(user.Id, user.Email, user.IsAdmin)
+					a, err := s.generateJWTAccessToken(user.ID, user.Email, user.IsAdmin)
 					if err != nil {
 						http.Error(w, err.Error(), http.StatusBadRequest)
 						return

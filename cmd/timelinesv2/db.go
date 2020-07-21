@@ -67,13 +67,13 @@ func (db *db) readGroups() ([]*Group, error) {
 
 	for rows.Next() {
 		var group Group
-		err := rows.Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid, &group.Views)
+		err := rows.Scan(&group.ID, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserID, &group.UUID, &group.Views)
 		if err != nil {
 			log.Error("Error scanning timeline group")
 			return nil, err
 		}
 
-		if group.Timelines, err = db.readTimelinesWithGroupID(group.Id); err != nil {
+		if group.Timelines, err = db.readTimelinesWithGroupID(group.ID); err != nil {
 			return nil, err
 		}
 
@@ -95,7 +95,7 @@ func (db *db) readUsers() ([]*User, error) {
 
 	for rows.Next() {
 		var user User
-		err := rows.Scan(&user.Id, &user.Email, &user.CreatedAt, &user.UpdatedAt, &user.IsAdmin)
+		err := rows.Scan(&user.ID, &user.Email, &user.CreatedAt, &user.UpdatedAt, &user.IsAdmin)
 		if err != nil {
 			log.Error("Error scanning user")
 			return nil, err
@@ -118,17 +118,17 @@ func (db *db) readTimelines() ([]*Timeline, error) {
 
 	for rows.Next() {
 		var timeline Timeline
-		err := rows.Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
+		err := rows.Scan(&timeline.ID, &timeline.GroupID, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
 		if err != nil {
 			log.Error("Error scanning timeline")
 			return nil, err
 		}
 
-		if timeline.Tags, err = db.readTagsWithTimelineID(timeline.Id); err != nil {
+		if timeline.Tags, err = db.readTagsWithTimelineID(timeline.ID); err != nil {
 			return nil, err
 		}
 
-		if timeline.Events, err = db.readEvents(timeline.Id); err != nil {
+		if timeline.Events, err = db.readEvents(timeline.ID); err != nil {
 			return nil, err
 		}
 
@@ -145,13 +145,13 @@ func (db *db) readGroup(id string) (*Group, error) {
 	} else {
 		sql = `SELECT * from groups WHERE id = $1;`
 	}
-	err := db.db.QueryRow(sql, id).Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid, &group.Views)
+	err := db.db.QueryRow(sql, id).Scan(&group.ID, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserID, &group.UUID, &group.Views)
 	if err != nil {
 		log.Error("Error reading timeline group from db")
 		return nil, err
 	}
 
-	if group.Timelines, err = db.readTimelinesWithGroupID(group.Id); err != nil {
+	if group.Timelines, err = db.readTimelinesWithGroupID(group.ID); err != nil {
 		return nil, err
 	}
 	return &group, nil
@@ -160,17 +160,17 @@ func (db *db) readTimeline(id string) (*Timeline, error) {
 	var timeline Timeline
 	sql := `SELECT id, group_id, title, created_at, updated_at FROM timelines WHERE id = $1;`
 
-	err := db.db.QueryRow(sql, id).Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
+	err := db.db.QueryRow(sql, id).Scan(&timeline.ID, &timeline.GroupID, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
 	if err != nil {
 		log.Error("Error reading timeline from db")
 		return nil, err
 	}
 
-	if timeline.Tags, err = db.readTagsWithTimelineID(timeline.Id); err != nil {
+	if timeline.Tags, err = db.readTagsWithTimelineID(timeline.ID); err != nil {
 		return nil, err
 	}
 
-	if timeline.Events, err = db.readEvents(timeline.Id); err != nil {
+	if timeline.Events, err = db.readEvents(timeline.ID); err != nil {
 		return nil, err
 	}
 
@@ -183,13 +183,13 @@ func (db *db) readEvent(id string) (*Event, error) {
 			FROM events
 			WHERE id = $1
 			`
-	err := db.db.QueryRow(sql, id).Scan(&event.Id, &event.TimelineId, &event.Title, &event.Timestamp, &event.Description, &event.Content, &event.CreatedAt, &event.UpdatedAt, &imageURL)
+	err := db.db.QueryRow(sql, id).Scan(&event.ID, &event.TimelineID, &event.Title, &event.Timestamp, &event.Description, &event.Content, &event.CreatedAt, &event.UpdatedAt, &imageURL)
 	if err != nil {
 		log.Error("Error reading event from db")
 		return nil, err
 	}
 	if imageURL.Valid {
-		event.ImageUrl = imageURL.String
+		event.ImageURL = imageURL.String
 	}
 
 	return &event, nil
@@ -210,9 +210,9 @@ func (db *db) readTimelineEvents(id string) ([]*Event, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var event Event
-		rows.Scan(&event.Id, &event.TimelineId, &event.Title, &event.Timestamp, &event.Description, &event.Content, &event.CreatedAt, &event.UpdatedAt, &imageURL)
+		rows.Scan(&event.ID, &event.TimelineID, &event.Title, &event.Timestamp, &event.Description, &event.Content, &event.CreatedAt, &event.UpdatedAt, &imageURL)
 		if imageURL.Valid {
-			event.ImageUrl = imageURL.String
+			event.ImageURL = imageURL.String
 		}
 		events = append(events, &event)
 	}
@@ -231,16 +231,16 @@ func (db *db) readTimelinesWithGroupID(gid uint64) ([]*Timeline, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var timeline Timeline
-		err := rows.Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
+		err := rows.Scan(&timeline.ID, &timeline.GroupID, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
 		if err != nil {
 			log.Error("Error scanning timeline")
 			return nil, err
 		}
-		if timeline.Tags, err = db.readTagsWithTimelineID(timeline.Id); err != nil {
+		if timeline.Tags, err = db.readTagsWithTimelineID(timeline.ID); err != nil {
 			return nil, err
 		}
 
-		if timeline.Events, err = db.readEvents(timeline.Id); err != nil {
+		if timeline.Events, err = db.readEvents(timeline.ID); err != nil {
 			return nil, err
 		}
 
@@ -285,10 +285,10 @@ func (db *db) readEvents(tid uint64) ([]*Event, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var event Event
-		rows.Scan(&event.Id, &event.TimelineId, &event.Title, &event.Timestamp, &event.Description, &event.Content,
+		rows.Scan(&event.ID, &event.TimelineID, &event.Title, &event.Timestamp, &event.Description, &event.Content,
 			&event.CreatedAt, &event.UpdatedAt, &imageURL)
 		if imageURL.Valid {
-			event.ImageUrl = imageURL.String
+			event.ImageURL = imageURL.String
 		}
 		events = append(events, &event)
 	}
@@ -300,7 +300,7 @@ func (db *db) readUserByEmail(email string) (*userWithHash, error) {
 
 	sql := `SELECT id, email, hash, created_at, updated_at, is_admin from users WHERE email = $1;`
 
-	err := db.db.QueryRow(sql, email).Scan(&user.Id, &user.Email, &hash, &user.CreatedAt, &user.UpdatedAt, &user.IsAdmin)
+	err := db.db.QueryRow(sql, email).Scan(&user.ID, &user.Email, &hash, &user.CreatedAt, &user.UpdatedAt, &user.IsAdmin)
 	if err != nil {
 		log.Error("Error reading user from db")
 		return nil, err
@@ -314,7 +314,7 @@ func (db *db) readUserByEmail(email string) (*userWithHash, error) {
 func (db *db) readUserByID(id uint64) (*User, error) {
 	var user User
 	sql := `SELECT id, email, created_at, updated_at, is_admin from users WHERE id = $1;`
-	err := db.db.QueryRow(sql, id).Scan(&user.Id, &user.Email, &user.CreatedAt, &user.UpdatedAt, &user.IsAdmin)
+	err := db.db.QueryRow(sql, id).Scan(&user.ID, &user.Email, &user.CreatedAt, &user.UpdatedAt, &user.IsAdmin)
 	if err != nil {
 		log.Error("Error reading user from db")
 		return nil, err
@@ -332,12 +332,12 @@ func (db *db) readUserTimelineGroups(id uint64) ([]*Group, error) {
 	}
 	for rows.Next() {
 		var group Group
-		err := rows.Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid, &group.Views)
+		err := rows.Scan(&group.ID, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserID, &group.UUID, &group.Views)
 		if err != nil {
 			log.Error("Error scanning group from db")
 			return nil, err
 		}
-		if group.Timelines, err = db.readTimelinesWithGroupID(group.Id); err != nil {
+		if group.Timelines, err = db.readTimelinesWithGroupID(group.ID); err != nil {
 			return nil, err
 		}
 		groups = append(groups, &group)
@@ -345,7 +345,7 @@ func (db *db) readUserTimelineGroups(id uint64) ([]*Group, error) {
 
 	return groups, nil
 }
-func (db *db) readImageUrlFromEvent(id string) (string, error) {
+func (db *db) readImageURLFromEvent(id string) (string, error) {
 	var imageURL sql.NullString
 	sql := `SELECT image_url FROM events WHERE id = $1`
 	err := db.db.QueryRow(sql, id).Scan(&imageURL)
@@ -361,7 +361,7 @@ func (db *db) insertGroup(title string, userID uint64, isPrivate bool) (*Group, 
 	var group Group
 	uid := uuid.New()
 	sql := `INSERT INTO groups(title, private, user_id, uuid) VALUES($1, $2, $3, $4) RETURNING id, title, created_at, updated_at, private, user_id, uuid;`
-	err := db.db.QueryRow(sql, title, isPrivate, userID, uid.String()).Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid)
+	err := db.db.QueryRow(sql, title, isPrivate, userID, uid.String()).Scan(&group.ID, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserID, &group.UUID)
 	if err != nil {
 		log.Error("Error writing timeline group to DB")
 		return nil, err
@@ -377,7 +377,7 @@ func (db *db) insertTimeline(gid uint64, title string) (*Timeline, error) {
 			WHERE (SELECT COUNT(*) FROM timelines WHERE group_id = $1::integer) < 2
 			RETURNING id, group_id, title, created_at, updated_at;`
 
-	err := db.db.QueryRow(sql, gid, title).Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
+	err := db.db.QueryRow(sql, gid, title).Scan(&timeline.ID, &timeline.GroupID, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
 	if err != nil {
 		log.Error("Error writing timeline to DB")
 		return nil, err
@@ -391,13 +391,13 @@ func (db *db) insertTimelineEvent(tid, title, description, content string, times
 			VALUES($1, $2, $3, $4, $5) 
 			RETURNING id, timeline_id, title, timestamp, description, content, created_at, updated_at, image_url;
 			`
-	err := db.db.QueryRow(sql, tid, title, timestamp, description, content).Scan(&event.Id, &event.TimelineId, &event.Title, &event.Timestamp, &event.Description, &event.Content, &event.CreatedAt, &event.UpdatedAt, &imageURL)
+	err := db.db.QueryRow(sql, tid, title, timestamp, description, content).Scan(&event.ID, &event.TimelineID, &event.Title, &event.Timestamp, &event.Description, &event.Content, &event.CreatedAt, &event.UpdatedAt, &imageURL)
 	if err != nil {
 		log.Error("Error writing timeline event to DB")
 		return nil, err
 	}
 	if imageURL.Valid {
-		event.ImageUrl = imageURL.String
+		event.ImageURL = imageURL.String
 	}
 	return &event, nil
 }
@@ -415,7 +415,7 @@ func (db *db) insertTag(tag string, tid uint64) (uint64, error) {
 func (db *db) insertUser(username, hash string) (*User, error) {
 	var user User
 	sql := `INSERT INTO users(email, hash) VALUES($1, $2) RETURNING id, email, created_at, updated_at, is_admin;`
-	err := db.db.QueryRow(sql, username, hash).Scan(&user.Id, &user.Email, &user.CreatedAt, &user.UpdatedAt, &user.IsAdmin)
+	err := db.db.QueryRow(sql, username, hash).Scan(&user.ID, &user.Email, &user.CreatedAt, &user.UpdatedAt, &user.IsAdmin)
 	if err != nil {
 		log.Error("Error writing user to db")
 		return nil, err
@@ -435,14 +435,14 @@ func (db *db) updateEvent(id, title, description, content string, timestamp time
 	now := time.Now()
 
 	err := db.db.QueryRow(sql, title, timestamp, description, content, now, id).
-		Scan(&event.Id, &event.TimelineId, &event.Title, &event.Timestamp, &event.Description, &event.Content, &event.CreatedAt, &event.UpdatedAt, &imageURL)
+		Scan(&event.ID, &event.TimelineID, &event.Title, &event.Timestamp, &event.Description, &event.Content, &event.CreatedAt, &event.UpdatedAt, &imageURL)
 
 	if err != nil {
 		log.Error("Error updating timeline event db")
 		return nil, err
 	}
 	if imageURL.Valid {
-		event.ImageUrl = imageURL.String
+		event.ImageURL = imageURL.String
 	}
 
 	return &event, nil
@@ -455,13 +455,13 @@ func (db *db) updateGroup(id, title string, isPrivate bool) (*Group, error) {
 		RETURNING id, title, created_at, updated_at, private, user_id, uuid
 	`
 	err := db.db.QueryRow(sql, title, time.Now(), isPrivate, id).
-		Scan(&group.Id, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserId, &group.Uuid)
+		Scan(&group.ID, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserID, &group.UUID)
 	if err != nil {
 		log.Error("Error updating timeline group")
 		return nil, err
 	}
 
-	if group.Timelines, err = db.readTimelinesWithGroupID(group.Id); err != nil {
+	if group.Timelines, err = db.readTimelinesWithGroupID(group.ID); err != nil {
 		return nil, err
 	}
 
@@ -469,12 +469,12 @@ func (db *db) updateGroup(id, title string, isPrivate bool) (*Group, error) {
 }
 func (db *db) updateTimeline(id, title string, tags []string) (*Timeline, error) {
 	var timeline Timeline
-	timelineSql := `UPDATE timelines 
+	timelineSQL := `UPDATE timelines 
 		SET title = $1, updated_at = $2 WHERE id = $3 
 		RETURNING id, group_id, title, created_at, updated_at
 	`
-	err := db.db.QueryRow(timelineSql, title, time.Now(), id).
-		Scan(&timeline.Id, &timeline.GroupId, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
+	err := db.db.QueryRow(timelineSQL, title, time.Now(), id).
+		Scan(&timeline.ID, &timeline.GroupID, &timeline.Title, &timeline.CreatedAt, &timeline.UpdatedAt)
 	if err != nil {
 		log.Error("Error updating timeline")
 		return nil, err
@@ -487,11 +487,11 @@ func (db *db) updateTimeline(id, title string, tags []string) (*Timeline, error)
 			return &timeline, err
 		}
 		for _, tag := range tags {
-			db.insertTag(tag, timeline.Id)
+			db.insertTag(tag, timeline.ID)
 		}
 		timeline.Tags = tags
 	} else {
-		if timeline.Tags, err = db.readTagsWithTimelineID(timeline.Id); err != nil {
+		if timeline.Tags, err = db.readTagsWithTimelineID(timeline.ID); err != nil {
 			log.Error("Error reading tags during update timeline")
 			return &timeline, err
 		}
@@ -518,9 +518,9 @@ func (db *db) updateTimelineEventWithImageURL(id, url string) (string, error) {
 	}
 	if imageURL.Valid {
 		return imageURL.String, nil
-	} else {
-		return "", errImageWriteError
 	}
+
+	return "", errImageWriteError
 }
 
 func (db *db) deleteTimeline(id string) error {
@@ -550,7 +550,7 @@ func (db *db) deleteGroup(id string) error {
 	}
 	return nil
 }
-func (db *db) deleteImageUrlFromEvent(id string) error {
+func (db *db) deleteImageURLFromEvent(id string) error {
 	sql := `UPDATE events SET image_url = null WHERE id = $1`
 	db.db.QueryRow(sql, id)
 	return nil

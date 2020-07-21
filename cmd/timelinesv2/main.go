@@ -14,7 +14,7 @@ func main() {
 		panic(err)
 	}
 
-	serverConfig := getHttpServerConfig(config)
+	serverConfig := getHTTPServerConfig(config)
 	databaseConfig := getDatabaseConfig(config)
 	imageBlobStoreConfig := getImageBlobStoreConfig(config)
 

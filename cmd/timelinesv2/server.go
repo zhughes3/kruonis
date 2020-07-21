@@ -29,7 +29,7 @@ func newServer(cfg *httpServerConfig) *server {
 		port:   cfg.port,
 		jwtKey: []byte(cfg.jwtKey),
 		cors: cors.New(cors.Options{
-			AllowedOrigins: []string{cfg.frontendUrl},
+			AllowedOrigins: []string{cfg.frontendURL},
 			AllowedMethods: []string{
 				http.MethodHead,
 				http.MethodGet,

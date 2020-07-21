@@ -20,10 +20,10 @@ import (
 )
 
 var (
-	errUnknownContentType error = errors.New("Unknown content type.")
-	errInvalidUser        error = errors.New("Invalid user permissions for operation.")
+	errUnknownContentType error = errors.New("Unknown content type")
+	errInvalidUser        error = errors.New("Invalid user permissions for operation")
 
-	ContentTypeToFileExtension map[string]string = map[string]string{
+	contentTypeToFileExtension map[string]string = map[string]string{
 		"image/bmp":                "bmp",
 		"image/png":                "png",
 		"image/gif":                "gif",
@@ -36,8 +36,9 @@ var (
 )
 
 type (
+	// CreatePictureResponse - struct representing response after creating an image in azure blob store
 	CreatePictureResponse struct {
-		Url string
+		URL string
 	}
 
 	imageBlobStoreClient struct {
@@ -66,7 +67,7 @@ func newImageBlobStoreClient(cfg *imageBlobStoreConfig) *imageBlobStoreClient {
 }
 
 func (i *imageBlobStoreClient) SendCreateBlobRequest(ctx context.Context, data []byte, contentType string) (string, error) {
-	if ext, ok := ContentTypeToFileExtension[contentType]; ok {
+	if ext, ok := contentTypeToFileExtension[contentType]; ok {
 		filename := randomString() + "." + ext
 
 		url := i.containerURL.NewBlockBlobURL(filename)
@@ -122,9 +123,9 @@ func (s *server) CreateEventImageHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	resp := CreatePictureResponse{Url: s.imageClient.urlPrefix + newImageURL}
+	resp := CreatePictureResponse{URL: s.imageClient.urlPrefix + newImageURL}
 
-	s.db.updateTimelineEventWithImageURL(id, resp.Url)
+	s.db.updateTimelineEventWithImageURL(id, resp.URL)
 	respJSON, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -146,7 +147,7 @@ func (s *server) UpdateEventImageHandler(w http.ResponseWriter, r *http.Request)
 		http.Error(w, errInvalidUser.Error(), http.StatusUnauthorized)
 		return
 	}
-	imageURL, err := s.db.readImageUrlFromEvent(id)
+	imageURL, err := s.db.readImageURLFromEvent(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -159,7 +160,7 @@ func (s *server) UpdateEventImageHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	if resp.Response().StatusCode == http.StatusAccepted {
-		s.db.deleteImageUrlFromEvent(id)
+		s.db.deleteImageURLFromEvent(id)
 	}
 
 	contentType := r.Header.Get("content-type")
@@ -176,9 +177,9 @@ func (s *server) UpdateEventImageHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	cpr := CreatePictureResponse{Url: s.imageClient.urlPrefix + newImageURL}
+	cpr := CreatePictureResponse{URL: s.imageClient.urlPrefix + newImageURL}
 
-	s.db.updateTimelineEventWithImageURL(id, cpr.Url)
+	s.db.updateTimelineEventWithImageURL(id, cpr.URL)
 	respJSON, err := json.Marshal(cpr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -201,7 +202,7 @@ func (s *server) DeleteEventImageHandler(w http.ResponseWriter, r *http.Request)
 		http.Error(w, errInvalidUser.Error(), http.StatusUnauthorized)
 		return
 	}
-	imageURL, err := s.db.readImageUrlFromEvent(id)
+	imageURL, err := s.db.readImageURLFromEvent(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -214,7 +215,7 @@ func (s *server) DeleteEventImageHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	if resp.Response().StatusCode == http.StatusAccepted {
-		s.db.deleteImageUrlFromEvent(id)
+		s.db.deleteImageURLFromEvent(id)
 	}
 
 	w.WriteHeader(http.StatusAccepted)

@@ -7,7 +7,7 @@ type (
 		acctName, acctKey, containerName string
 	}
 	httpServerConfig struct {
-		host, port, jwtKey, frontendUrl string
+		host, port, jwtKey, frontendURL string
 	}
 	databaseConfig struct {
 		name, host, port, user, password string
@@ -36,12 +36,12 @@ func readConfig(filename string) (*viper.Viper, error) {
 	return v, nil
 }
 
-func getHttpServerConfig(cfg *viper.Viper) *httpServerConfig {
+func getHTTPServerConfig(cfg *viper.Viper) *httpServerConfig {
 	return &httpServerConfig{
 		host:        cfg.GetString("http_host"),
 		port:        cfg.GetString("http_port"),
 		jwtKey:      cfg.GetString("jwt_key"),
-		frontendUrl: cfg.GetString("frontend_url"),
+		frontendURL: cfg.GetString("frontend_url"),
 	}
 }
 

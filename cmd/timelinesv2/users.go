@@ -10,14 +10,15 @@ import (
 )
 
 type (
+	// User - struct representing user
 	User struct {
-		Id        uint64    `json:"id,omitempty"`
+		ID        uint64    `json:"id,omitempty"`
 		Email     string    `json:"email,omitempty"`
 		IsAdmin   bool      `json:"is_admin,omitempty"`
 		CreatedAt time.Time `json:"created_at,omitempty"`
 		UpdatedAt time.Time `json:"updated_at,omitempty"`
 	}
-	UserWithTimelines struct {
+	userWithTimelines struct {
 		User   User     `json:"user,omitempty"`
 		Groups []*Group `json:"groups,omitempty"`
 	}
@@ -26,7 +27,7 @@ type (
 		Password string `json:"password,omitempty"`
 	}
 	booleanResponse struct {
-		Response bool `json:"response, omitempty"`
+		Response bool `json:"response,omitempty"`
 	}
 )
 
@@ -50,7 +51,7 @@ func (s *server) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokens, err := s.generateTokenPair(user.Id, user.Email, user.IsAdmin)
+	tokens, err := s.generateTokenPair(user.ID, user.Email, user.IsAdmin)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access",
 		Value:    tokens["access"],
@@ -133,9 +134,9 @@ func (s *server) ReadMeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respJSON, _ := json.Marshal(UserWithTimelines{
+	respJSON, _ := json.Marshal(userWithTimelines{
 		User: User{
-			Id:      claims.UserID,
+			ID:      claims.UserID,
 			Email:   claims.Email,
 			IsAdmin: claims.IsAdmin,
 		},

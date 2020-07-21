@@ -10,15 +10,15 @@ import (
 
 // Event - a struct representing a timeline event
 type Event struct {
-	Id          uint64    `json:"id,omitempty"`
-	TimelineId  uint64    `json:"timeline_id,omitempty"`
+	ID          uint64    `json:"id,omitempty"`
+	TimelineID  uint64    `json:"timeline_id,omitempty"`
 	Title       string    `json:"title,omitempty"`
 	Timestamp   time.Time `json:"timestamp,omitempty"`
 	Description string    `json:"description,omitempty"`
 	Content     string    `json:"content,omitempty"`
 	CreatedAt   time.Time `json:"created_at,omitempty"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`
-	ImageUrl    string    `json:"image_url,omitempty"`
+	ImageURL    string    `json:"image_url,omitempty"`
 }
 
 func (s *server) ReadEventHandler(w http.ResponseWriter, r *http.Request) {

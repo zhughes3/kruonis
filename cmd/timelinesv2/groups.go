@@ -14,29 +14,35 @@ import (
 )
 
 const (
-	Hour  = "hour"
-	Day   = "day"
-	Week  = "week"
+	// Hour - Trending Timeline Group Filter
+	Hour = "hour"
+	// Day - Trending Timeline Group Filter
+	Day = "day"
+	// Week - Trending Timeline Group Filter
+	Week = "week"
+	// Month - Trending Timeline Group Filter
 	Month = "month"
 )
 
 var uuidRegex = regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$")
-var errInvalidGroupOperation = errors.New("Cannot update a group that you didn't create.")
+var errInvalidGroupOperation = errors.New("Cannot update a group that you didn't create")
 var errInvalidTrendingGroupsParam = errors.New(`Query param "interval" required with one of the following values: "hour", "day", "week", "month"`)
 
 type (
+	// Group - struct representing a timeline group
 	Group struct {
-		Id        uint64      `json:"id,omitempty"`
-		Uuid      string      `json:"uuid,omitempty"`
+		ID        uint64      `json:"id,omitempty"`
+		UUID      string      `json:"uuid,omitempty"`
 		Title     string      `json:"title,omitempty"`
 		Timelines []*Timeline `json:"timelines,omitempty"`
 		CreatedAt time.Time   `json:"created_at,omitempty"`
 		UpdatedAt time.Time   `json:"updated_at,omitempty"`
 		Private   bool        `json:"private,omitempty"`
-		UserId    uint64      `json:"user_id,omitempty"`
+		UserID    uint64      `json:"user_id,omitempty"`
 		Views     uint64      `json:"views,omitempty"`
 	}
 
+	// UpdateGroupRequest - struct representing update group request payload
 	UpdateGroupRequest struct {
 		Title   string `json:"title,omitempty"`
 		Private bool   `json:"private,omitempty"`
@@ -55,7 +61,7 @@ func (s *server) ReadGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if group.Private && group.UserId != claims.UserID {
+	if group.Private && group.UserID != claims.UserID {
 		http.Error(w, errForbiddenRoute.Error(), http.StatusForbidden)
 		return
 	}
@@ -93,7 +99,7 @@ func (s *server) UpdateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if claims.UserID != currentGroup.UserId && !claims.IsAdmin {
+	if claims.UserID != currentGroup.UserID && !claims.IsAdmin {
 		http.Error(w, errInvalidGroupOperation.Error(), http.StatusUnauthorized)
 		return
 	}
@@ -130,7 +136,7 @@ func (s *server) DeleteGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if claims.UserID != currentGroup.UserId && !claims.IsAdmin {
+	if claims.UserID != currentGroup.UserID && !claims.IsAdmin {
 		http.Error(w, errInvalidGroupOperation.Error(), http.StatusUnauthorized)
 		return
 	}
