@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -194,8 +195,8 @@ func (db *db) readEvent(id string) (*Event, error) {
 
 	return &event, nil
 }
-func (db *db) readTimelineEvents(id string) ([]*Event, error) {
-	var events []*Event
+func (db *db) readTimelineEvents(id string) ([]Event, error) {
+	var events []Event
 	var imageURL sql.NullString
 
 	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at, image_url
@@ -214,13 +215,13 @@ func (db *db) readTimelineEvents(id string) ([]*Event, error) {
 		if imageURL.Valid {
 			event.ImageURL = imageURL.String
 		}
-		events = append(events, &event)
+		events = append(events, event)
 	}
 
 	return events, nil
 }
-func (db *db) readTimelinesWithGroupID(gid uint64) ([]*Timeline, error) {
-	var timelines []*Timeline
+func (db *db) readTimelinesWithGroupID(gid uint64) ([]Timeline, error) {
+	var timelines []Timeline
 	sql := `SELECT id, group_id, title, created_at, updated_at from timelines WHERE group_id = $1;`
 	rows, err := db.db.Query(sql, gid)
 	if err != nil {
@@ -244,7 +245,7 @@ func (db *db) readTimelinesWithGroupID(gid uint64) ([]*Timeline, error) {
 			return nil, err
 		}
 
-		timelines = append(timelines, &timeline)
+		timelines = append(timelines, timeline)
 	}
 	return timelines, nil
 }
@@ -269,8 +270,8 @@ func (db *db) readTagsWithTimelineID(tid uint64) ([]string, error) {
 	}
 	return tags, nil
 }
-func (db *db) readEvents(tid uint64) ([]*Event, error) {
-	var events []*Event
+func (db *db) readEvents(tid uint64) ([]Event, error) {
+	var events []Event
 	var imageURL sql.NullString
 
 	sql := `SELECT id, timeline_id, title, timestamp, description, content, created_at, updated_at, image_url
@@ -290,7 +291,7 @@ func (db *db) readEvents(tid uint64) ([]*Event, error) {
 		if imageURL.Valid {
 			event.ImageURL = imageURL.String
 		}
-		events = append(events, &event)
+		events = append(events, event)
 	}
 	return events, nil
 }
@@ -447,23 +448,32 @@ func (db *db) updateEvent(id, title, description, content string, timestamp time
 
 	return &event, nil
 }
-func (db *db) updateGroup(id, title string, isPrivate bool) (*Group, error) {
+func (db *db) updateGroup(id string, g Group) (*Group, error) {
 	var group Group
 	sql := `UPDATE groups 
 		SET title = $1, updated_at = $2, private = $3 
 		WHERE id = $4 
 		RETURNING id, title, created_at, updated_at, private, user_id, uuid
 	`
-	err := db.db.QueryRow(sql, title, time.Now(), isPrivate, id).
+	err := db.db.QueryRow(sql, g.Title, time.Now(), g.Private, id).
 		Scan(&group.ID, &group.Title, &group.CreatedAt, &group.UpdatedAt, &group.Private, &group.UserID, &group.UUID)
 	if err != nil {
 		log.Error("Error updating timeline group")
 		return nil, err
 	}
 
-	if group.Timelines, err = db.readTimelinesWithGroupID(group.ID); err != nil {
-		return nil, err
+	for _, t := range g.Timelines {
+		timeline, err := db.updateTimeline(strconv.FormatUint(t.ID, 10), t.Title, nil)
+		if err != nil {
+			log.Error("Error updating timeline")
+			return nil, err
+		}
+		group.Timelines = append(group.Timelines, *timeline)
 	}
+
+	// if group.Timelines, err = db.readTimelinesWithGroupID(group.ID); err != nil {
+	// 	return nil, err
+	// }
 
 	return &group, nil
 }

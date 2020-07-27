@@ -31,15 +31,15 @@ var errInvalidTrendingGroupsParam = errors.New(`Query param "interval" required 
 type (
 	// Group - struct representing a timeline group
 	Group struct {
-		ID        uint64      `json:"id,omitempty"`
-		UUID      string      `json:"uuid,omitempty"`
-		Title     string      `json:"title,omitempty"`
-		Timelines []*Timeline `json:"timelines,omitempty"`
-		CreatedAt time.Time   `json:"created_at,omitempty"`
-		UpdatedAt time.Time   `json:"updated_at,omitempty"`
-		Private   bool        `json:"private,omitempty"`
-		UserID    uint64      `json:"user_id,omitempty"`
-		Views     uint64      `json:"views,omitempty"`
+		ID        uint64     `json:"id,omitempty"`
+		UUID      string     `json:"uuid,omitempty"`
+		Title     string     `json:"title,omitempty"`
+		Timelines []Timeline `json:"timelines,omitempty"`
+		CreatedAt time.Time  `json:"created_at,omitempty"`
+		UpdatedAt time.Time  `json:"updated_at,omitempty"`
+		Private   bool       `json:"private,omitempty"`
+		UserID    uint64     `json:"user_id,omitempty"`
+		Views     uint64     `json:"views,omitempty"`
 	}
 
 	// UpdateGroupRequest - struct representing update group request payload
@@ -104,14 +104,14 @@ func (s *server) UpdateGroupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body UpdateGroupRequest
-	err = json.NewDecoder(r.Body).Decode(&body)
+	var grp Group
+	err = json.NewDecoder(r.Body).Decode(&grp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	group, err := s.db.updateGroup(id, body.Title, body.Private)
+	group, err := s.db.updateGroup(id, grp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

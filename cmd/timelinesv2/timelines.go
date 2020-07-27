@@ -16,7 +16,7 @@ type (
 		GroupID   uint64    `json:"group_id,omitempty"`
 		Title     string    `json:"title,omitempty"`
 		Tags      []string  `json:"tags,omitempty"`
-		Events    []*Event  `json:"events,omitempty"`
+		Events    []Event   `json:"events,omitempty"`
 		CreatedAt time.Time `json:"created_at,omitempty"`
 		UpdatedAt time.Time `json:"updated_at,omitempty"`
 	}
@@ -35,8 +35,8 @@ type (
 	}
 
 	timelineIDWithEvents struct {
-		ID     string   `json:"id,omitempty"`
-		Events []*Event `json:"events,omitempty"`
+		ID     string  `json:"id,omitempty"`
+		Events []Event `json:"events,omitempty"`
 	}
 	updateTimelineRequest struct {
 		Title string   `json:"title,omitempty"`
