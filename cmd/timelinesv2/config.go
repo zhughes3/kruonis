@@ -12,6 +12,9 @@ type (
 	databaseConfig struct {
 		name, host, port, user, password string
 	}
+	featureFlagConfig struct {
+		azureBlob string
+	}
 )
 
 func readConfig(filename string) (*viper.Viper, error) {
@@ -52,6 +55,12 @@ func getDatabaseConfig(cfg *viper.Viper) *databaseConfig {
 		port:     cfg.GetString("db_port"),
 		user:     cfg.GetString("db_user"),
 		password: cfg.GetString("db_password"),
+	}
+}
+
+func getFeatureFlagConfig(cfg *viper.Viper) *featureFlagConfig {
+	return &featureFlagConfig{
+		azureBlob: cfg.GetString("feature_azure_blob"),
 	}
 }
 

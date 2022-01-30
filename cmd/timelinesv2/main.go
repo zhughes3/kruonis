@@ -16,11 +16,14 @@ func main() {
 
 	serverConfig := getHTTPServerConfig(config)
 	databaseConfig := getDatabaseConfig(config)
+	featureFlagConfig := getFeatureFlagConfig(config)
 	imageBlobStoreConfig := getImageBlobStoreConfig(config)
 
 	server := newServer(serverConfig)
 	server.WithDB(databaseConfig)
-	server.WithImageBlobStoreClient(imageBlobStoreConfig)
+	if featureFlagConfig.azureBlob == "enabled" {
+		server.WithImageBlobStoreClient(imageBlobStoreConfig)
+	}
 
 	server.Start()
 }

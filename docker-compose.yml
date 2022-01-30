@@ -1,26 +1,26 @@
 version: '3'
 services:
-  app:
-    container_name: timelines
-    build: cmd/timelinesv2/.
-    ports:
-      - 8080:8080
-    restart: on-failure
-    volumes:
-      - api:/usr/src/app/
-    depends_on:
-      - postgres
-    networks:
-      - fullstack
-    command: >
-      /bin/ash -c "
-      sleep 3;
-      ./timelines;
-      "
+#  app:
+#    container_name: timelines
+#    build: cmd/timelinesv2/.
+#    ports:
+#      - 8080:8080
+#    restart: on-failure
+#    volumes:
+#      - api:/Users/zhughe320/Desktop/local-data/app
+#    depends_on:
+#      - postgres
+#    networks:
+#      - fullstack
+#    command: >
+#      /bin/ash -c "
+#      sleep 3;
+#      ./timelines;
+#      "
 
   postgres:
     build:
-      context: cmd/timelines/.
+      context: cmd/timelinesv2/.
       dockerfile: Dockerfile-Postgres
     container_name: pgsql
     environment:
@@ -31,12 +31,12 @@ services:
     ports:
       - '5433:5432'
     volumes:
-      - database_postgres:/var/lib/postgresql/data
+      - database_postgres:/Users/zhughe320/Desktop/local-data/postgresql
     networks:
       - fullstack
 
 volumes:
-  api:
+#  api:
   database_postgres:
 
 networks:
